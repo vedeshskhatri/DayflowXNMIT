@@ -8,7 +8,6 @@ import { AppBackground } from './components/AppBackground';
 import { SignIn } from './pages/SignIn';
 import { SignUp } from './pages/SignUp';
 import { ResetPassword } from './pages/ResetPassword';
-import { LandingPage } from './pages/LandingPage';
 import { EmployeesPage } from './pages/EmployeesPage';
 import { AttendancePage } from './pages/AttendancePage';
 import { TimeOffPage } from './pages/TimeOffPage';
@@ -75,9 +74,6 @@ export default function App() {
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-            {/* Public Marketing Route */}
-            <Route path="/" element={<LandingPage />} />
-
             {/* Public Auth Routes */}
             <Route path="/login" element={<SignIn />} />
             <Route path="/signup" element={<SignUp />} />
@@ -85,6 +81,7 @@ export default function App() {
 
             {/* Protected App Routes */}
             <Route element={<ProtectedLayout />}>
+              <Route path="/" element={<EmployeesPage />} />
               <Route path="/employees" element={<EmployeesPage />} />
               <Route path="/employees/:id" element={<EmployeeDetailPage />} />
               <Route path="/profile" element={<ProfilePage />} />
