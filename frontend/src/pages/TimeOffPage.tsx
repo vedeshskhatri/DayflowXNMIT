@@ -231,91 +231,210 @@ function EmployeeView() {
 interface AllocationRow {
   employeeName: string;
   leaveType: string;
-  daysCount: number; // total requested days (approved)
+  allocatedDays: number | null;
+  usedDays: number;
+  remaining: number | null;
 }
 
 function AllocationTab({ requests }: { requests: TimeOffRequest[] }) {
-  // Derive per-employee, per-type used days from APPROVED requests in the table.
-  // Note: daysAllocated is not part of the /timeoff/requests payload — we show
-  // "Used Days (from approved requests)" clearly, without guessing allocated totals.
-  const rows = React.useMemo(() => {
-    const map = new Map<string, AllocationRow>();
-    requests
-      .filter((r) => r.status === 'APPROVED')
-      .forEach((r) => {
-        const name = `${r.employee?.firstName ?? ''} ${r.employee?.lastName ?? ''}`.trim();
-        const key = `${name}__${r.type.name}`;
-        const existing = map.get(key);
-        if (existing) {
-          existing.daysCount += r.daysCount;
-        } else {
-          map.set(key, { employeeName: name, leaveType: r.type.name, daysCount: r.daysCount });
-        }
-      });
-    return Array.from(map.values()).sort((a, b) =>
-      a.employeeName.localeCompare(b.employeeName)
-    );
-  }, [requests]);
+  // Fetch current admin's allocations
+  const { data: myBalances = [] } = useQuery<Balance[]>({
+    queryKey: ['timeoff', 'balances'],
+    queryFn: async () => (await api.get('/timeoff/balances')).data,
+  });
 
-  if (rows.length === 0) {
-    return (
-      <div className="card border border-blue-grey/20 p-10 text-center space-y-3">
-        <CheckCircle2 className="w-10 h-10 text-sage-light mx-auto" />
-        <p className="text-sm text-text-muted">No approved leave requests yet.</p>
-      </div>
-    );
-  }
+  // Map of leave type name -> standard allocated days (from balance config)
+  const allocMap = React.useMemo(() => {
+    const map: Record<string, number> = {};
+    myBalances.forEach((b) => {
+      map[b.name] = b.daysAllocated;
+    });
+    return map;
+  }, [myBalances]);
+
+  // Derive per-employee, per-type used days from requests
+  const rows = React.useMemo<AllocationRow[]>(() => {
+    const map = new Map<string, { employeeName: string; leaveType: string; usedDays: number }>();
+    
+    requests.forEach((r) => {
+      const name = `${r.employee?.firstName ?? ''} ${r.employee?.lastName ?? ''}`.trim() || 'Unknown Employee';
+      const key = `${name}__${r.type.name}`;
+      const existing = map.get(key);
+      const daysToAdd = r.status === 'APPROVED' ? r.daysCount : 0;
+      
+      if (existing) {
+        existing.usedDays += daysToAdd;
+      } else {
+        map.set(key, {
+          employeeName: name,
+          leaveType: r.type.name,
+          usedDays: daysToAdd,
+        });
+      }
+    });
+
+    return Array.from(map.values())
+      .map((item) => {
+        const allocated = allocMap[item.leaveType] ?? null;
+        const remaining = allocated !== null ? allocated - item.usedDays : null;
+        return {
+          employeeName: item.employeeName,
+          leaveType: item.leaveType,
+          allocatedDays: allocated,
+          usedDays: item.usedDays,
+          remaining,
+        };
+      })
+      .sort((a, b) => a.employeeName.localeCompare(b.employeeName));
+  }, [requests, allocMap]);
 
   return (
-    <div className="space-y-4">
-      <p className="text-xs text-text-muted bg-cream border border-blue-grey/20 rounded-xl px-4 py-2.5">
-        Showing approved leave days consumed per employee. Allocation totals are managed via the
-        seeder/admin panel — not shown here.
-      </p>
-
-      {/* Desktop table */}
-      <div className="hidden md:block card border border-blue-grey/20 p-0 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-cream/60 border-b border-blue-grey/20">
-            <tr>
-              {['Employee Name', 'Leave Type', 'Approved Days Used'].map((h) => (
-                <th
-                  key={h}
-                  className="text-left px-5 py-3.5 text-xs font-semibold text-text-muted uppercase tracking-wide"
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-blue-grey/10">
-            {rows.map((row, i) => (
-              <tr key={i} className="hover:bg-cream/30 transition-colors">
-                <td className="px-5 py-4 font-medium text-text-primary">{row.employeeName}</td>
-                <td className="px-5 py-4 text-text-muted">{row.leaveType}</td>
-                <td className="px-5 py-4">
-                  <span className="font-semibold text-text-primary">{row.daysCount}</span>
-                  <span className="text-text-muted ml-1">day{row.daysCount !== 1 ? 's' : ''}</span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Mobile cards */}
-      <div className="md:hidden space-y-3">
-        {rows.map((row, i) => (
-          <div key={i} className="card border border-blue-grey/20 py-4 space-y-1">
-            <p className="text-sm font-semibold text-text-primary">{row.employeeName}</p>
-            <p className="text-xs text-text-muted">{row.leaveType}</p>
-            <p className="text-xs text-text-muted">
-              Approved used:{' '}
-              <strong className="text-text-primary">{row.daysCount} day{row.daysCount !== 1 ? 's' : ''}</strong>
-            </p>
+    <div className="space-y-6">
+      {/* Logged-in admin's personal allocation */}
+      {myBalances.length > 0 && (
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-heading font-semibold text-text-primary">
+              Your Allocation
+            </h3>
+            <span className="text-xs text-text-muted">Personal leave quota</span>
           </div>
-        ))}
-      </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {myBalances.map((b) => (
+              <div key={b.typeId} className="card border border-blue-grey/20 py-4 px-5 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-text-muted uppercase tracking-wide">
+                    {b.name}
+                  </span>
+                  <span className="text-xs text-text-muted">
+                    {b.daysUsed} / {b.daysAllocated} used
+                  </span>
+                </div>
+                <p className="text-2xl font-heading font-bold text-text-primary">
+                  {b.remaining}{' '}
+                  <span className="text-xs font-normal text-text-muted">days remaining</span>
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Company Employee Allocations Table */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-heading font-semibold text-text-primary">
+            Employee Leave Usage &amp; Allocations
+          </h3>
+          <span className="text-xs text-text-muted">
+            Derived from approved leave records
+          </span>
+        </div>
+
+        {rows.length === 0 ? (
+          <div className="card border border-blue-grey/20 p-10 text-center space-y-3">
+            <CheckCircle2 className="w-10 h-10 text-sage-light mx-auto" />
+            <p className="text-sm text-text-muted">No employee leave records found.</p>
+          </div>
+        ) : (
+          <>
+            {/* Desktop table */}
+            <div className="hidden md:block card border border-blue-grey/20 p-0 overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-cream/60 border-b border-blue-grey/20">
+                  <tr>
+                    {['Employee Name', 'Leave Type', 'Allocated Days', 'Used Days', 'Remaining'].map(
+                      (h) => (
+                        <th
+                          key={h}
+                          className="text-left px-5 py-3.5 text-xs font-semibold text-text-muted uppercase tracking-wide"
+                        >
+                          {h}
+                        </th>
+                      )
+                    )}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-blue-grey/10">
+                  {rows.map((row, i) => (
+                    <tr key={i} className="hover:bg-cream/30 transition-colors">
+                      <td className="px-5 py-4 font-medium text-text-primary">
+                        {row.employeeName}
+                      </td>
+                      <td className="px-5 py-4 text-text-muted">{row.leaveType}</td>
+                      <td className="px-5 py-4 text-text-muted">
+                        {row.allocatedDays !== null ? `${row.allocatedDays} days` : '—'}
+                      </td>
+                      <td className="px-5 py-4 font-semibold text-text-primary">
+                        {row.usedDays}{' '}
+                        <span className="text-text-muted font-normal text-xs">
+                          day{row.usedDays !== 1 ? 's' : ''}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4 font-semibold">
+                        {row.remaining !== null ? (
+                          <span
+                            className={
+                              row.remaining <= 2 ? 'text-terracotta' : 'text-sage-deep'
+                            }
+                          >
+                            {row.remaining}{' '}
+                            <span className="text-text-muted font-normal text-xs">
+                              days left
+                            </span>
+                          </span>
+                        ) : (
+                          <span className="text-text-muted font-normal">—</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile cards */}
+            <div className="md:hidden space-y-3">
+              {rows.map((row, i) => (
+                <div key={i} className="card border border-blue-grey/20 py-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-semibold text-text-primary">
+                      {row.employeeName}
+                    </p>
+                    <span className="text-xs font-medium text-slate-brand bg-slate-brand/10 px-2.5 py-0.5 rounded-full">
+                      {row.leaveType}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 pt-2 border-t border-blue-grey/10 text-xs">
+                    <div>
+                      <p className="text-text-muted">Allocated</p>
+                      <p className="font-semibold text-text-primary">
+                        {row.allocatedDays !== null ? `${row.allocatedDays}d` : '—'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-text-muted">Used</p>
+                      <p className="font-semibold text-text-primary">{row.usedDays}d</p>
+                    </div>
+                    <div>
+                      <p className="text-text-muted">Remaining</p>
+                      <p
+                        className={`font-semibold ${
+                          row.remaining !== null && row.remaining <= 2
+                            ? 'text-terracotta'
+                            : 'text-sage-deep'
+                        }`}
+                      >
+                        {row.remaining !== null ? `${row.remaining}d` : '—'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </section>
     </div>
   );
 }

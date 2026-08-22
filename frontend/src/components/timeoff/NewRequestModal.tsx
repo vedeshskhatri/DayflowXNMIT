@@ -15,7 +15,7 @@ const schema = z
     endDate: z.string().min(1, 'Required'),
     remarks: z.string().optional(),
   })
-  .refine((data) => new Date(data.endDate) >= new Date(data.startDate), {
+  .refine((data) => !data.startDate || !data.endDate || data.endDate >= data.startDate, {
     message: 'End date must be on or after start date',
     path: ['endDate'],
   });
@@ -118,6 +118,7 @@ export function NewRequestModal({ isOpen, onClose }: NewRequestModalProps) {
       if (fileState.current) fd.append('attachment', fileState.current);
 
       const res = await api.post('/timeoff/requests', fd, {
+        withCredentials: true,
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return res.data;
@@ -125,7 +126,6 @@ export function NewRequestModal({ isOpen, onClose }: NewRequestModalProps) {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['timeoff-balances'] });
       qc.invalidateQueries({ queryKey: ['timeoff-my-requests'] });
-      // Also refresh the queries keyed under the same keys used in TimeOffPage
       qc.invalidateQueries({ queryKey: ['timeoff', 'balances'] });
       qc.invalidateQueries({ queryKey: ['timeoff', 'mine'] });
       onClose();
