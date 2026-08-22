@@ -43,8 +43,32 @@ router.get('/:id', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Employee not found' });
     }
 
+    const isSelf = requester.employeeId === id || requester.employeeId === employee.id;
+
     if (employee.companyId !== requester.companyId) {
       return res.status(403).json({ error: 'Access denied' });
+    }
+
+    // PRIVACY ENFORCEMENT: A regular employee viewing another employee's profile must only receive public/resume data
+    if (!isAdmin && !isSelf) {
+      return res.json({
+        id: employee.id,
+        loginId: employee.loginId,
+        companyId: employee.companyId,
+        firstName: employee.firstName,
+        lastName: employee.lastName,
+        email: employee.email,
+        role: employee.role,
+        department: employee.department,
+        jobTitle: employee.jobTitle,
+        profilePicUrl: employee.profilePicUrl,
+        bio: employee.bio,
+        jobLove: employee.jobLove,
+        interests: employee.interests,
+        skills: employee.skills,
+        certifications: employee.certifications,
+        // Strip out: phone, dateOfBirth, address, personalEmail, gender, maritalStatus, bankDetails, etc.
+      });
     }
 
     return res.json(employee);

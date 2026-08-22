@@ -166,8 +166,12 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
 
   const fullName = `${profile.firstName} ${profile.lastName}`;
   const initials = `${profile.firstName[0]}${profile.lastName[0]}`.toUpperCase();
-  const isOwnProfile = Boolean(user?.id === employeeId || editable);
-  const canViewPrivateInfo = isAdmin || isOwnProfile;
+  const isOwnProfile = Boolean(
+    editable ||
+    (user && profile && (user.id === profile.id || user.loginId === profile.loginId)) ||
+    (user && (user.id === employeeId || user.loginId === employeeId))
+  );
+  const canViewPrivateInfo = Boolean(isAdmin || isOwnProfile);
 
   const tabs: { id: Tab; label: string }[] = [
     { id: 'about', label: 'Resume / About' },
@@ -223,9 +227,11 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
               <p>
                 <span className="font-semibold text-text-primary">Email :-</span> {profile.email}
               </p>
-              <p>
-                <span className="font-semibold text-text-primary">Mobile :-</span> {profile.phone || '+91 98765 43210'}
-              </p>
+              {canViewPrivateInfo && profile.phone && (
+                <p>
+                  <span className="font-semibold text-text-primary">Mobile :-</span> {profile.phone}
+                </p>
+              )}
             </div>
           </div>
 
