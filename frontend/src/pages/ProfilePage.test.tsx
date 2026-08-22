@@ -107,8 +107,9 @@ describe('Employee Profile Module (Frontend)', () => {
     expect(screen.getByTestId('input-profilepic')).toBeInTheDocument();
   });
 
-  it('/profile does NOT render or fetch the Salary Info tab when the logged-in user is not Admin', async () => {
+  it('/profile allows employees to view their own salary info in read-only mode without save button', async () => {
     currentAuthUser.role = 'EMPLOYEE';
+    currentAuthUser.id = 'emp-123';
     vi.spyOn(api, 'get').mockResolvedValue({ data: mockProfileData });
 
     renderWithProviders(<EmployeeProfileView employeeId="emp-123" editable={true} />);
@@ -117,22 +118,47 @@ describe('Employee Profile Module (Frontend)', () => {
       expect(screen.getByTestId('profile-name')).toBeInTheDocument();
     });
 
-    // Salary Info tab button must NOT exist
-    expect(screen.queryByTestId('tab-button-salary')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('salary-info-tab')).not.toBeInTheDocument();
+    // Salary Info tab button MUST exist for own profile
+    const salaryTabBtn = screen.getByTestId('tab-button-salary');
+    expect(salaryTabBtn).toBeInTheDocument();
+
+    fireEvent.click(salaryTabBtn);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('salary-info-tab')).toBeInTheDocument();
+    });
+
+    // Save Structure button must NOT exist for non-admin employee
+    expect(screen.queryByText('Save Structure')).not.toBeInTheDocument();
   });
 
-  it('/profile renders and fetches the Salary Info tab when the logged-in user is Admin', async () => {
-    currentAuthUser.role = 'ADMIN';
+  it('/employees/:otherId does NOT render Salary Info tab when regular employee views another employee', async () => {
+    currentAuthUser.role = 'EMPLOYEE';
+    currentAuthUser.id = 'emp-123';
     vi.spyOn(api, 'get').mockResolvedValue({ data: mockProfileData });
 
-    renderWithProviders(<EmployeeProfileView employeeId="emp-123" editable={true} />);
+    renderWithProviders(<EmployeeProfileView employeeId="emp-other-456" editable={false} />);
 
     await waitFor(() => {
       expect(screen.getByTestId('profile-name')).toBeInTheDocument();
     });
 
-    // Salary Info tab button MUST exist
+    // Salary Info tab button must NOT exist for other employee's profile
+    expect(screen.queryByTestId('tab-button-salary')).not.toBeInTheDocument();
+  });
+
+  it('/profile or /employees/:id renders editable Salary Info tab with Save button for Admin', async () => {
+    currentAuthUser.role = 'ADMIN';
+    currentAuthUser.id = 'emp-admin-999';
+    vi.spyOn(api, 'get').mockResolvedValue({ data: mockProfileData });
+
+    renderWithProviders(<EmployeeProfileView employeeId="emp-123" editable={false} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('profile-name')).toBeInTheDocument();
+    });
+
+    // Salary Info tab button MUST exist for Admin
     const salaryTabBtn = screen.getByTestId('tab-button-salary');
     expect(salaryTabBtn).toBeInTheDocument();
 
@@ -141,7 +167,7 @@ describe('Employee Profile Module (Frontend)', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('salary-info-tab')).toBeInTheDocument();
-      expect(screen.getByText('Compensation & Salary Structure')).toBeInTheDocument();
+      expect(screen.getByText('Save Structure')).toBeInTheDocument();
     });
   });
 

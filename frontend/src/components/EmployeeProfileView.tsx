@@ -79,8 +79,8 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
     editable ||
     (user && (user.id === employeeId || user.loginId === employeeId))
   );
-  const canViewSalary = isAdmin;
-  const canViewPrivateInfo = isAdmin || isOwnProfile;
+  const canViewSalary = Boolean(isAdmin || isOwnProfile);
+  const canViewPrivateInfo = Boolean(isAdmin || isOwnProfile);
 
   const [activeTab, setActiveTab] = useState<Tab>('about');
   const [successMsg, setSuccessMsg] = useState('');
