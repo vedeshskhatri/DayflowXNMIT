@@ -81,13 +81,13 @@ export const TeamPulseBanner: React.FC<TeamPulseBannerProps> = ({
             </div>
             <div>
               <h2 className="text-base font-heading font-bold text-text-primary flex items-center space-x-2">
-                <span>Today's Company <span className="font-script text-slate-brand text-xl font-normal">Pulse</span></span>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-sage-light/40 text-text-primary border border-sage-deep/30 font-sans">
+                <span>Today's Company Pulse</span>
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-sage-light/40 text-text-primary border border-sage-deep/30">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#BDCFAA] mr-1.5 animate-pulse" />
                   Live Sync
                 </span>
               </h2>
-              <p className="text-xs text-text-muted font-sans">Real-time attendance & team momentum across departments</p>
+              <p className="text-xs text-text-muted">Real-time attendance & team momentum across departments</p>
             </div>
           </div>
 

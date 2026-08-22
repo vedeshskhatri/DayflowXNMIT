@@ -33,8 +33,8 @@ const config: Config = {
       },
 
       fontFamily: {
-        sans: ['"Mulish"', '"Muli"', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-        heading: ['"Josefin Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['"Inter"', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        heading: ['"Special Gothic Expanded One"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
 
       borderRadius: {

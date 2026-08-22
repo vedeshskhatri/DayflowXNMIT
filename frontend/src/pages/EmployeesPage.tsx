@@ -156,15 +156,12 @@ export const EmployeesPage: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-6 border-b border-blue-grey/20">
         <div>
           <h1 className="text-3xl font-heading font-bold text-text-primary flex items-center space-x-3">
-            <span>
-              <span className="font-script text-slate-brand text-3xl font-normal mr-1.5">Our</span>
-              Employee Directory
-            </span>
-            <span className="text-sm font-normal text-text-muted bg-white px-2.5 py-0.5 rounded-full border border-blue-grey/20 shadow-sm font-sans">
+            <span>Employee Directory</span>
+            <span className="text-sm font-normal text-text-muted bg-white px-2.5 py-0.5 rounded-full border border-blue-grey/20 shadow-sm">
               {employees?.length || 0} total
             </span>
           </h1>
-          <p className="text-sm text-text-muted mt-1 font-sans">
+          <p className="text-sm text-text-muted mt-1">
             Real-time team presence, interactive profiles, and attendance tracking.
           </p>
         </div>
