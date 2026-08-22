@@ -4,6 +4,8 @@ import express from 'express';
 import authRoutes from './modules/auth/auth.routes';
 import employeesRoutes from './modules/employees/employees.routes';
 import attendanceRoutes from './modules/attendance/attendance.routes';
+import payrollRoutes from './modules/payroll/payroll.routes';
+import timeoffRoutes from './modules/timeoff/timeoff.routes';
 import { requestId } from './middleware/requestId.middleware';
 
 const app = express();
@@ -54,6 +56,8 @@ app.get('/health', (_req, res) => {
 app.use('/auth', authRoutes);
 app.use('/employees', employeesRoutes);
 app.use('/attendance', attendanceRoutes);
+app.use('/employees', payrollRoutes);
+app.use('/timeoff', timeoffRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: `No route for ${req.method} ${req.path}` });
