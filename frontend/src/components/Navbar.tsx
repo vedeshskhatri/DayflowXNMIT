@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Users, Clock, CalendarDays, LogOut, Menu, X, ShieldCheck, User, ChevronDown } from 'lucide-react';
 import { AttendanceControl } from './AttendanceControl';
+import { DayflowLogo } from './DayflowLogo';
 
 export const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
@@ -66,9 +67,7 @@ export const Navbar: React.FC = () => {
           {/* Left: Brand + Nav items */}
           <div className="flex items-center space-x-8">
             <Link to="/" className="flex items-center space-x-3 group">
-              <div className="w-10 h-10 rounded-xl bg-slate-brand flex items-center justify-center text-white font-heading font-bold text-xl shadow-md transition-transform group-hover:scale-105">
-                D
-              </div>
+              <DayflowLogo size="md" />
               <div className="flex flex-col">
                 <span className="font-heading font-bold text-xl tracking-tight text-text-primary">
                   Dayflow

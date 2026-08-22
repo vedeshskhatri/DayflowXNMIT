@@ -4,6 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './lib/api';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Navbar } from './components/Navbar';
+import { AppBackground } from './components/AppBackground';
 import { SignIn } from './pages/SignIn';
 import { SignUp } from './pages/SignUp';
 import { ResetPassword } from './pages/ResetPassword';
@@ -20,8 +21,9 @@ const ProtectedLayout: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-cream flex items-center justify-center">
-        <div className="flex flex-col items-center space-y-3">
+      <div className="min-h-screen bg-cream flex items-center justify-center relative overflow-hidden">
+        <AppBackground />
+        <div className="flex flex-col items-center space-y-3 relative z-10">
           <div className="w-8 h-8 border-3 border-slate-brand/20 border-t-slate-brand rounded-full animate-spin" />
           <span className="text-sm text-text-muted font-medium">Loading Dayflow...</span>
         </div>
@@ -38,9 +40,10 @@ const ProtectedLayout: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-cream flex flex-col">
+    <div className="min-h-screen bg-cream flex flex-col relative overflow-x-hidden">
+      <AppBackground />
       <Navbar />
-      <main className="flex-1">
+      <main className="flex-1 relative z-10">
         <Outlet />
       </main>
     </div>
