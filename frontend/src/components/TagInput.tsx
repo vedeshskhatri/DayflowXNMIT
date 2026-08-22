@@ -43,15 +43,15 @@ export const TagInput: React.FC<TagInputProps> = ({
 
   return (
     <div className="flex flex-col gap-1.5" data-testid={`tag-input-${label.toLowerCase()}`}>
-      <label className="text-sm font-medium text-text-primary">
+      <label className="label mb-0">
         {label}
       </label>
 
       <div
-        className={`flex flex-wrap gap-2 min-h-[44px] p-2 bg-white border rounded-xl transition-colors ${
+        className={`flex flex-wrap gap-2 min-h-[44px] p-2.5 bg-white border rounded-2xl transition-all ${
           disabled
-            ? 'border-blue-grey/30 bg-cream cursor-default'
-            : 'border-blue-grey focus-within:border-slate-brand'
+            ? 'border-navy/10 bg-cream-light cursor-default'
+            : 'border-navy/15 focus-within:border-navy focus-within:ring-2 focus-within:ring-navy/10'
         }`}
         onClick={() => !disabled && inputRef.current?.focus()}
       >
@@ -59,7 +59,7 @@ export const TagInput: React.FC<TagInputProps> = ({
           <span
             key={`${tag}-${i}`}
             data-testid={`tag-chip-${tag}`}
-            className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-sage-light/40 text-text-primary border border-sage-light"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-copper-muted text-copper-dark border border-copper/30 font-mono shadow-sm"
           >
             <span>{tag}</span>
             {!disabled && (
@@ -70,7 +70,7 @@ export const TagInput: React.FC<TagInputProps> = ({
                   e.stopPropagation();
                   removeTag(i);
                 }}
-                className="text-sage-deep hover:text-terracotta leading-none font-bold"
+                className="text-copper hover:text-terracotta leading-none font-bold text-sm ml-0.5 cursor-pointer"
                 aria-label={`Remove ${tag}`}
               >
                 ×
@@ -89,7 +89,7 @@ export const TagInput: React.FC<TagInputProps> = ({
             onKeyDown={handleKeyDown}
             onBlur={() => inputValue.trim() && addTag(inputValue)}
             placeholder={value.length === 0 ? placeholder : ''}
-            className="flex-1 min-w-[140px] text-sm outline-none bg-transparent text-text-primary placeholder:text-text-muted"
+            className="flex-1 min-w-[140px] text-xs outline-none bg-transparent text-text-primary placeholder:text-text-muted/60"
           />
         )}
       </div>

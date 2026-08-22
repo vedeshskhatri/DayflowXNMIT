@@ -112,8 +112,8 @@ function EmployeeSalaryView({ employeeId }: { employeeId: string }) {
 
   if (isLoading) {
     return (
-      <div className="card border border-blue-grey/20 p-12 text-center space-y-3">
-        <Loader2 className="w-8 h-8 animate-spin text-slate-brand mx-auto" />
+      <div className="card bg-white border border-navy/10 p-12 text-center space-y-3 shadow-card rounded-3xl">
+        <Loader2 className="w-8 h-8 animate-spin text-navy mx-auto" />
         <p className="text-sm text-text-muted">Loading your salary structure…</p>
       </div>
     );
@@ -121,9 +121,9 @@ function EmployeeSalaryView({ employeeId }: { employeeId: string }) {
 
   if (is404 || isError || !salary) {
     return (
-      <div className="card border border-blue-grey/20 p-12 text-center space-y-3">
-        <DollarSign className="w-12 h-12 text-blue-grey mx-auto" />
-        <h3 className="text-lg font-heading font-semibold text-text-primary">
+      <div className="card bg-white border border-navy/10 p-12 text-center space-y-3 shadow-card rounded-3xl">
+        <DollarSign className="w-12 h-12 text-navy/30 mx-auto" />
+        <h3 className="text-lg font-heading font-bold text-navy-dark">
           No salary structure has been set up yet
         </h3>
         <p className="text-sm text-text-muted max-w-md mx-auto">
@@ -139,90 +139,90 @@ function EmployeeSalaryView({ employeeId }: { employeeId: string }) {
   return (
     <div className="space-y-6">
       {/* Top Wage Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="card border border-blue-grey/20 space-y-1">
-          <span className="text-xs text-text-muted font-medium uppercase tracking-wide">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="card bg-white border border-navy/10 p-6 rounded-3xl shadow-card space-y-1">
+          <span className="text-xs text-text-muted font-bold uppercase tracking-wider font-mono">
             Monthly Base Wage
           </span>
-          <p className="text-2xl font-heading font-bold text-text-primary">
+          <p className="text-2xl font-heading font-bold text-navy-dark font-mono">
             {formatINR(salary.monthlyWage)}
           </p>
         </div>
 
-        <div className="card border border-blue-grey/20 space-y-1">
-          <span className="text-xs text-text-muted font-medium uppercase tracking-wide">
+        <div className="card bg-white border border-navy/10 p-6 rounded-3xl shadow-card space-y-1">
+          <span className="text-xs text-copper font-bold uppercase tracking-wider font-mono">
             Annual CTC (Yearly)
           </span>
-          <p className="text-2xl font-heading font-bold text-slate-brand">
+          <p className="text-2xl font-heading font-bold text-copper font-mono">
             {formatINR(yearlyWage)}
           </p>
         </div>
 
-        <div className="card border border-blue-grey/20 space-y-1">
-          <span className="text-xs text-text-muted font-medium uppercase tracking-wide">
+        <div className="card bg-white border border-navy/10 p-6 rounded-3xl shadow-card space-y-1">
+          <span className="text-xs text-text-muted font-bold uppercase tracking-wider font-mono">
             Working Days / Week
           </span>
-          <p className="text-2xl font-heading font-bold text-text-primary">
+          <p className="text-2xl font-heading font-bold text-navy-dark font-mono">
             {salary.workingDaysPerWeek}{' '}
             <span className="text-sm font-normal text-text-muted">days</span>
           </p>
         </div>
 
-        <div className="card border border-blue-grey/20 space-y-1">
-          <span className="text-xs text-text-muted font-medium uppercase tracking-wide">
+        <div className="card bg-white border border-navy/10 p-6 rounded-3xl shadow-card space-y-1">
+          <span className="text-xs text-text-muted font-bold uppercase tracking-wider font-mono">
             PF &amp; Tax Deductions
           </span>
-          <p className="text-sm font-semibold text-text-primary pt-1">
+          <p className="text-sm font-bold text-navy-dark pt-1 font-mono">
             PF: {salary.pfPercent}% &bull; PT: {formatINR(salary.professionalTax)}
           </p>
         </div>
       </div>
 
       {/* Salary Components Breakdown Table */}
-      <div className="card border border-blue-grey/20 p-0 overflow-hidden">
-        <div className="px-6 py-4 border-b border-blue-grey/20 bg-cream/30">
-          <h2 className="text-base font-heading font-semibold text-text-primary">
+      <div className="card bg-white border border-navy/10 p-0 overflow-hidden shadow-elevated rounded-3xl">
+        <div className="px-8 py-5 border-b border-navy/10 bg-cream/50">
+          <h2 className="text-base font-heading font-bold text-navy-dark">
             Salary Components Breakdown
           </h2>
-          <p className="text-xs text-text-muted mt-0.5">
+          <p className="text-xs text-text-muted mt-0.5 font-medium">
             Detailed breakdown of earnings and component values
           </p>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-cream/60 border-b border-blue-grey/20 text-xs text-text-muted uppercase tracking-wide">
+            <thead className="bg-cream/80 border-b border-navy/10 text-xs text-navy-dark uppercase tracking-wider font-mono font-bold">
               <tr>
-                <th className="text-left px-6 py-3.5 font-semibold">Component Name</th>
-                <th className="text-left px-6 py-3.5 font-semibold">Calculation Type</th>
-                <th className="text-left px-6 py-3.5 font-semibold">Configured Value</th>
-                <th className="text-right px-6 py-3.5 font-semibold">Computed Monthly Amount</th>
+                <th className="text-left px-8 py-4">Component Name</th>
+                <th className="text-left px-8 py-4">Calculation Type</th>
+                <th className="text-left px-8 py-4">Configured Value</th>
+                <th className="text-right px-8 py-4">Computed Monthly Amount</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-blue-grey/10">
+            <tbody className="divide-y divide-navy/10">
               {salary.components.map((c, i) => (
                 <tr key={c.id || i} className="hover:bg-cream/30 transition-colors">
-                  <td className="px-6 py-4 font-medium text-text-primary">{c.name}</td>
-                  <td className="px-6 py-4 text-text-muted">
-                    <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-grey/20 text-slate-brand">
+                  <td className="px-8 py-4 font-bold text-navy-dark">{c.name}</td>
+                  <td className="px-8 py-4 text-text-muted">
+                    <span className="inline-block px-3 py-1 rounded-full text-xs font-bold font-mono bg-cream text-navy border border-navy/10">
                       {c.valueType}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-text-muted font-mono text-xs">
+                  <td className="px-8 py-4 text-text-muted font-mono text-xs font-bold">
                     {c.valueType === 'PERCENTAGE' ? `${c.value}% of wage` : formatINR(c.value)}
                   </td>
-                  <td className="px-6 py-4 text-right font-semibold text-text-primary">
+                  <td className="px-8 py-4 text-right font-bold text-navy-dark font-mono">
                     {formatINR(c.computedAmount)}
                   </td>
                 </tr>
               ))}
             </tbody>
-            <tfoot className="bg-cream/40 border-t border-blue-grey/20">
+            <tfoot className="bg-cream/50 border-t border-navy/10 font-mono">
               <tr>
-                <td colSpan={3} className="px-6 py-4 font-heading font-semibold text-text-primary">
+                <td colSpan={3} className="px-8 py-4 font-heading font-bold text-navy-dark">
                   Total Allocated Monthly Components
                 </td>
-                <td className="px-6 py-4 text-right font-heading font-bold text-slate-brand text-base">
+                <td className="px-8 py-4 text-right font-heading font-bold text-navy text-base">
                   {formatINR(
                     salary.components.reduce((sum, c) => sum + (c.computedAmount || 0), 0)
                   )}
@@ -243,7 +243,6 @@ function AdminSalaryView({ employeeId }: { employeeId: string }) {
   const [serverError, setServerError] = useState<string | null>(null);
   const [liveToast, setLiveToast] = useState<string | null>(null);
 
-  // Payable Days calculation state (default to current month)
   const today = new Date();
   const defaultFrom = new Date(today.getFullYear(), today.getMonth(), 1)
     .toISOString()
@@ -253,7 +252,6 @@ function AdminSalaryView({ employeeId }: { employeeId: string }) {
   const [calcFrom, setCalcFrom] = useState(defaultFrom);
   const [calcTo, setCalcTo] = useState(defaultTo);
 
-  // Fetch current salary data for target employee
   const {
     data: existingSalary,
     isLoading: salaryLoading,
@@ -266,7 +264,6 @@ function AdminSalaryView({ employeeId }: { employeeId: string }) {
     retry: false,
   });
 
-  // React Hook Form
   const {
     register,
     control,
@@ -293,7 +290,6 @@ function AdminSalaryView({ employeeId }: { employeeId: string }) {
     name: 'components',
   });
 
-  // Populate form when existing salary is loaded
   useEffect(() => {
     if (existingSalary) {
       reset({
@@ -316,7 +312,6 @@ function AdminSalaryView({ employeeId }: { employeeId: string }) {
   const watchedMonthlyWage = watch('monthlyWage') || 0;
   const watchedComponents = watch('components') || [];
 
-  // Live computed component totals
   const totalComputed = watchedComponents.reduce((sum, c) => {
     if (!c) return sum;
     const val = Number(c.value) || 0;
@@ -329,7 +324,6 @@ function AdminSalaryView({ employeeId }: { employeeId: string }) {
   const isExceeding = watchedMonthlyWage > 0 && totalComputed > watchedMonthlyWage;
   const yearlyWagePreview = watchedMonthlyWage > 0 ? watchedMonthlyWage * 12 : 0;
 
-  // Save Mutation
   const mutation = useMutation({
     mutationFn: async (values: SalaryFormValues) => {
       const res = await api.patch(`/employees/${employeeId}/salary`, values);
@@ -356,7 +350,6 @@ function AdminSalaryView({ employeeId }: { employeeId: string }) {
     mutation.mutate(values);
   };
 
-  // Payable Days Query (Manual trigger)
   const {
     data: payableDaysResult,
     isLoading: payableDaysLoading,
@@ -380,8 +373,8 @@ function AdminSalaryView({ employeeId }: { employeeId: string }) {
 
   if (salaryLoading) {
     return (
-      <div className="card border border-blue-grey/20 p-12 text-center space-y-3">
-        <Loader2 className="w-8 h-8 animate-spin text-slate-brand mx-auto" />
+      <div className="card bg-white border border-navy/10 p-12 text-center space-y-3 shadow-card rounded-3xl">
+        <Loader2 className="w-8 h-8 animate-spin text-navy mx-auto" />
         <p className="text-sm text-text-muted">Loading employee salary configuration…</p>
       </div>
     );
@@ -391,26 +384,26 @@ function AdminSalaryView({ employeeId }: { employeeId: string }) {
     <div className="space-y-8">
       {/* Toast Notification */}
       {liveToast && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center space-x-3 bg-slate-brand text-white text-sm px-5 py-3.5 rounded-2xl shadow-xl animate-fadeIn">
-          <CheckCircle2 className="w-4 h-4 flex-shrink-0 text-sage-light" />
-          <span>{liveToast}</span>
+        <div className="fixed bottom-6 right-6 z-50 flex items-center space-x-3 bg-navy text-white text-sm px-6 py-4 rounded-2xl shadow-xl animate-fadeIn border border-copper/30">
+          <CheckCircle2 className="w-4 h-4 flex-shrink-0 text-copper-bright" />
+          <span className="font-bold">{liveToast}</span>
         </div>
       )}
 
       {/* Main Salary Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <div className="card border border-blue-grey/20 space-y-6">
-          <div className="border-b border-blue-grey/20 pb-4 flex items-center justify-between">
+        <div className="card bg-white border border-navy/10 p-8 rounded-3xl shadow-elevated space-y-6">
+          <div className="border-b border-navy/10 pb-4 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-heading font-semibold text-text-primary">
+              <h2 className="text-lg font-heading font-bold text-navy-dark">
                 Salary &amp; Wage Configuration
               </h2>
-              <p className="text-xs text-text-muted mt-0.5">
+              <p className="text-xs text-text-muted mt-0.5 font-medium">
                 Configure base wages, working schedule, and statutory deductions.
               </p>
             </div>
             {existingSalary && (
-              <span className="text-xs text-text-muted bg-cream px-3 py-1 rounded-full border border-blue-grey/20">
+              <span className="text-xs text-copper-dark bg-copper-muted px-3 py-1 rounded-full border border-copper/30 font-mono font-bold">
                 Active Structure Configured
               </span>
             )}
@@ -419,37 +412,37 @@ function AdminSalaryView({ employeeId }: { employeeId: string }) {
           {/* Wage Inputs */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="label" htmlFor="monthlyWage">
+              <label className="label text-navy-dark font-bold font-mono text-xs uppercase" htmlFor="monthlyWage">
                 Monthly Wage (₹)
               </label>
               <input
                 id="monthlyWage"
                 type="number"
                 step="any"
-                className={`input ${errors.monthlyWage ? 'input-error' : ''}`}
+                className={`input py-2.5 font-mono font-bold text-navy-dark ${errors.monthlyWage ? 'input-error' : ''}`}
                 placeholder="e.g. 50000"
                 {...register('monthlyWage', { valueAsNumber: true })}
               />
               {errors.monthlyWage && (
-                <p className="error-text">{errors.monthlyWage.message}</p>
+                <p className="error-text text-terracotta">{errors.monthlyWage.message}</p>
               )}
             </div>
 
             <div>
-              <label className="label">Yearly Wage / Annual CTC (Computed)</label>
-              <div className="input bg-cream/60 text-slate-brand font-heading font-bold flex items-center">
+              <label className="label text-navy-dark font-bold font-mono text-xs uppercase">Yearly Wage / Annual CTC (Computed)</label>
+              <div className="input bg-cream-light text-navy font-heading font-bold flex items-center py-2.5 font-mono">
                 {formatINR(yearlyWagePreview)}
               </div>
-              <span className="text-xs text-text-muted mt-1 block">
+              <span className="text-xs text-text-muted mt-1 block font-mono">
                 Automatically calculated as Monthly Wage &times; 12
               </span>
             </div>
           </div>
 
           {/* Statutory & Schedule Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-2 border-t border-blue-grey/10">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-2 border-t border-navy/10">
             <div>
-              <label className="label" htmlFor="workingDaysPerWeek">
+              <label className="label text-navy-dark font-bold font-mono text-xs uppercase" htmlFor="workingDaysPerWeek">
                 Working Days / Week (1–7)
               </label>
               <input
@@ -457,71 +450,71 @@ function AdminSalaryView({ employeeId }: { employeeId: string }) {
                 type="number"
                 min={1}
                 max={7}
-                className={`input ${errors.workingDaysPerWeek ? 'input-error' : ''}`}
+                className={`input py-2.5 font-mono font-bold ${errors.workingDaysPerWeek ? 'input-error' : ''}`}
                 {...register('workingDaysPerWeek', { valueAsNumber: true })}
               />
               {errors.workingDaysPerWeek && (
-                <p className="error-text">{errors.workingDaysPerWeek.message}</p>
+                <p className="error-text text-terracotta">{errors.workingDaysPerWeek.message}</p>
               )}
             </div>
 
             <div>
-              <label className="label" htmlFor="pfPercent">
+              <label className="label text-navy-dark font-bold font-mono text-xs uppercase" htmlFor="pfPercent">
                 Provident Fund (PF %)
               </label>
               <input
                 id="pfPercent"
                 type="number"
                 step="any"
-                className={`input ${errors.pfPercent ? 'input-error' : ''}`}
+                className={`input py-2.5 font-mono font-bold ${errors.pfPercent ? 'input-error' : ''}`}
                 {...register('pfPercent', { valueAsNumber: true })}
               />
               {errors.pfPercent && (
-                <p className="error-text">{errors.pfPercent.message}</p>
+                <p className="error-text text-terracotta">{errors.pfPercent.message}</p>
               )}
             </div>
 
             <div>
-              <label className="label" htmlFor="professionalTax">
+              <label className="label text-navy-dark font-bold font-mono text-xs uppercase" htmlFor="professionalTax">
                 Professional Tax (₹)
               </label>
               <input
                 id="professionalTax"
                 type="number"
                 step="any"
-                className={`input ${errors.professionalTax ? 'input-error' : ''}`}
+                className={`input py-2.5 font-mono font-bold ${errors.professionalTax ? 'input-error' : ''}`}
                 {...register('professionalTax', { valueAsNumber: true })}
               />
               {errors.professionalTax && (
-                <p className="error-text">{errors.professionalTax.message}</p>
+                <p className="error-text text-terracotta">{errors.professionalTax.message}</p>
               )}
             </div>
           </div>
         </div>
 
         {/* Components Section */}
-        <div className="card border border-blue-grey/20 space-y-5">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-blue-grey/20 pb-4">
+        <div className="card bg-white border border-navy/10 p-8 rounded-3xl shadow-elevated space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-navy/10 pb-4">
             <div>
-              <h3 className="text-base font-heading font-semibold text-text-primary">
+              <h3 className="text-base font-heading font-bold text-navy-dark">
                 Salary Components
               </h3>
-              <p className="text-xs text-text-muted mt-0.5">
+              <p className="text-xs text-text-muted mt-0.5 font-medium">
                 Define fixed amounts or percentage allocations of the monthly wage.
               </p>
             </div>
             <button
               type="button"
               onClick={() => append({ name: '', valueType: 'FIXED', value: 0 })}
-              className="btn-secondary text-xs flex items-center space-x-1.5 py-1.5 px-3 self-start sm:self-auto"
+              className="btn-secondary text-xs flex items-center space-x-1.5 py-2 px-4 self-start sm:self-auto font-bold cursor-pointer"
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus className="w-3.5 h-3.5 text-copper" />
               <span>Add Component</span>
             </button>
           </div>
 
           {errors.components?.root && (
-            <p className="error-text">{errors.components.root.message}</p>
+            <p className="error-text text-terracotta">{errors.components.root.message}</p>
           )}
 
           {/* Component Row List */}
@@ -539,29 +532,29 @@ function AdminSalaryView({ employeeId }: { employeeId: string }) {
               return (
                 <div
                   key={field.id}
-                  className="p-4 bg-cream/40 rounded-xl border border-blue-grey/20 grid grid-cols-1 sm:grid-cols-12 gap-3 items-end"
+                  className="p-5 bg-cream-light rounded-2xl border border-navy/10 grid grid-cols-1 sm:grid-cols-12 gap-3 items-end"
                 >
                   <div className="sm:col-span-4">
-                    <label className="label text-xs">Name</label>
+                    <label className="label text-xs font-bold text-navy-dark font-mono uppercase">Name</label>
                     <input
                       type="text"
                       placeholder="e.g. Basic Salary"
-                      className={`input text-sm py-2 ${
+                      className={`input text-sm py-2 font-bold ${
                         errors.components?.[index]?.name ? 'input-error' : ''
                       }`}
                       {...register(`components.${index}.name` as const)}
                     />
                     {errors.components?.[index]?.name && (
-                      <p className="error-text text-[11px]">
+                      <p className="error-text text-[11px] text-terracotta">
                         {errors.components[index]?.name?.message}
                       </p>
                     )}
                   </div>
 
                   <div className="sm:col-span-3">
-                    <label className="label text-xs">Type</label>
+                    <label className="label text-xs font-bold text-navy-dark font-mono uppercase">Type</label>
                     <select
-                      className="input text-sm py-2"
+                      className="input text-sm py-2 font-bold font-mono"
                       {...register(`components.${index}.valueType` as const)}
                     >
                       <option value="FIXED">FIXED (₹)</option>
@@ -570,12 +563,12 @@ function AdminSalaryView({ employeeId }: { employeeId: string }) {
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label className="label text-xs">Value</label>
+                    <label className="label text-xs font-bold text-navy-dark font-mono uppercase">Value</label>
                     <input
                       type="number"
                       step="any"
                       placeholder="0"
-                      className={`input text-sm py-2 ${
+                      className={`input text-sm py-2 font-mono font-bold ${
                         errors.components?.[index]?.value ? 'input-error' : ''
                       }`}
                       {...register(`components.${index}.value` as const, {
@@ -583,15 +576,15 @@ function AdminSalaryView({ employeeId }: { employeeId: string }) {
                       })}
                     />
                     {errors.components?.[index]?.value && (
-                      <p className="error-text text-[11px]">
+                      <p className="error-text text-[11px] text-terracotta">
                         {errors.components[index]?.value?.message}
                       </p>
                     )}
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label className="label text-xs">Computed (₹)</label>
-                    <div className="input bg-white/80 text-xs py-2 font-mono font-semibold text-text-primary flex items-center justify-end">
+                    <label className="label text-xs font-bold text-navy-dark font-mono uppercase">Computed (₹)</label>
+                    <div className="input bg-white text-xs py-2 font-mono font-bold text-navy flex items-center justify-end">
                       {formatINR(computedPreview)}
                     </div>
                   </div>
@@ -601,7 +594,7 @@ function AdminSalaryView({ employeeId }: { employeeId: string }) {
                       type="button"
                       disabled={fields.length <= 1}
                       onClick={() => remove(index)}
-                      className="p-2 text-text-muted hover:text-terracotta hover:bg-terracotta/10 rounded-xl transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                      className="p-2 text-text-muted hover:text-terracotta hover:bg-terracotta/10 rounded-xl transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
                       title="Remove component"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -613,46 +606,44 @@ function AdminSalaryView({ employeeId }: { employeeId: string }) {
           </div>
 
           {/* Running Totals & Validation */}
-          <div className="p-4 bg-cream/60 rounded-xl border border-blue-grey/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="p-5 bg-cream/70 rounded-2xl border border-navy/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
-              <span className="text-xs text-text-muted uppercase font-medium tracking-wide">
+              <span className="text-xs text-text-muted uppercase font-bold tracking-wider font-mono">
                 Total Allocated Components
               </span>
               <div className="flex items-baseline space-x-2 mt-0.5">
-                <span className="text-xl font-heading font-bold text-text-primary">
+                <span className="text-xl font-heading font-bold text-navy-dark font-mono">
                   {formatINR(totalComputed)}
                 </span>
-                <span className="text-xs text-text-muted">
+                <span className="text-xs text-text-muted font-mono">
                   of {formatINR(watchedMonthlyWage)} wage
                 </span>
               </div>
             </div>
 
             {isExceeding && (
-              <div className="flex items-center space-x-2 text-terracotta text-xs font-semibold bg-terracotta/10 px-3 py-2 rounded-lg border border-terracotta/30">
+              <div className="flex items-center space-x-2 text-terracotta text-xs font-bold bg-terracotta-light px-4 py-2 rounded-xl border border-terracotta/30">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 <span>Components exceed monthly wage</span>
               </div>
             )}
           </div>
 
-          {/* Server Error Alert */}
           {serverError && (
-            <div className="flex items-center space-x-2 bg-terracotta/10 border border-terracotta/30 rounded-xl px-4 py-3 text-sm text-terracotta">
+            <div className="flex items-center space-x-2 bg-terracotta-light border border-terracotta/30 rounded-2xl px-4 py-3 text-sm text-terracotta">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
               <span>{serverError}</span>
             </div>
           )}
 
-          {/* Save Action */}
           <div className="flex justify-end pt-2">
             <button
               type="submit"
               disabled={isSubmitting || mutation.isPending || isExceeding}
-              className="btn-primary text-sm flex items-center space-x-2 px-6 py-2.5"
+              className="btn-navy text-xs font-bold flex items-center space-x-2 px-6 py-3 cursor-pointer disabled:opacity-50"
             >
               {(isSubmitting || mutation.isPending) && (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin text-copper-bright" />
               )}
               <span>
                 {isSubmitting || mutation.isPending
@@ -664,47 +655,46 @@ function AdminSalaryView({ employeeId }: { employeeId: string }) {
         </div>
       </form>
 
-      {/* ─── Payable Days Section ─────────────────────────────────────────── */}
-      <section className="card border border-blue-grey/20 space-y-5">
-        <div className="border-b border-blue-grey/20 pb-4 flex items-center justify-between">
+      {/* Payable Days Section */}
+      <section className="card bg-white border border-navy/10 p-8 rounded-3xl shadow-elevated space-y-5">
+        <div className="border-b border-navy/10 pb-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl bg-slate-brand/10 text-slate-brand flex items-center justify-center">
-              <Calculator className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-2xl bg-navy text-white flex items-center justify-center shadow-sm">
+              <Calculator className="w-5 h-5 text-copper-bright" />
             </div>
             <div>
-              <h3 className="text-base font-heading font-semibold text-text-primary">
+              <h3 className="text-base font-heading font-bold text-navy-dark">
                 Payable Days Calculator
               </h3>
-              <p className="text-xs text-text-muted">
+              <p className="text-xs text-text-muted font-medium">
                 Derive net payable working days adjusted for unpaid leave and absences.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Date Range Picker & Trigger */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
           <div>
-            <label className="label" htmlFor="calcFrom">
+            <label className="label text-navy-dark font-bold font-mono text-xs uppercase" htmlFor="calcFrom">
               From Date
             </label>
             <input
               id="calcFrom"
               type="date"
-              className="input text-sm"
+              className="input text-sm py-2 font-mono font-bold"
               value={calcFrom}
               onChange={(e) => setCalcFrom(e.target.value)}
             />
           </div>
 
           <div>
-            <label className="label" htmlFor="calcTo">
+            <label className="label text-navy-dark font-bold font-mono text-xs uppercase" htmlFor="calcTo">
               To Date
             </label>
             <input
               id="calcTo"
               type="date"
-              className="input text-sm"
+              className="input text-sm py-2 font-mono font-bold"
               value={calcTo}
               onChange={(e) => setCalcTo(e.target.value)}
             />
@@ -715,21 +705,20 @@ function AdminSalaryView({ employeeId }: { employeeId: string }) {
               type="button"
               onClick={handleCalculatePayableDays}
               disabled={payableDaysLoading || !calcFrom || !calcTo}
-              className="btn-secondary w-full text-sm flex items-center justify-center space-x-2 py-2.5"
+              className="btn-navy w-full text-xs font-bold flex items-center justify-center space-x-2 py-2.5 cursor-pointer"
             >
               {payableDaysLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin text-slate-brand" />
+                <Loader2 className="w-4 h-4 animate-spin text-copper-bright" />
               ) : (
-                <Calculator className="w-4 h-4 text-slate-brand" />
+                <Calculator className="w-4 h-4 text-copper-bright" />
               )}
               <span>{payableDaysLoading ? 'Calculating…' : 'Calculate'}</span>
             </button>
           </div>
         </div>
 
-        {/* Error state */}
         {payableDaysError && (
-          <div className="flex items-center space-x-2 bg-terracotta/10 border border-terracotta/30 rounded-xl px-4 py-3 text-sm text-terracotta">
+          <div className="flex items-center space-x-2 bg-terracotta-light border border-terracotta/30 rounded-2xl px-4 py-3 text-sm text-terracotta">
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
             <span>
               {(payableDaysErrObj as { response?: { data?: { error?: string } } })
@@ -738,44 +727,43 @@ function AdminSalaryView({ employeeId }: { employeeId: string }) {
           </div>
         )}
 
-        {/* Results display */}
         {payableDaysResult && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
-            <div className="card bg-cream/50 border border-blue-grey/20 p-4 space-y-1">
-              <span className="text-xs text-text-muted font-medium uppercase tracking-wide">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 pt-2">
+            <div className="card bg-cream-light border border-navy/10 p-5 rounded-2xl space-y-1">
+              <span className="text-xs text-text-muted font-bold uppercase tracking-wider font-mono">
                 Total Working Days
               </span>
-              <p className="text-2xl font-heading font-bold text-text-primary">
+              <p className="text-2xl font-heading font-bold text-navy-dark font-mono">
                 {payableDaysResult.totalWorkingDays}
               </p>
               <span className="text-[11px] text-text-muted block">Weekdays in range</span>
             </div>
 
-            <div className="card bg-cream/50 border border-blue-grey/20 p-4 space-y-1">
-              <span className="text-xs text-text-muted font-medium uppercase tracking-wide">
+            <div className="card bg-cream-light border border-navy/10 p-5 rounded-2xl space-y-1">
+              <span className="text-xs text-copper font-bold uppercase tracking-wider font-mono">
                 Unpaid Leave Days
               </span>
-              <p className="text-2xl font-heading font-bold text-terracotta">
+              <p className="text-2xl font-heading font-bold text-copper font-mono">
                 {payableDaysResult.unpaidLeaveDays}
               </p>
               <span className="text-[11px] text-text-muted block">Approved unpaid leaves</span>
             </div>
 
-            <div className="card bg-cream/50 border border-blue-grey/20 p-4 space-y-1">
-              <span className="text-xs text-text-muted font-medium uppercase tracking-wide">
+            <div className="card bg-cream-light border border-navy/10 p-5 rounded-2xl space-y-1">
+              <span className="text-xs text-terracotta font-bold uppercase tracking-wider font-mono">
                 Unaccounted Absences
               </span>
-              <p className="text-2xl font-heading font-bold text-terracotta">
+              <p className="text-2xl font-heading font-bold text-terracotta font-mono">
                 {payableDaysResult.unaccountedAbsences}
               </p>
               <span className="text-[11px] text-text-muted block">Days without check-in</span>
             </div>
 
-            <div className="card bg-sage-light/20 border border-sage-light/60 p-4 space-y-1">
-              <span className="text-xs text-sage-deep font-semibold uppercase tracking-wide">
+            <div className="card bg-sage-light/30 border border-sage-deep/30 p-5 rounded-2xl space-y-1">
+              <span className="text-xs text-sage-deep font-bold uppercase tracking-wider font-mono">
                 Net Payable Days
               </span>
-              <p className="text-2xl font-heading font-bold text-sage-deep">
+              <p className="text-2xl font-heading font-bold text-sage-deep font-mono">
                 {payableDaysResult.payableDays}
               </p>
               <span className="text-[11px] text-sage-deep/80 block font-medium">
@@ -797,23 +785,21 @@ export const SalaryPage: React.FC = () => {
 
   const isAdmin = user?.role === 'ADMIN' || user?.role === 'HR_OFFICER';
 
-  // Guard: if non-admin attempts to access someone else's salary url (/salary/:employeeId), redirect to /salary
   if (paramEmployeeId && !isAdmin) {
     return <Navigate to="/salary" replace />;
   }
 
-  // Determine target employee ID
   const targetEmployeeId = paramEmployeeId || user?.id || '';
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fadeIn">
       {/* Header */}
-      <div className="flex items-start justify-between flex-wrap gap-4">
+      <div className="flex items-start justify-between flex-wrap gap-4 pb-4 border-b border-navy/10">
         <div>
-          <h1 className="text-2xl font-heading font-bold text-text-primary">
-            {isAdmin ? 'Salary &amp; Compensation Management' : 'My Salary &amp; Compensation'}
+          <h1 className="text-3xl font-heading font-bold text-navy-dark">
+            {isAdmin ? 'Salary & Compensation Management' : 'My Salary & Compensation'}
           </h1>
-          <p className="text-sm text-text-muted mt-1">
+          <p className="text-sm text-text-muted mt-1 font-medium">
             {isAdmin
               ? 'Configure salary components, base wages, and derive payable days.'
               : 'Review your salary structure, component allocations, and statutory deductions.'}
@@ -821,7 +807,7 @@ export const SalaryPage: React.FC = () => {
         </div>
 
         {isAdmin && (
-          <span className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-slate-brand/10 text-slate-brand text-xs font-semibold border border-slate-brand/20">
+          <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-copper-muted text-copper-dark text-xs font-bold border border-copper/30 font-mono">
             <ShieldAlert className="w-3.5 h-3.5" />
             <span>Admin Management</span>
           </span>
@@ -837,3 +823,4 @@ export const SalaryPage: React.FC = () => {
     </div>
   );
 };
+export default SalaryPage;

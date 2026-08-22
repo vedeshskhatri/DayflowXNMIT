@@ -26,7 +26,7 @@ export const AttendanceControl: React.FC<{ compact?: boolean }> = () => {
       const res = await api.get<AttendanceRecord | null>('/attendance/today');
       return res.data;
     },
-    staleTime: 1000 * 60, // 1 min
+    staleTime: 1000 * 60,
   });
 
   // Check In Mutation
@@ -48,12 +48,10 @@ export const AttendanceControl: React.FC<{ compact?: boolean }> = () => {
 
       queryClient.setQueryData(['attendance', 'today'], optimisticData);
 
-      // Optimistically update own status in user context to PRESENT (green)
       if (user) {
         updateUser({ ...user, status: 'PRESENT' });
       }
 
-      // Optimistically update own employee in employees list
       queryClient.setQueryData<any[]>(['employees'], (prev) => {
         if (!prev) return prev;
         return prev.map((emp) =>
@@ -121,8 +119,8 @@ export const AttendanceControl: React.FC<{ compact?: boolean }> = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center space-x-2 px-3 py-1.5 bg-cream/60 rounded-xl border border-blue-grey/20 text-xs text-text-muted">
-        <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-brand" />
+      <div className="flex items-center space-x-2 px-3 py-1.5 bg-cream/70 rounded-xl border border-navy/10 text-xs text-text-muted">
+        <Loader2 className="w-3.5 h-3.5 animate-spin text-navy" />
         <span>Syncing…</span>
       </div>
     );
@@ -136,50 +134,38 @@ export const AttendanceControl: React.FC<{ compact?: boolean }> = () => {
       {/* State 1: Not checked in yet */}
       {!isCheckedIn && !isCompleted && (
         <button
-          data-testid="checkin-button"
           onClick={() => checkInMutation.mutate()}
           disabled={checkInMutation.isPending}
-          className="bg-slate-brand hover:bg-slate-brand/90 active:scale-95 text-white py-1.5 px-3.5 rounded-full text-xs font-semibold flex items-center space-x-1.5 shadow-sm transition-all"
+          data-testid="checkin-button"
+          className="btn-navy py-2 px-4 text-xs font-bold flex items-center space-x-2 shadow-sm cursor-pointer"
         >
           {checkInMutation.isPending ? (
-            <>
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              <span>Checking In…</span>
-            </>
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-copper-bright" />
           ) : (
-            <>
-              <span>Check IN</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </>
+            <ArrowRight className="w-3.5 h-3.5 text-copper-bright" />
           )}
+          <span>{checkInMutation.isPending ? 'Checking In…' : 'Check IN'}</span>
         </button>
       )}
 
-      {/* State 2: Checked in */}
+      {/* State 2: Currently checked in */}
       {isCheckedIn && (
-        <div className="flex items-center space-x-2 bg-white/80 border border-blue-grey/25 rounded-full pl-3 pr-1 py-1 shadow-sm">
-          <div className="flex items-center space-x-1.5 text-xs text-text-primary font-medium">
-            <span className="w-2 h-2 rounded-full bg-sage-light animate-pulse flex-shrink-0" />
-            <span className="text-text-muted text-[11px]">Since</span>
-            <span className="font-mono text-xs font-semibold">{formatTime(todayAttendance?.checkIn)}</span>
+        <div className="flex items-center space-x-2">
+          <div className="px-3 py-1.5 rounded-xl bg-sage-light/40 border border-sage-deep/30 text-xs font-mono font-bold text-navy-dark flex items-center space-x-1.5 shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-sage-deep animate-pulse" />
+            <span>IN: {formatTime(todayAttendance?.checkIn)}</span>
           </div>
+
           <button
-            data-testid="checkout-button"
             onClick={() => checkOutMutation.mutate()}
             disabled={checkOutMutation.isPending}
-            className="bg-terracotta hover:bg-terracotta/90 active:scale-95 text-white font-semibold py-1 px-2.5 rounded-full text-[11px] transition-all flex items-center space-x-1 shadow-sm"
+            data-testid="checkout-button"
+            className="px-3.5 py-1.5 rounded-xl bg-terracotta hover:bg-terracotta/90 text-white font-bold text-xs transition-all shadow-sm flex items-center space-x-1.5 cursor-pointer"
           >
             {checkOutMutation.isPending ? (
-              <>
-                <Loader2 className="w-3 h-3 animate-spin" />
-                <span>Out…</span>
-              </>
-            ) : (
-              <>
-                <span>Check Out</span>
-                <ArrowRight className="w-3 h-3" />
-              </>
-            )}
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : null}
+            <span>{checkOutMutation.isPending ? 'Checking Out…' : 'Check OUT'}</span>
           </button>
         </div>
       )}
@@ -188,18 +174,15 @@ export const AttendanceControl: React.FC<{ compact?: boolean }> = () => {
       {isCompleted && (
         <div
           data-testid="completed-badge"
-          className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-white/80 text-text-primary border border-blue-grey/25 text-xs font-medium shadow-sm"
+          className="px-3.5 py-1.5 rounded-xl bg-cream border border-navy/10 text-xs font-mono font-bold text-navy-dark flex items-center space-x-1.5 shadow-xs"
         >
-          <CheckCircle2 className="w-3.5 h-3.5 text-sage-deep flex-shrink-0" />
-          <span className="text-[11px] text-text-primary">
-            Done today &bull; Out at {formatTime(todayAttendance?.checkOut)}
-            {todayAttendance?.workHours ? ` (${todayAttendance.workHours}h)` : ''}
-          </span>
+          <CheckCircle2 className="w-3.5 h-3.5 text-sage-deep" />
+          <span>Done today ({todayAttendance?.workHours?.toFixed(1) || '8'}h)</span>
         </div>
       )}
 
       {actionError && (
-        <span data-testid="attendance-error" className="text-[10px] text-terracotta font-medium ml-1">
+        <span data-testid="attendance-error" className="text-[11px] text-terracotta font-medium ml-2 font-mono">
           {actionError}
         </span>
       )}

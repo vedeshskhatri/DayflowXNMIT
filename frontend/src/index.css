@@ -1,5 +1,4 @@
-/* Import Google Fonts — must load before Tailwind base */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&family=Syne:wght@700;800&family=Unbounded:wght@600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -8,59 +7,67 @@
 /* ── Base resets ────────────────────────────────────────────────────────────── */
 @layer base {
   html {
-    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 16px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   body {
-    @apply bg-cream text-text-primary;
+    @apply bg-cream-light text-text-primary;
     min-height: 100dvh;
+    background-color: #FAF8F2;
   }
 
-  h1, h2, h3, h4 {
-    font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
-    @apply font-semibold text-text-primary;
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', 'Syne', 'Unbounded', sans-serif;
+    @apply font-bold text-navy-dark tracking-tight;
   }
 
-  /* Custom scrollbar — minimal, matches the warm palette */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { @apply bg-cream; }
-  ::-webkit-scrollbar-thumb { @apply bg-blue-grey rounded-full; }
-  ::-webkit-scrollbar-thumb:hover { background-color: #5E7892; }
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { @apply bg-cream/50; }
+  ::-webkit-scrollbar-thumb { @apply bg-navy/20 rounded-full; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-navy/40; }
 }
 
 /* ── Reusable component classes ─────────────────────────────────────────────── */
 @layer components {
   /* Buttons */
-  .btn-primary {
-    @apply bg-slate-brand text-white font-medium py-2.5 px-5 rounded-xl
-           transition-all duration-150 hover:opacity-90 active:scale-[0.98]
-           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-brand focus-visible:ring-offset-2
-           disabled:opacity-50 disabled:cursor-not-allowed;
+  .btn-primary, .btn-navy {
+    @apply bg-navy text-white font-semibold py-2.5 px-5 rounded-xl
+           transition-all duration-200 hover:bg-navy-dark hover:shadow-navy active:scale-[0.98]
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2
+           disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-sm;
+  }
+
+  .btn-copper {
+    @apply bg-copper text-white font-semibold py-2.5 px-5 rounded-xl
+           transition-all duration-200 hover:bg-copper-dark hover:shadow-copper active:scale-[0.98]
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2
+           disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-sm;
   }
 
   .btn-secondary {
-    @apply bg-white text-text-primary font-medium py-2.5 px-5 rounded-xl border border-blue-grey
-           transition-all duration-150 hover:bg-cream active:scale-[0.98]
-           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-grey focus-visible:ring-offset-2
-           disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply bg-white text-text-primary font-semibold py-2.5 px-5 rounded-xl border border-navy/15
+           transition-all duration-200 hover:bg-cream/60 hover:border-navy/30 active:scale-[0.98]
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy/20 focus-visible:ring-offset-2
+           disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-sm;
   }
 
   .btn-destructive {
-    @apply bg-terracotta text-white font-medium py-2.5 px-5 rounded-xl
-           transition-all duration-150 hover:opacity-90 active:scale-[0.98]
+    @apply bg-terracotta text-white font-semibold py-2.5 px-5 rounded-xl
+           transition-all duration-200 hover:opacity-90 active:scale-[0.98]
            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:ring-offset-2
-           disabled:opacity-50 disabled:cursor-not-allowed;
+           disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-sm;
   }
 
   /* Form inputs */
   .input {
-    @apply w-full bg-white border border-blue-grey text-text-primary placeholder-text-muted
+    @apply w-full bg-white border border-navy/15 text-text-primary placeholder-text-muted/60
            rounded-xl px-4 py-2.5 text-sm
-           transition-colors duration-150
-           focus:outline-none focus:border-slate-brand focus:ring-2 focus:ring-slate-brand/20;
+           transition-all duration-200
+           focus:outline-none focus:border-navy focus:ring-2 focus:ring-navy/10;
   }
 
   .input-error {
@@ -68,16 +75,20 @@
   }
 
   .label {
-    @apply block text-sm font-medium text-text-primary mb-1.5;
+    @apply block text-xs font-bold uppercase tracking-wider text-text-primary mb-1.5 font-mono;
   }
 
   .error-text {
-    @apply text-xs text-terracotta mt-1;
+    @apply text-xs text-terracotta font-medium mt-1 flex items-center gap-1;
   }
 
   /* Cards */
   .card {
-    @apply bg-white rounded-xl shadow-card p-6;
+    @apply bg-white rounded-2xl border border-navy/10 shadow-card p-6 transition-all duration-200;
+  }
+
+  .card-elevated {
+    @apply bg-white rounded-2xl border border-navy/10 shadow-elevated p-6;
   }
 
   /* Status dots */
@@ -85,18 +96,18 @@
     @apply w-2.5 h-2.5 rounded-full flex-shrink-0;
   }
 
-  .status-dot-present  { @apply bg-sage-light; }
-  .status-dot-on-leave { @apply bg-sage-deep; }
-  .status-dot-absent   { @apply bg-terracotta; }
+  .status-dot-present  { @apply bg-sage-light shadow-[0_0_8px_rgba(200,214,175,0.8)]; }
+  .status-dot-on-leave { @apply bg-copper-light shadow-[0_0_8px_rgba(217,148,82,0.8)]; }
+  .status-dot-absent   { @apply bg-terracotta shadow-[0_0_8px_rgba(200,100,70,0.8)]; }
 
-  /* Status badges (time-off requests) */
+  /* Status badges */
   .badge-approved {
-    @apply bg-sage-light/30 text-sage-deep text-xs font-medium px-2.5 py-0.5 rounded-full;
+    @apply bg-sage-light/30 text-navy-dark text-xs font-bold px-2.5 py-0.5 rounded-full border border-sage-deep/20;
   }
   .badge-pending {
-    @apply bg-blue-grey/20 text-slate-brand text-xs font-medium px-2.5 py-0.5 rounded-full;
+    @apply bg-copper-muted text-copper-dark text-xs font-bold px-2.5 py-0.5 rounded-full border border-copper/30;
   }
   .badge-rejected {
-    @apply bg-terracotta/10 text-terracotta text-xs font-medium px-2.5 py-0.5 rounded-full;
+    @apply bg-terracotta-light text-terracotta text-xs font-bold px-2.5 py-0.5 rounded-full border border-terracotta/20;
   }
 }

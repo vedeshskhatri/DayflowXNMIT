@@ -17,6 +17,7 @@ import {
   User,
   AlertCircle,
   Loader2,
+  Sparkles,
 } from 'lucide-react';
 
 const createEmployeeFormSchema = z.object({
@@ -122,139 +123,137 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-brand/40 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full overflow-hidden border border-blue-grey/20 animate-fadeIn">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-navy-dark/50 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-modal max-w-lg w-full overflow-hidden border border-navy/15 animate-fadeIn">
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-blue-grey/15 bg-cream/50">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-lg bg-slate-brand text-white flex items-center justify-center">
-              <UserPlus className="w-4 h-4" />
+        <div className="flex items-center justify-between px-6 py-4 border-b border-navy/10 bg-cream/60">
+          <div className="flex items-center space-x-2.5">
+            <div className="w-8 h-8 rounded-xl bg-navy text-white flex items-center justify-center shadow-sm">
+              <UserPlus className="w-4 h-4 text-copper-bright" />
             </div>
-            <h2 className="font-heading font-bold text-lg text-text-primary">
-              {createdCredentials ? 'Employee Account Created' : 'Add New Employee'}
-            </h2>
+            <div>
+              <h2 className="text-base font-heading font-bold text-navy-dark">
+                {createdCredentials ? 'Employee Registered' : 'Add New Employee'}
+              </h2>
+              <p className="text-[11px] text-text-muted">
+                {createdCredentials
+                  ? 'Share the generated credentials with the employee'
+                  : 'Create account & auto-generate Dayflow Login ID'}
+              </p>
+            </div>
           </div>
           <button
             onClick={handleModalClose}
-            className="text-text-muted hover:text-text-primary p-1.5 rounded-lg hover:bg-cream transition-colors"
+            className="p-1.5 rounded-xl text-text-muted hover:text-navy-dark hover:bg-cream transition-colors cursor-pointer"
+            title="Close"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Modal Body */}
+        {/* Modal Content */}
         <div className="p-6">
+          {apiError && (
+            <div className="mb-4 p-3.5 rounded-xl bg-terracotta-light border border-terracotta/20 flex items-start space-x-3 text-terracotta text-xs animate-shake">
+              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span className="font-medium">{apiError}</span>
+            </div>
+          )}
+
           {createdCredentials ? (
-            /* Success State with Credentials */
-            <div className="space-y-6 animate-fadeIn">
-              <div className="p-4 rounded-xl bg-sage-light/40 border border-sage-deep/30 flex items-start space-x-3">
-                <div className="w-7 h-7 rounded-full bg-sage-deep text-white flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <Check className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-text-primary">
-                    Login credentials generated!
-                  </h3>
-                  <p className="text-xs text-text-muted mt-0.5">
-                    {createdCredentials.note}
-                  </p>
-                </div>
-              </div>
-
-              {/* Credentials Box */}
-              <div className="bg-cream/70 rounded-xl p-4 border border-blue-grey/20 space-y-3">
-                <div>
-                  <span className="text-xs text-text-muted font-medium uppercase tracking-wider">
-                    Generated Login ID
+            /* Success State: Credentials Card */
+            <div className="space-y-5">
+              <div className="bg-cream/80 border border-navy/15 rounded-2xl p-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-copper font-mono flex items-center gap-1">
+                    <Sparkles className="w-3 h-3 text-copper" /> Credentials Generated
                   </span>
-                  <div className="font-mono text-base font-bold text-slate-brand mt-0.5">
-                    {createdCredentials.loginId}
+                  <button
+                    onClick={handleCopyCredentials}
+                    className="flex items-center space-x-1.5 px-3 py-1 bg-white border border-navy/15 hover:bg-cream rounded-xl text-xs font-bold text-navy-dark transition-colors shadow-sm cursor-pointer"
+                  >
+                    {copied ? (
+                      <>
+                        <Check className="w-3.5 h-3.5 text-copper" />
+                        <span className="text-copper">Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3.5 h-3.5 text-text-muted" />
+                        <span>Copy All</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                <div className="space-y-2 pt-1 font-mono">
+                  <div className="flex justify-between items-center bg-white p-2.5 rounded-xl border border-navy/10">
+                    <span className="text-xs text-text-muted font-sans font-medium">Login ID:</span>
+                    <span className="text-sm font-bold text-navy-dark">
+                      {createdCredentials.loginId}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center bg-white p-2.5 rounded-xl border border-navy/10">
+                    <span className="text-xs text-text-muted font-sans font-medium">Temporary Password:</span>
+                    <span className="text-sm font-bold text-copper font-mono">
+                      {createdCredentials.tempPassword}
+                    </span>
                   </div>
                 </div>
 
-                <div>
-                  <span className="text-xs text-text-muted font-medium uppercase tracking-wider">
-                    Temporary Password
-                  </span>
-                  <div className="font-mono text-base font-bold text-text-primary mt-0.5">
-                    {createdCredentials.tempPassword}
-                  </div>
-                </div>
+                <p className="text-[11px] text-text-muted pt-1">
+                  * Employee will be prompted to reset their temporary password on first sign-in.
+                </p>
               </div>
 
-              {/* Copy Action */}
-              <button
-                type="button"
-                onClick={handleCopyCredentials}
-                className="w-full btn-primary flex items-center justify-center space-x-2 py-2.5"
-              >
-                {copied ? (
-                  <>
-                    <Check className="w-4 h-4 text-white" />
-                    <span>Credentials Copied to Clipboard!</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4" />
-                    <span>Copy Credentials to Share</span>
-                  </>
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={handleModalClose}
-                className="w-full btn-secondary py-2 text-sm text-center"
-              >
-                Done & Return to Directory
-              </button>
+              <div className="flex justify-end space-x-3 pt-2">
+                <button
+                  type="button"
+                  onClick={handleModalClose}
+                  className="btn-navy py-2 px-5 text-xs font-bold"
+                >
+                  Done
+                </button>
+              </div>
             </div>
           ) : (
             /* Creation Form */
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              {apiError && (
-                <div className="p-3 rounded-xl bg-terracotta/10 border border-terracotta/30 flex items-center space-x-2 text-terracotta text-xs">
-                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                  <span>{apiError}</span>
-                </div>
-              )}
-
-              {/* Name Fields */}
+              {/* First & Last Name */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-text-muted mb-1">
-                    First Name *
-                  </label>
+                  <label className="label">First Name *</label>
                   <div className="relative">
-                    <User className="w-4 h-4 text-blue-grey absolute left-3 top-1/2 -translate-y-1/2" />
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-navy/40">
+                      <User className="w-4 h-4" />
+                    </div>
                     <input
                       type="text"
                       {...register('firstName')}
-                      placeholder="e.g. Rahul"
-                      className="input pl-9 py-2 text-sm bg-cream/40"
+                      placeholder="e.g. Vikram"
+                      className="input pl-9 text-xs"
                     />
                   </div>
                   {errors.firstName && (
-                    <span className="text-[11px] text-terracotta mt-0.5 block">
-                      {errors.firstName.message}
-                    </span>
+                    <span className="error-text">{errors.firstName.message}</span>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-text-muted mb-1">
-                    Last Name *
-                  </label>
-                  <input
-                    type="text"
-                    {...register('lastName')}
-                    placeholder="e.g. Sharma"
-                    className="input px-3 py-2 text-sm bg-cream/40"
-                  />
+                  <label className="label">Last Name *</label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-navy/40">
+                      <User className="w-4 h-4" />
+                    </div>
+                    <input
+                      type="text"
+                      {...register('lastName')}
+                      placeholder="e.g. Joshi"
+                      className="input pl-9 text-xs"
+                    />
+                  </div>
                   {errors.lastName && (
-                    <span className="text-[11px] text-terracotta mt-0.5 block">
-                      {errors.lastName.message}
-                    </span>
+                    <span className="error-text">{errors.lastName.message}</span>
                   )}
                 </div>
               </div>
@@ -262,87 +261,53 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
               {/* Email & Phone */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-text-muted mb-1">
-                    Work Email *
-                  </label>
+                  <label className="label">Email *</label>
                   <div className="relative">
-                    <Mail className="w-4 h-4 text-blue-grey absolute left-3 top-1/2 -translate-y-1/2" />
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-navy/40">
+                      <Mail className="w-4 h-4" />
+                    </div>
                     <input
                       type="email"
                       {...register('email')}
-                      placeholder="rahul@dayflow.internal"
-                      className="input pl-9 py-2 text-sm bg-cream/40"
+                      placeholder="vikram@dayflow.dev"
+                      className="input pl-9 text-xs"
                     />
                   </div>
                   {errors.email && (
-                    <span className="text-[11px] text-terracotta mt-0.5 block">
-                      {errors.email.message}
-                    </span>
+                    <span className="error-text">{errors.email.message}</span>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-text-muted mb-1">
-                    Phone (10 digits)
-                  </label>
+                  <label className="label">Phone</label>
                   <div className="relative">
-                    <Phone className="w-4 h-4 text-blue-grey absolute left-3 top-1/2 -translate-y-1/2" />
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-navy/40">
+                      <Phone className="w-4 h-4" />
+                    </div>
                     <input
                       type="tel"
                       {...register('phone')}
                       placeholder="9876543210"
-                      className="input pl-9 py-2 text-sm bg-cream/40"
+                      className="input pl-9 text-xs"
                     />
                   </div>
                   {errors.phone && (
-                    <span className="text-[11px] text-terracotta mt-0.5 block">
-                      {errors.phone.message}
-                    </span>
+                    <span className="error-text">{errors.phone.message}</span>
                   )}
-                </div>
-              </div>
-
-              {/* Department & Job Title */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-text-muted mb-1">
-                    Department
-                  </label>
-                  <div className="relative">
-                    <Briefcase className="w-4 h-4 text-blue-grey absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      {...register('department')}
-                      placeholder="e.g. Engineering"
-                      className="input pl-9 py-2 text-sm bg-cream/40"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-text-muted mb-1">
-                    Job Title
-                  </label>
-                  <input
-                    type="text"
-                    {...register('jobTitle')}
-                    placeholder="e.g. Frontend Engineer"
-                    className="input px-3 py-2 text-sm bg-cream/40"
-                  />
                 </div>
               </div>
 
               {/* Role & Date of Joining */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-text-muted mb-1">
-                    Role *
-                  </label>
+                  <label className="label">System Role *</label>
                   <div className="relative">
-                    <ShieldCheck className="w-4 h-4 text-blue-grey absolute left-3 top-1/2 -translate-y-1/2" />
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-navy/40">
+                      <ShieldCheck className="w-4 h-4" />
+                    </div>
                     <select
                       {...register('role')}
-                      className="input pl-9 py-2 text-sm bg-cream/40"
+                      className="input pl-9 text-xs appearance-none bg-white font-medium"
                     >
                       <option value="EMPLOYEE">Employee</option>
                       <option value="HR_OFFICER">HR Officer</option>
@@ -352,49 +317,73 @@ export const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-text-muted mb-1">
-                    Date of Joining *
-                  </label>
+                  <label className="label">Date of Joining *</label>
                   <div className="relative">
-                    <Calendar className="w-4 h-4 text-blue-grey absolute left-3 top-1/2 -translate-y-1/2" />
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-navy/40">
+                      <Calendar className="w-4 h-4" />
+                    </div>
                     <input
                       type="date"
                       {...register('dateOfJoining')}
-                      className="input pl-9 py-2 text-sm bg-cream/40"
+                      className="input pl-9 text-xs"
                     />
                   </div>
                   {errors.dateOfJoining && (
-                    <span className="text-[11px] text-terracotta mt-0.5 block">
-                      {errors.dateOfJoining.message}
-                    </span>
+                    <span className="error-text">{errors.dateOfJoining.message}</span>
                   )}
                 </div>
               </div>
 
-              {/* Submit Buttons */}
-              <div className="pt-3 border-t border-blue-grey/15 flex items-center justify-end space-x-3">
+              {/* Job Title & Department */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="label">Job Title</label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-navy/40">
+                      <Briefcase className="w-4 h-4" />
+                    </div>
+                    <input
+                      type="text"
+                      {...register('jobTitle')}
+                      placeholder="e.g. Staff Engineer"
+                      className="input pl-9 text-xs"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="label">Department</label>
+                  <input
+                    type="text"
+                    {...register('department')}
+                    placeholder="e.g. Engineering"
+                    className="input text-xs"
+                  />
+                </div>
+              </div>
+
+              {/* Footer Actions */}
+              <div className="flex justify-end space-x-3 pt-3 border-t border-navy/10">
                 <button
                   type="button"
                   onClick={handleModalClose}
-                  className="btn-secondary py-2 px-4 text-sm"
+                  className="btn-secondary py-2 px-4 text-xs font-bold"
+                  disabled={isSubmitting}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="btn-primary py-2 px-5 text-sm flex items-center space-x-2"
+                  className="btn-navy py-2 px-5 text-xs font-bold flex items-center space-x-1.5"
                 >
                   {isSubmitting ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>Creating Account...</span>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Creating…</span>
                     </>
                   ) : (
-                    <>
-                      <UserPlus className="w-4 h-4" />
-                      <span>Create Employee</span>
-                    </>
+                    <span>Create & Generate ID</span>
                   )}
                 </button>
               </div>

@@ -56,16 +56,16 @@ export const ResetPassword: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-cream flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 py-12 relative overflow-hidden">
-      {/* Subtle animated background scenes & ambient shapes */}
+    <div className="min-h-screen bg-cream-light flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 py-12 relative overflow-hidden">
+      {/* Animated background scenes & ambient shapes */}
       <AuthBackground />
 
       <div className="w-full max-w-md space-y-8 relative z-10">
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-slate-brand text-white font-heading font-bold text-2xl shadow-lg ring-4 ring-white">
-            <KeyRound className="w-7 h-7" />
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-navy text-white font-heading font-bold text-2xl shadow-elevated ring-4 ring-white border border-copper/30">
+            <KeyRound className="w-7 h-7 text-copper-bright" />
           </div>
-          <h1 className="text-2xl font-heading font-bold text-text-primary tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-heading font-bold text-navy-dark tracking-tight">
             Set Your New Password
           </h1>
           <p className="text-sm text-text-muted">
@@ -73,11 +73,11 @@ export const ResetPassword: React.FC = () => {
           </p>
         </div>
 
-        <div className="card shadow-modal border border-blue-grey/20 bg-white">
+        <div className="card shadow-modal border border-navy/15 bg-white rounded-3xl p-8">
           {errorMessage && (
-            <div className="mb-5 p-3.5 rounded-xl bg-terracotta/10 border border-terracotta/20 flex items-start space-x-3 text-terracotta text-sm">
+            <div className="mb-5 p-3.5 rounded-xl bg-terracotta-light border border-terracotta/20 flex items-start space-x-3 text-terracotta text-sm">
               <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-              <span>{errorMessage}</span>
+              <span className="font-medium">{errorMessage}</span>
             </div>
           )}
 
@@ -88,7 +88,7 @@ export const ResetPassword: React.FC = () => {
                 New Password
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-blue-grey">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-navy/40">
                   <Lock className="w-4 h-4" />
                 </div>
                 <input
@@ -109,7 +109,7 @@ export const ResetPassword: React.FC = () => {
                 Confirm Password
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-blue-grey">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-navy/40">
                   <Lock className="w-4 h-4" />
                 </div>
                 <input
@@ -128,51 +128,51 @@ export const ResetPassword: React.FC = () => {
             </div>
 
             {/* Live Criteria Checklist */}
-            <div className="p-3.5 bg-cream/60 rounded-xl space-y-2 border border-blue-grey/20">
-              <div className="text-xs font-semibold text-text-primary mb-1">
+            <div className="p-4 bg-cream/70 rounded-2xl space-y-2 border border-navy/10">
+              <div className="text-xs font-bold text-navy-dark mb-1 font-mono uppercase tracking-wider">
                 Password Requirements:
               </div>
 
               <div className="flex items-center space-x-2 text-xs">
                 {hasMinLength ? (
-                  <CheckCircle2 className="w-4 h-4 text-sage-deep flex-shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-copper flex-shrink-0" />
                 ) : (
-                  <Circle className="w-4 h-4 text-blue-grey flex-shrink-0" />
+                  <Circle className="w-4 h-4 text-navy/30 flex-shrink-0" />
                 )}
-                <span className={hasMinLength ? 'text-text-primary font-medium' : 'text-text-muted'}>
+                <span className={hasMinLength ? 'text-navy-dark font-bold' : 'text-text-muted'}>
                   At least 8 characters
                 </span>
               </div>
 
               <div className="flex items-center space-x-2 text-xs">
                 {hasUppercase ? (
-                  <CheckCircle2 className="w-4 h-4 text-sage-deep flex-shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-copper flex-shrink-0" />
                 ) : (
-                  <Circle className="w-4 h-4 text-blue-grey flex-shrink-0" />
+                  <Circle className="w-4 h-4 text-navy/30 flex-shrink-0" />
                 )}
-                <span className={hasUppercase ? 'text-text-primary font-medium' : 'text-text-muted'}>
+                <span className={hasUppercase ? 'text-navy-dark font-bold' : 'text-text-muted'}>
                   At least 1 uppercase letter (A-Z)
                 </span>
               </div>
 
               <div className="flex items-center space-x-2 text-xs">
                 {hasNumber ? (
-                  <CheckCircle2 className="w-4 h-4 text-sage-deep flex-shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-copper flex-shrink-0" />
                 ) : (
-                  <Circle className="w-4 h-4 text-blue-grey flex-shrink-0" />
+                  <Circle className="w-4 h-4 text-navy/30 flex-shrink-0" />
                 )}
-                <span className={hasNumber ? 'text-text-primary font-medium' : 'text-text-muted'}>
+                <span className={hasNumber ? 'text-navy-dark font-bold' : 'text-text-muted'}>
                   At least 1 number (0-9)
                 </span>
               </div>
 
               <div className="flex items-center space-x-2 text-xs">
                 {passwordsMatch ? (
-                  <CheckCircle2 className="w-4 h-4 text-sage-deep flex-shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-copper flex-shrink-0" />
                 ) : (
-                  <Circle className="w-4 h-4 text-blue-grey flex-shrink-0" />
+                  <Circle className="w-4 h-4 text-navy/30 flex-shrink-0" />
                 )}
-                <span className={passwordsMatch ? 'text-text-primary font-medium' : 'text-text-muted'}>
+                <span className={passwordsMatch ? 'text-navy-dark font-bold' : 'text-text-muted'}>
                   Passwords match
                 </span>
               </div>
@@ -182,14 +182,14 @@ export const ResetPassword: React.FC = () => {
             <button
               type="submit"
               disabled={!isFormValid || isSubmitting}
-              className="btn-primary w-full flex items-center justify-center space-x-2 py-3 text-base"
+              className="btn-navy w-full flex items-center justify-center space-x-2 py-3 text-base font-bold cursor-pointer"
             >
               {isSubmitting ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
                   <span>Save Password & Continue</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-4 h-4 text-copper-bright" />
                 </>
               )}
             </button>
