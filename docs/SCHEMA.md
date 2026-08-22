@@ -15,7 +15,8 @@ Generation logic lives server-side in the employee-creation service, never clien
 
 ```prisma
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
