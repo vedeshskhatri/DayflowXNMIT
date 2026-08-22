@@ -123,6 +123,15 @@ describe('Attendance List Views (Frontend)', () => {
       await waitFor(() => {
         expect(getSpy).toHaveBeenCalledTimes(3);
       });
+
+      // Jump to Today button appears when navigated away from current month
+      const todayBtn = screen.getByTestId('btn-jump-today');
+      expect(todayBtn).toBeInTheDocument();
+      fireEvent.click(todayBtn);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('btn-jump-today')).not.toBeInTheDocument();
+      });
     });
 
     it('replaces table with stacked cards layout below md breakpoint', async () => {
