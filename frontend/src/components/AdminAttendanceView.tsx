@@ -115,6 +115,7 @@ export const AdminAttendanceView: React.FC = () => {
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center space-x-1.5 bg-cream px-2 py-1 rounded-xl border border-blue-grey/20">
             <button
+              data-testid="btn-prev-day"
               onClick={() => changeDateByDays(-1)}
               className="p-1.5 rounded-lg hover:bg-white transition-colors text-text-primary"
               title="Previous Day"
@@ -122,11 +123,12 @@ export const AdminAttendanceView: React.FC = () => {
               <ChevronLeft className="w-4 h-4" />
             </button>
 
-            <span className="font-heading font-semibold text-sm px-2 text-text-primary min-w-[130px] text-center">
+            <span data-testid="admin-date-display" className="font-heading font-semibold text-sm px-2 text-text-primary min-w-[130px] text-center">
               {formatDisplayDate(selectedDate)}
             </span>
 
             <button
+              data-testid="btn-next-day"
               onClick={() => changeDateByDays(1)}
               className="p-1.5 rounded-lg hover:bg-white transition-colors text-text-primary"
               title="Next Day"
@@ -160,6 +162,7 @@ export const AdminAttendanceView: React.FC = () => {
         <div className="relative w-full lg:w-72">
           <Search className="w-4 h-4 text-blue-grey absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
+            data-testid="admin-search-input"
             type="text"
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
@@ -192,7 +195,7 @@ export const AdminAttendanceView: React.FC = () => {
       </div>
 
       {/* Table for Desktop (>= md) */}
-      <div className="hidden md:block card border border-blue-grey/20 overflow-hidden p-0">
+      <div data-testid="desktop-admin-table" className="hidden md:block card border border-blue-grey/20 overflow-hidden p-0">
         <table className="w-full text-left text-sm">
           <thead className="bg-cream/80 border-b border-blue-grey/20 text-xs font-semibold text-text-muted uppercase tracking-wider">
             <tr>
@@ -308,7 +311,7 @@ export const AdminAttendanceView: React.FC = () => {
       </div>
 
       {/* Stacked Cards for Mobile (< md) — No horizontal scroll */}
-      <div className="block md:hidden space-y-3">
+      <div data-testid="mobile-admin-cards" className="block md:hidden space-y-3">
         {isLoading ? (
           <div className="card p-8 text-center text-xs text-text-muted">Loading logs...</div>
         ) : (logs || []).length === 0 ? (

@@ -136,7 +136,7 @@ export const EmployeeAttendanceView: React.FC = () => {
         <div className="card p-5 border border-sage-light bg-sage-light/20 flex items-center justify-between shadow-sm">
           <div>
             <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">Days Present</p>
-            <p className="text-2xl font-heading font-bold text-text-primary mt-1">
+            <p data-testid="summary-days-present" className="text-2xl font-heading font-bold text-text-primary mt-1">
               {data?.summary.daysPresent ?? 0}
             </p>
           </div>
@@ -149,7 +149,7 @@ export const EmployeeAttendanceView: React.FC = () => {
         <div className="card p-5 border border-terracotta/30 bg-terracotta/10 flex items-center justify-between shadow-sm">
           <div>
             <p className="text-xs font-semibold text-terracotta uppercase tracking-wider">Leaves Taken</p>
-            <p className="text-2xl font-heading font-bold text-terracotta mt-1">
+            <p data-testid="summary-leaves-taken" className="text-2xl font-heading font-bold text-terracotta mt-1">
               {data?.summary.leavesTaken ?? 0}
             </p>
           </div>
@@ -162,7 +162,7 @@ export const EmployeeAttendanceView: React.FC = () => {
         <div className="card p-5 border border-blue-grey/30 bg-white flex items-center justify-between shadow-sm">
           <div>
             <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">Total Working Days</p>
-            <p className="text-2xl font-heading font-bold text-text-primary mt-1">
+            <p data-testid="summary-total-working-days" className="text-2xl font-heading font-bold text-text-primary mt-1">
               {data?.summary.totalWorkingDays ?? 5}
             </p>
           </div>
@@ -176,7 +176,7 @@ export const EmployeeAttendanceView: React.FC = () => {
       <div className="card border border-blue-grey/20 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center space-x-3">
           <Calendar className="w-5 h-5 text-slate-brand" />
-          <h2 className="text-base font-heading font-semibold text-text-primary">
+          <h2 data-testid="week-range-header" className="text-base font-heading font-semibold text-text-primary">
             {formatHeaderRange()}
           </h2>
           {weekOffset === 0 && (
@@ -188,6 +188,7 @@ export const EmployeeAttendanceView: React.FC = () => {
 
         <div className="flex items-center space-x-2">
           <button
+            data-testid="btn-prev-week"
             onClick={() => setWeekOffset((prev) => prev - 1)}
             className="p-2 rounded-xl border border-blue-grey/30 bg-white hover:bg-cream transition-colors text-text-primary"
             title="Previous Week"
@@ -205,6 +206,7 @@ export const EmployeeAttendanceView: React.FC = () => {
           )}
 
           <button
+            data-testid="btn-next-week"
             onClick={() => setWeekOffset((prev) => prev + 1)}
             className="p-2 rounded-xl border border-blue-grey/30 bg-white hover:bg-cream transition-colors text-text-primary"
             title="Next Week"
@@ -215,7 +217,7 @@ export const EmployeeAttendanceView: React.FC = () => {
       </div>
 
       {/* Table on Desktop (>= md) */}
-      <div className="hidden md:block card border border-blue-grey/20 overflow-hidden p-0">
+      <div data-testid="desktop-attendance-table" className="hidden md:block card border border-blue-grey/20 overflow-hidden p-0">
         <table className="w-full text-left text-sm">
           <thead className="bg-cream/80 border-b border-blue-grey/20 text-xs font-semibold text-text-muted uppercase tracking-wider">
             <tr>
@@ -306,7 +308,7 @@ export const EmployeeAttendanceView: React.FC = () => {
       </div>
 
       {/* Stacked Cards on Mobile (< md) — No horizontal scroll */}
-      <div className="block md:hidden space-y-3">
+      <div data-testid="mobile-attendance-cards" className="block md:hidden space-y-3">
         {isLoading ? (
           <div className="card p-8 text-center text-text-muted text-xs">Loading attendance...</div>
         ) : (
