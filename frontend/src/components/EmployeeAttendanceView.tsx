@@ -147,7 +147,7 @@ export const EmployeeAttendanceView: React.FC = () => {
             <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">
               Count of days present
             </p>
-            <p data-testid="summary-days-present" className="text-2xl font-heading font-bold text-text-primary mt-1 font-mono">
+            <p data-testid="summary-days-present" className="text-2xl font-heading font-bold text-text-primary mt-1">
               {data?.summary.daysPresent ?? 0}
             </p>
           </div>
@@ -162,7 +162,7 @@ export const EmployeeAttendanceView: React.FC = () => {
             <p className="text-xs font-semibold text-terracotta uppercase tracking-wider">
               Leaves count
             </p>
-            <p data-testid="summary-leaves-taken" className="text-2xl font-heading font-bold text-terracotta mt-1 font-mono">
+            <p data-testid="summary-leaves-taken" className="text-2xl font-heading font-bold text-terracotta mt-1">
               {data?.summary.leavesTaken ?? 0}
             </p>
           </div>
@@ -177,7 +177,7 @@ export const EmployeeAttendanceView: React.FC = () => {
             <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">
               Total working days
             </p>
-            <p data-testid="summary-total-working-days" className="text-2xl font-heading font-bold text-text-primary mt-1 font-mono">
+            <p data-testid="summary-total-working-days" className="text-2xl font-heading font-bold text-text-primary mt-1">
               {data?.summary.totalWorkingDays ?? totalDaysInMonth}
             </p>
           </div>

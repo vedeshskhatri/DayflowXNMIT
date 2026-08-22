@@ -34,12 +34,26 @@ export async function getSalary(
   requestingRole: string,
   targetEmployeeId: string
 ) {
-  if (requestingRole !== 'ADMIN' && requestingEmployeeId !== targetEmployeeId) {
-    throw { status: 403, message: 'Access denied' };
+  const targetEmployee = await prisma.employee.findFirst({
+    where: {
+      OR: [{ id: targetEmployeeId }, { loginId: targetEmployeeId }],
+    },
+    select: { id: true, loginId: true },
+  });
+
+  const resolvedTargetId = targetEmployee ? targetEmployee.id : targetEmployeeId;
+
+  if (
+    requestingRole !== 'ADMIN' &&
+    requestingRole !== 'HR_OFFICER' &&
+    requestingEmployeeId !== resolvedTargetId &&
+    requestingEmployeeId !== targetEmployeeId
+  ) {
+    throw { status: 403, message: 'Access denied: You can only view your own salary information' };
   }
 
   const salaryStructure = await prisma.salaryStructure.findUnique({
-    where: { employeeId: targetEmployeeId },
+    where: { employeeId: resolvedTargetId },
     include: { components: true },
   });
 
@@ -55,11 +69,19 @@ export async function upsertSalary(
   targetEmployeeId: string,
   body: UpsertSalaryInput
 ) {
+  const targetEmployee = await prisma.employee.findFirst({
+    where: {
+      OR: [{ id: targetEmployeeId }, { loginId: targetEmployeeId }],
+    },
+    select: { id: true },
+  });
+
+  const resolvedTargetId = targetEmployee ? targetEmployee.id : targetEmployeeId;
   const computed = await computeComponents(body.monthlyWage, body.components);
 
   return await prisma.$transaction(async (tx) => {
     const salaryStructure = await tx.salaryStructure.upsert({
-      where: { employeeId: targetEmployeeId },
+      where: { employeeId: resolvedTargetId },
       update: {
         monthlyWage: body.monthlyWage,
         workingDaysPerWeek: body.workingDaysPerWeek,
@@ -67,7 +89,7 @@ export async function upsertSalary(
         professionalTax: body.professionalTax,
       },
       create: {
-        employeeId: targetEmployeeId,
+        employeeId: resolvedTargetId,
         monthlyWage: body.monthlyWage,
         workingDaysPerWeek: body.workingDaysPerWeek,
         pfPercent: body.pfPercent,
@@ -103,7 +125,21 @@ export async function getPayableDays(
   from: string,
   to: string
 ) {
-  if (requestingRole !== 'ADMIN' && requestingEmployeeId !== targetEmployeeId) {
+  const targetEmployee = await prisma.employee.findFirst({
+    where: {
+      OR: [{ id: targetEmployeeId }, { loginId: targetEmployeeId }],
+    },
+    select: { id: true },
+  });
+
+  const resolvedTargetId = targetEmployee ? targetEmployee.id : targetEmployeeId;
+
+  if (
+    requestingRole !== 'ADMIN' &&
+    requestingRole !== 'HR_OFFICER' &&
+    requestingEmployeeId !== resolvedTargetId &&
+    requestingEmployeeId !== targetEmployeeId
+  ) {
     throw { status: 403, message: 'Access denied' };
   }
 

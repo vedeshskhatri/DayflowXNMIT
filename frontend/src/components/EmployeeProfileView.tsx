@@ -52,6 +52,8 @@ export interface EmployeeFullProfile {
   status?: string;
 }
 
+export type EmployeeProfileData = EmployeeFullProfile;
+
 const selfEditSchema = z.object({
   bio: z.string().max(2000).optional(),
   jobLove: z.string().max(1000).optional(),
@@ -254,11 +256,12 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
      (user && (user.id === employeeId || user.loginId === employeeId)))
   );
   const canViewPrivateInfo = Boolean(isAdmin || isOwnProfile);
+  const canViewSalary = Boolean(isAdmin || isOwnProfile);
 
   const tabs: { id: Tab; label: string }[] = [
     { id: 'about', label: 'Resume' },
     ...(canViewPrivateInfo ? [{ id: 'private' as Tab, label: 'Private Info' }] : []),
-    ...(isAdmin ? [{ id: 'salary' as Tab, label: 'Salary Info' }] : []),
+    ...(canViewSalary ? [{ id: 'salary' as Tab, label: 'Salary Info' }] : []),
     ...(isOwnProfile ? [{ id: 'security' as Tab, label: 'Security' }] : []),
   ];
 
@@ -604,8 +607,8 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
               </div>
             )}
 
-            {/* ── SALARY INFO TAB (Admin Only) ───────────────────────── */}
-            {activeTab === 'salary' && isAdmin && (
+            {/* ── SALARY INFO TAB ────────────────────────────────────── */}
+            {activeTab === 'salary' && canViewSalary && (
               <SalaryInfoTab employeeId={employeeId} />
             )}
 
@@ -910,7 +913,7 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
               </div>
             )}
 
-            {activeTab === 'salary' && isAdmin && (
+            {activeTab === 'salary' && canViewSalary && (
               <SalaryInfoTab employeeId={employeeId} />
             )}
           </div>
