@@ -2,7 +2,7 @@ import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { BrowserRouter, MemoryRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { EmployeeProfileView } from '../components/EmployeeProfileView';
 import { TagInput } from '../components/TagInput';
@@ -109,7 +109,7 @@ describe('Employee Profile Module (Frontend)', () => {
 
   it('/profile does NOT render or fetch the Salary Info tab when the logged-in user is not Admin', async () => {
     currentAuthUser.role = 'EMPLOYEE';
-    const getSpy = vi.spyOn(api, 'get').mockResolvedValue({ data: mockProfileData });
+    vi.spyOn(api, 'get').mockResolvedValue({ data: mockProfileData });
 
     renderWithProviders(<EmployeeProfileView employeeId="emp-123" editable={true} />);
 
@@ -178,7 +178,7 @@ describe('Employee Profile Module (Frontend)', () => {
       const onChange = vi.fn();
       const user = userEvent.setup();
 
-      const { rerender } = render(
+      render(
         <TagInput
           label="Skills"
           value={['React', 'TypeScript']}

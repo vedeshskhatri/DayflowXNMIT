@@ -7,7 +7,7 @@ import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { TagInput } from './TagInput';
 import { SalaryInfoTab } from './SalaryInfoTab';
-import { User, Shield, Briefcase, CheckCircle2 } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 
 interface Tag {
   id?: string;
