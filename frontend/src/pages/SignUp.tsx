@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '../context/AuthContext';
+import { api } from '../lib/api';
 import { DayflowLogo } from '../components/DayflowLogo';
 import { AuthBackground } from '../components/AuthBackground';
 import {
