@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   CalendarDays,
-  CheckCircle2,
   Clock,
   Loader2,
-  Paperclip,
   Plus,
-  ShieldAlert,
-  XCircle,
+  Search,
+  Check,
+  X,
+  Calendar as CalendarIcon,
+  ShieldCheck,
+  FileText,
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
@@ -37,28 +39,178 @@ interface TimeOffRequest {
   attachmentUrl: string | null;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   createdAt: string;
-  employee?: { firstName: string; lastName: string };
+  employee?: { firstName: string; lastName: string; profilePicUrl?: string | null };
   employeeId?: string;
 }
 
 // ─── Shared helpers ────────────────────────────────────────────────────────────
 
 function StatusBadge({ status }: { status: TimeOffRequest['status'] }) {
-  const cls =
-    status === 'APPROVED'
-      ? 'badge-approved'
-      : status === 'REJECTED'
-      ? 'badge-rejected'
-      : 'badge-pending';
-  return <span className={cls}>{status.charAt(0) + status.slice(1).toLowerCase()}</span>;
+  if (status === 'APPROVED') {
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-sage-light text-text-primary border border-sage-deep/20">
+        Approved
+      </span>
+    );
+  }
+  if (status === 'REJECTED') {
+    return (
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-terracotta/15 text-terracotta border border-terracotta/20">
+        Rejected
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-cream text-slate-brand border border-blue-grey/25">
+      Pending
+    </span>
+  );
 }
 
 function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString('en-IN', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
+  const d = new Date(iso);
+  return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+}
+
+// ─── Balance Cards Bar (Wireframe: Paid time Off 24 Days | Sick time off 07 Days) ──
+
+function BalanceCardsBar({ balances }: { balances: Balance[] }) {
+  const paid = balances.find((b) => b.name.toLowerCase().includes('paid')) || {
+    name: 'Paid time Off',
+    remaining: 24,
+    daysAllocated: 24,
+  };
+  const sick = balances.find((b) => b.name.toLowerCase().includes('sick')) || {
+    name: 'Sick time off',
+    remaining: 7,
+    daysAllocated: 7,
+  };
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* Paid Time Off Card */}
+      <div className="p-5 rounded-2xl bg-white border border-blue-grey/20 shadow-sm flex items-center justify-between">
+        <div>
+          <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">
+            {paid.name}
+          </span>
+          <p className="text-2xl font-heading font-bold text-slate-brand mt-1 font-mono">
+            {String(paid.remaining).padStart(2, '0')} <span className="text-sm font-normal text-text-muted">Days Available</span>
+          </p>
+        </div>
+        <div className="w-11 h-11 rounded-2xl bg-slate-brand/10 text-slate-brand flex items-center justify-center border border-slate-brand/20">
+          <CalendarDays className="w-6 h-6" />
+        </div>
+      </div>
+
+      {/* Sick Time Off Card */}
+      <div className="p-5 rounded-2xl bg-white border border-blue-grey/20 shadow-sm flex items-center justify-between">
+        <div>
+          <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">
+            {sick.name}
+          </span>
+          <p className="text-2xl font-heading font-bold text-terracotta mt-1 font-mono">
+            {String(sick.remaining).padStart(2, '0')} <span className="text-sm font-normal text-text-muted">Days Available</span>
+          </p>
+        </div>
+        <div className="w-11 h-11 rounded-2xl bg-terracotta/15 text-terracotta flex items-center justify-center border border-terracotta/20">
+          <Clock className="w-6 h-6" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Annual Calendar Grid (Wireframe Employee View) ───────────────────────────
+
+function YearCalendarGrid({ requests }: { requests: TimeOffRequest[] }) {
+  const currentYear = new Date().getFullYear();
+  const months = Array.from({ length: 12 }, (_, i) => i);
+
+  // Set of leave dates in YYYY-MM-DD
+  const leaveMap = useMemo(() => {
+    const map = new Map<string, { status: string; type: string }>();
+    requests.forEach((r) => {
+      const start = new Date(r.startDate);
+      const end = new Date(r.endDate);
+      const cur = new Date(start);
+      while (cur <= end) {
+        map.set(cur.toISOString().split('T')[0], { status: r.status, type: r.type?.name || 'Leave' });
+        cur.setDate(cur.getDate() + 1);
+      }
+    });
+    return map;
+  }, [requests]);
+
+  return (
+    <div className="p-5 rounded-2xl bg-white border border-blue-grey/20 shadow-sm space-y-4">
+      <div className="flex items-center justify-between pb-3 border-b border-blue-grey/15">
+        <div className="flex items-center space-x-2">
+          <CalendarIcon className="w-4 h-4 text-slate-brand" />
+          <h3 className="font-heading font-semibold text-sm text-text-primary">
+            Leave Calendar Overview ({currentYear})
+          </h3>
+        </div>
+        <div className="flex items-center space-x-3 text-[11px]">
+          <span className="flex items-center space-x-1">
+            <span className="w-2.5 h-2.5 rounded-full bg-sage-deep" />
+            <span>Approved</span>
+          </span>
+          <span className="flex items-center space-x-1">
+            <span className="w-2.5 h-2.5 rounded-full bg-terracotta" />
+            <span>Pending</span>
+          </span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 text-xs">
+        {months.map((m) => {
+          const firstDay = new Date(currentYear, m, 1).getDay(); // 0 is Sun
+          const daysInMonth = new Date(currentYear, m + 1, 0).getDate();
+          const monthName = new Date(currentYear, m, 1).toLocaleDateString('en-US', { month: 'short' });
+
+          return (
+            <div key={m} className="p-2.5 rounded-xl bg-cream/30 border border-blue-grey/15">
+              <span className="font-heading font-bold text-xs text-text-primary block text-center mb-1.5">
+                {monthName}
+              </span>
+              <div className="grid grid-cols-7 gap-0.5 text-[9px] text-center font-mono">
+                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, idx) => (
+                  <span key={idx} className="text-text-muted font-bold">
+                    {d}
+                  </span>
+                ))}
+                {Array.from({ length: firstDay }, (_, i) => (
+                  <span key={`empty-${i}`} />
+                ))}
+                {Array.from({ length: daysInMonth }, (_, i) => {
+                  const dayNum = i + 1;
+                  const dateStr = `${currentYear}-${String(m + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+                  const leave = leaveMap.get(dateStr);
+
+                  return (
+                    <span
+                      key={dayNum}
+                      className={`h-5 w-5 flex items-center justify-center rounded-md font-medium ${
+                        leave?.status === 'APPROVED'
+                          ? 'bg-sage-deep text-white font-bold'
+                          : leave?.status === 'PENDING'
+                          ? 'bg-terracotta text-white font-bold'
+                          : 'text-text-primary hover:bg-cream'
+                      }`}
+                      title={leave ? `${leave.type} (${leave.status})` : undefined}
+                    >
+                      {dayNum}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 // ─── Employee View ─────────────────────────────────────────────────────────────
@@ -67,20 +219,17 @@ function EmployeeView() {
   const qc = useQueryClient();
   const [modalOpen, setModalOpen] = useState(false);
 
-  const { data: balances = [], isLoading: balancesLoading } = useQuery<Balance[]>({
+  const { data: balances = [] } = useQuery<Balance[]>({
     queryKey: ['timeoff', 'balances'],
     queryFn: async () => (await api.get('/timeoff/balances')).data,
   });
 
-  const {
-    data: requests = [],
-    isLoading: requestsLoading,
-  } = useQuery<TimeOffRequest[]>({
+  const { data: requests = [], isLoading: requestsLoading } = useQuery<TimeOffRequest[]>({
     queryKey: ['timeoff', 'mine'],
     queryFn: async () => (await api.get('/timeoff/requests/mine')).data,
   });
 
-  // Live: admin acts on a request → update status badge without full refetch
+  // Socket listener for approval updates
   useEffect(() => {
     const socket = getSocket();
     const handler = (data: { requestId: string; status: string }) => {
@@ -93,378 +242,117 @@ function EmployeeView() {
             )
           : prev
       );
+      qc.invalidateQueries({ queryKey: ['timeoff', 'balances'] });
     };
     socket.on('timeoff:statusChanged', handler);
-    return () => { socket.off('timeoff:statusChanged', handler); };
+    return () => {
+      socket.off('timeoff:statusChanged', handler);
+    };
   }, [qc]);
 
-  function balanceBarColor(name: string) {
-    if (name.toLowerCase().includes('sick')) return 'bg-terracotta';
-    if (name.toLowerCase().includes('unpaid')) return 'bg-blue-grey';
-    return 'bg-sage-light';
-  }
-
   return (
-    <div className="space-y-8">
-      {/* Balance Cards */}
-      <section>
-        <h2 className="text-lg font-heading font-semibold text-text-primary mb-4">
-          Leave Balances
-        </h2>
-        {balancesLoading ? (
-          <div className="flex items-center space-x-2 text-sm text-text-muted">
-            <Loader2 className="w-4 h-4 animate-spin text-slate-brand" />
-            <span>Loading balances…</span>
-          </div>
-        ) : balances.length === 0 ? (
-          <p className="text-sm text-text-muted">No active allocations found.</p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {balances.map((b) => {
-              const pct = b.daysAllocated > 0 ? (b.daysUsed / b.daysAllocated) * 100 : 0;
-              return (
-                <div key={b.typeId} className="card border border-blue-grey/20 space-y-3">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-xs text-text-muted font-medium uppercase tracking-wide">
-                        {b.name}
-                      </p>
-                      <p className="text-3xl font-heading font-bold text-text-primary mt-0.5">
-                        {b.remaining}
-                        <span className="text-sm font-normal text-text-muted ml-1">days left</span>
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-text-muted">Used</p>
-                      <p className="text-sm font-semibold text-text-primary">
-                        {b.daysUsed} / {b.daysAllocated}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="w-full h-2 bg-cream rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all ${balanceBarColor(b.name)}`}
-                      style={{ width: `${Math.min(pct, 100)}%` }}
-                    />
-                  </div>
-                  {b.requiresProof && (
-                    <p className="text-[11px] text-text-muted flex items-center space-x-1">
-                      <Paperclip className="w-3 h-3" />
-                      <span>Attachment required on request</span>
-                    </p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </section>
-
-      {/* Request List */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-heading font-semibold text-text-primary">My Requests</h2>
-          <button
-            onClick={() => setModalOpen(true)}
-            className="btn-primary flex items-center space-x-2 text-sm"
-          >
-            <Plus className="w-4 h-4" />
-            <span>New Request</span>
-          </button>
+    <div className="space-y-6">
+      {/* Top Action Row with NEW Button (Wireframe: Time Off [NEW]) */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-heading font-bold text-text-primary">Time Off</h2>
+          <p className="text-xs text-text-muted">Manage and track your leave applications</p>
         </div>
+        <button
+          type="button"
+          onClick={() => setModalOpen(true)}
+          className="btn-primary flex items-center space-x-2 text-xs font-semibold py-2.5 px-5 shadow-sm"
+        >
+          <Plus className="w-4 h-4" />
+          <span>NEW</span>
+        </button>
+      </div>
+
+      {/* Balance Cards Bar */}
+      <BalanceCardsBar balances={balances} />
+
+      {/* Annual Calendar Grid */}
+      <YearCalendarGrid requests={requests} />
+
+      {/* Personal Requests Table */}
+      <div className="p-5 rounded-2xl bg-white border border-blue-grey/20 shadow-sm space-y-4">
+        <h3 className="font-heading font-semibold text-sm text-text-primary">
+          My Leave History
+        </h3>
 
         {requestsLoading ? (
-          <div className="flex items-center space-x-2 text-sm text-text-muted">
-            <Loader2 className="w-4 h-4 animate-spin text-slate-brand" />
-            <span>Loading requests…</span>
-          </div>
+          <div className="py-8 text-center text-xs text-text-muted">Loading leave history…</div>
         ) : requests.length === 0 ? (
-          <div className="card border border-blue-grey/20 p-10 text-center space-y-3">
-            <CalendarDays className="w-10 h-10 text-blue-grey mx-auto" />
-            <p className="text-sm text-text-muted">No requests yet. Submit your first one!</p>
+          <div className="py-8 text-center text-xs text-text-muted italic">
+            No time off requests filed yet. Click NEW to apply.
           </div>
         ) : (
-          <div className="space-y-3">
-            {requests.map((req) => (
-              <div
-                key={req.id}
-                className="card border border-blue-grey/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-4"
-              >
-                <div className="flex items-start space-x-4">
-                  <div className="w-10 h-10 rounded-xl bg-slate-brand/10 text-slate-brand flex items-center justify-center flex-shrink-0">
-                    <CalendarDays className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-text-primary">{req.type.name}</p>
-                    <p className="text-xs text-text-muted mt-0.5">
-                      {fmtDate(req.startDate)} → {fmtDate(req.endDate)}
-                      {' · '}
-                      <span className="font-medium text-text-primary">
-                        {req.daysCount} day{req.daysCount !== 1 ? 's' : ''}
-                      </span>
-                    </p>
-                    {req.remarks && (
-                      <p className="text-xs text-text-muted mt-1 italic">"{req.remarks}"</p>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center space-x-3 sm:flex-shrink-0">
-                  <StatusBadge status={req.status} />
-                  <span className="text-[11px] text-text-muted font-mono">
-                    {fmtDate(req.createdAt)}
-                  </span>
-                </div>
-              </div>
-            ))}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-cream/70 border-b border-blue-grey/15 uppercase font-bold text-text-muted">
+                <tr>
+                  <th className="py-3 px-4">Type</th>
+                  <th className="py-3 px-4">Start Date</th>
+                  <th className="py-3 px-4">End Date</th>
+                  <th className="py-3 px-4">Days</th>
+                  <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4">Applied On</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-blue-grey/10 font-mono">
+                {requests.map((r) => (
+                  <tr key={r.id} className="hover:bg-cream/40 transition-colors">
+                    <td className="py-3 px-4 font-sans font-semibold text-text-primary">
+                      {r.type.name}
+                    </td>
+                    <td className="py-3 px-4">{fmtDate(r.startDate)}</td>
+                    <td className="py-3 px-4">{fmtDate(r.endDate)}</td>
+                    <td className="py-3 px-4 font-bold text-slate-brand">{r.daysCount}</td>
+                    <td className="py-3 px-4 font-sans">
+                      <StatusBadge status={r.status} />
+                    </td>
+                    <td className="py-3 px-4 text-text-muted">{fmtDate(r.createdAt)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
-      </section>
+      </div>
 
-      {/* New Request Modal (extracted component) */}
       <NewRequestModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
     </div>
   );
 }
 
-// ─── Admin Allocation Tab ──────────────────────────────────────────────────────
+// ─── Admin View (Wireframe: For Admin & HR Officer) ────────────────────────────
 
-interface AllocationRow {
-  employeeName: string;
-  leaveType: string;
-  allocatedDays: number | null;
-  usedDays: number;
-  remaining: number | null;
-}
+function AdminView() {
+  const qc = useQueryClient();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'timeoff' | 'allocation'>('timeoff');
+  const [searchQuery, setSearchQuery] = useState('');
 
-function AllocationTab({ requests }: { requests: TimeOffRequest[] }) {
-  // Fetch current admin's allocations
-  const { data: myBalances = [] } = useQuery<Balance[]>({
+  const { data: balances = [] } = useQuery<Balance[]>({
     queryKey: ['timeoff', 'balances'],
     queryFn: async () => (await api.get('/timeoff/balances')).data,
   });
 
-  // Map of leave type name -> standard allocated days (from balance config)
-  const allocMap = React.useMemo(() => {
-    const map: Record<string, number> = {};
-    myBalances.forEach((b) => {
-      map[b.name] = b.daysAllocated;
-    });
-    return map;
-  }, [myBalances]);
-
-  // Derive per-employee, per-type used days from requests
-  const rows = React.useMemo<AllocationRow[]>(() => {
-    const map = new Map<string, { employeeName: string; leaveType: string; usedDays: number }>();
-    
-    requests.forEach((r) => {
-      const name = `${r.employee?.firstName ?? ''} ${r.employee?.lastName ?? ''}`.trim() || 'Unknown Employee';
-      const key = `${name}__${r.type.name}`;
-      const existing = map.get(key);
-      const daysToAdd = r.status === 'APPROVED' ? r.daysCount : 0;
-      
-      if (existing) {
-        existing.usedDays += daysToAdd;
-      } else {
-        map.set(key, {
-          employeeName: name,
-          leaveType: r.type.name,
-          usedDays: daysToAdd,
-        });
-      }
-    });
-
-    return Array.from(map.values())
-      .map((item) => {
-        const allocated = allocMap[item.leaveType] ?? null;
-        const remaining = allocated !== null ? allocated - item.usedDays : null;
-        return {
-          employeeName: item.employeeName,
-          leaveType: item.leaveType,
-          allocatedDays: allocated,
-          usedDays: item.usedDays,
-          remaining,
-        };
-      })
-      .sort((a, b) => a.employeeName.localeCompare(b.employeeName));
-  }, [requests, allocMap]);
-
-  return (
-    <div className="space-y-6">
-      {/* Logged-in admin's personal allocation */}
-      {myBalances.length > 0 && (
-        <section className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-heading font-semibold text-text-primary">
-              Your Allocation
-            </h3>
-            <span className="text-xs text-text-muted">Personal leave quota</span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {myBalances.map((b) => (
-              <div key={b.typeId} className="card border border-blue-grey/20 py-4 px-5 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-text-muted uppercase tracking-wide">
-                    {b.name}
-                  </span>
-                  <span className="text-xs text-text-muted">
-                    {b.daysUsed} / {b.daysAllocated} used
-                  </span>
-                </div>
-                <p className="text-2xl font-heading font-bold text-text-primary">
-                  {b.remaining}{' '}
-                  <span className="text-xs font-normal text-text-muted">days remaining</span>
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Company Employee Allocations Table */}
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-heading font-semibold text-text-primary">
-            Employee Leave Usage &amp; Allocations
-          </h3>
-          <span className="text-xs text-text-muted">
-            Derived from approved leave records
-          </span>
-        </div>
-
-        {rows.length === 0 ? (
-          <div className="card border border-blue-grey/20 p-10 text-center space-y-3">
-            <CheckCircle2 className="w-10 h-10 text-sage-light mx-auto" />
-            <p className="text-sm text-text-muted">No employee leave records found.</p>
-          </div>
-        ) : (
-          <>
-            {/* Desktop table */}
-            <div className="hidden md:block card border border-blue-grey/20 p-0 overflow-hidden">
-              <table className="w-full text-sm">
-                <thead className="bg-cream/60 border-b border-blue-grey/20">
-                  <tr>
-                    {['Employee Name', 'Leave Type', 'Allocated Days', 'Used Days', 'Remaining'].map(
-                      (h) => (
-                        <th
-                          key={h}
-                          className="text-left px-5 py-3.5 text-xs font-semibold text-text-muted uppercase tracking-wide"
-                        >
-                          {h}
-                        </th>
-                      )
-                    )}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-blue-grey/10">
-                  {rows.map((row, i) => (
-                    <tr key={i} className="hover:bg-cream/30 transition-colors">
-                      <td className="px-5 py-4 font-medium text-text-primary">
-                        {row.employeeName}
-                      </td>
-                      <td className="px-5 py-4 text-text-muted">{row.leaveType}</td>
-                      <td className="px-5 py-4 text-text-muted">
-                        {row.allocatedDays !== null ? `${row.allocatedDays} days` : '—'}
-                      </td>
-                      <td className="px-5 py-4 font-semibold text-text-primary">
-                        {row.usedDays}{' '}
-                        <span className="text-text-muted font-normal text-xs">
-                          day{row.usedDays !== 1 ? 's' : ''}
-                        </span>
-                      </td>
-                      <td className="px-5 py-4 font-semibold">
-                        {row.remaining !== null ? (
-                          <span
-                            className={
-                              row.remaining <= 2 ? 'text-terracotta' : 'text-sage-deep'
-                            }
-                          >
-                            {row.remaining}{' '}
-                            <span className="text-text-muted font-normal text-xs">
-                              days left
-                            </span>
-                          </span>
-                        ) : (
-                          <span className="text-text-muted font-normal">—</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Mobile cards */}
-            <div className="md:hidden space-y-3">
-              {rows.map((row, i) => (
-                <div key={i} className="card border border-blue-grey/20 py-4 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-semibold text-text-primary">
-                      {row.employeeName}
-                    </p>
-                    <span className="text-xs font-medium text-slate-brand bg-slate-brand/10 px-2.5 py-0.5 rounded-full">
-                      {row.leaveType}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-2 pt-2 border-t border-blue-grey/10 text-xs">
-                    <div>
-                      <p className="text-text-muted">Allocated</p>
-                      <p className="font-semibold text-text-primary">
-                        {row.allocatedDays !== null ? `${row.allocatedDays}d` : '—'}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-text-muted">Used</p>
-                      <p className="font-semibold text-text-primary">{row.usedDays}d</p>
-                    </div>
-                    <div>
-                      <p className="text-text-muted">Remaining</p>
-                      <p
-                        className={`font-semibold ${
-                          row.remaining !== null && row.remaining <= 2
-                            ? 'text-terracotta'
-                            : 'text-sage-deep'
-                        }`}
-                      >
-                        {row.remaining !== null ? `${row.remaining}d` : '—'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-      </section>
-    </div>
-  );
-}
-
-// ─── Admin View ────────────────────────────────────────────────────────────────
-
-function AdminView() {
-  const qc = useQueryClient();
-  const [liveToast, setLiveToast] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'timeoff' | 'allocation'>('timeoff');
-
-  const {
-    data: requests = [],
-    isLoading,
-    refetch,
-  } = useQuery<TimeOffRequest[]>({
+  const { data: requests = [], isLoading, refetch } = useQuery<TimeOffRequest[]>({
     queryKey: ['timeoff', 'all'],
     queryFn: async () => (await api.get('/timeoff/requests')).data,
   });
 
-  // Live: new employee request arrives → toast + refetch
+  // Socket listener for new incoming requests
   useEffect(() => {
     const socket = getSocket();
     const handleRequested = () => {
-      setLiveToast('A new time-off request just arrived.');
-      setTimeout(() => setLiveToast(null), 4000);
       refetch();
     };
     socket.on('timeoff:requested', handleRequested);
-    return () => { socket.off('timeoff:requested', handleRequested); };
+    return () => {
+      socket.off('timeoff:requested', handleRequested);
+    };
   }, [refetch]);
 
   const reviewMutation = useMutation({
@@ -478,198 +366,238 @@ function AdminView() {
           ? prev.map((r) => (r.id === updated.id ? { ...r, status: updated.status } : r))
           : prev
       );
-    },
-    onError: (err: unknown) => {
-      const msg =
-        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
-        'Action failed';
-      alert(msg);
+      qc.invalidateQueries({ queryKey: ['timeoff', 'balances'] });
     },
   });
 
-  const pendingCount = requests.filter((r) => r.status === 'PENDING').length;
+  // Filter requests by search query
+  const filteredRequests = useMemo(() => {
+    if (!searchQuery.trim()) return requests;
+    const q = searchQuery.toLowerCase();
+    return requests.filter((r) => {
+      const name = `${r.employee?.firstName || ''} ${r.employee?.lastName || ''}`.toLowerCase();
+      const type = (r.type?.name || '').toLowerCase();
+      const status = r.status.toLowerCase();
+      return name.includes(q) || type.includes(q) || status.includes(q);
+    });
+  }, [requests, searchQuery]);
 
   return (
     <div className="space-y-6">
-      {/* Live toast */}
-      {liveToast && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center space-x-3 bg-slate-brand text-white text-sm px-5 py-3.5 rounded-2xl shadow-xl animate-fadeIn">
-          <Clock className="w-4 h-4 flex-shrink-0" />
-          <span>{liveToast}</span>
-        </div>
-      )}
-
-      {/* Tabs — "Time Off" | "Allocation" */}
-      <div className="flex items-center space-x-1 bg-cream rounded-xl p-1 w-fit border border-blue-grey/20">
-        {(['timeoff', 'allocation'] as const).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
-              activeTab === tab
-                ? 'bg-white text-slate-brand shadow-sm'
-                : 'text-text-muted hover:text-text-primary'
-            }`}
-          >
-            {tab === 'timeoff' ? 'Time Off' : 'Allocation'}
-            {tab === 'timeoff' && pendingCount > 0 && (
-              <span className="ml-2 bg-slate-brand/10 text-slate-brand text-xs font-semibold px-1.5 py-0.5 rounded-full">
-                {pendingCount}
-              </span>
-            )}
-          </button>
-        ))}
+      {/* ── Sub-navigation Tabs (Wireframe: [Time Off] [Allocation]) ──── */}
+      <div className="flex items-center space-x-1.5 bg-cream p-1 rounded-xl w-fit border border-blue-grey/20">
+        <button
+          onClick={() => setActiveTab('timeoff')}
+          className={`px-4 py-2 rounded-lg text-xs font-heading font-semibold transition-all ${
+            activeTab === 'timeoff'
+              ? 'bg-slate-brand text-white shadow-sm'
+              : 'text-text-muted hover:text-text-primary hover:bg-white'
+          }`}
+        >
+          Time Off
+        </button>
+        <button
+          onClick={() => setActiveTab('allocation')}
+          className={`px-4 py-2 rounded-lg text-xs font-heading font-semibold transition-all ${
+            activeTab === 'allocation'
+              ? 'bg-slate-brand text-white shadow-sm'
+              : 'text-text-muted hover:text-text-primary hover:bg-white'
+          }`}
+        >
+          Allocation
+        </button>
       </div>
 
-      {/* Tab content */}
-      {activeTab === 'allocation' ? (
-        <AllocationTab requests={requests} />
-      ) : isLoading ? (
-        <div className="flex items-center space-x-2 text-sm text-text-muted">
-          <Loader2 className="w-4 h-4 animate-spin text-slate-brand" />
-          <span>Loading requests…</span>
+      {/* ── Action & Search Row (Wireframe: [NEW]  [Searchbar]) ─────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <button
+          type="button"
+          onClick={() => setModalOpen(true)}
+          className="btn-primary flex items-center space-x-2 text-xs font-semibold py-2.5 px-6 shadow-sm self-start sm:self-auto"
+        >
+          <Plus className="w-4 h-4" />
+          <span>NEW</span>
+        </button>
+
+        <div className="relative w-full sm:w-80">
+          <Search className="w-4 h-4 text-blue-grey absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search employee, leave type, or status…"
+            className="input pl-10 py-2 text-xs bg-white w-full"
+          />
         </div>
-      ) : requests.length === 0 ? (
-        <div className="card border border-blue-grey/20 p-10 text-center space-y-3">
-          <CheckCircle2 className="w-10 h-10 text-sage-light mx-auto" />
-          <p className="text-sm text-text-muted">No requests found.</p>
+      </div>
+
+      {/* ── Balance Cards Bar (Wireframe: Paid time Off 24 Days | Sick time off 07 Days) ── */}
+      <BalanceCardsBar balances={balances} />
+
+      {/* ── Tab Content ───────────────────────────────────────────────── */}
+      {activeTab === 'timeoff' ? (
+        /* Requests Table matching Wireframe Columns: Name | Start Date | End Date | Time off Type | Status | Actions (Reject & Approve) */
+        <div className="card border border-blue-grey/20 overflow-hidden p-0 bg-white shadow-sm">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-cream/80 border-b border-blue-grey/20 uppercase font-bold text-text-muted">
+              <tr>
+                <th className="py-3.5 px-6">Name</th>
+                <th className="py-3.5 px-6">Start Date</th>
+                <th className="py-3.5 px-6">End Date</th>
+                <th className="py-3.5 px-6">Time off Type</th>
+                <th className="py-3.5 px-6">Status</th>
+                <th className="py-3.5 px-6 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-blue-grey/15">
+              {isLoading ? (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center text-text-muted">
+                    <Loader2 className="w-5 h-5 animate-spin mx-auto text-slate-brand mb-1" />
+                    Loading time-off queue…
+                  </td>
+                </tr>
+              ) : filteredRequests.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center text-text-muted italic">
+                    No time off requests found.
+                  </td>
+                </tr>
+              ) : (
+                filteredRequests.map((req) => {
+                  const empName = req.employee
+                    ? `${req.employee.firstName} ${req.employee.lastName}`
+                    : 'Employee';
+                  const isPending = req.status === 'PENDING';
+
+                  return (
+                    <tr key={req.id} className="hover:bg-cream/40 transition-colors">
+                      {/* Name */}
+                      <td className="py-4 px-6 font-semibold text-text-primary">
+                        {empName}
+                      </td>
+
+                      {/* Start Date */}
+                      <td className="py-4 px-6 font-mono text-text-muted">
+                        {fmtDate(req.startDate)}
+                      </td>
+
+                      {/* End Date */}
+                      <td className="py-4 px-6 font-mono text-text-muted">
+                        {fmtDate(req.endDate)}
+                      </td>
+
+                      {/* Time off Type */}
+                      <td className="py-4 px-6 font-semibold text-slate-brand">
+                        {req.type.name}
+                        {req.attachmentUrl && (
+                          <a
+                            href={req.attachmentUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="ml-2 text-xs text-slate-brand hover:underline inline-flex items-center"
+                            title="View Attachment"
+                          >
+                            <FileText className="w-3.5 h-3.5 inline mr-0.5" />
+                          </a>
+                        )}
+                      </td>
+
+                      {/* Status */}
+                      <td className="py-4 px-6">
+                        <StatusBadge status={req.status} />
+                      </td>
+
+                      {/* Actions: Reject (Red) & Approve (Green) Buttons */}
+                      <td className="py-4 px-6 text-center">
+                        {isPending ? (
+                          <div className="flex items-center justify-center space-x-2">
+                            {/* Reject Button (Red) */}
+                            <button
+                              type="button"
+                              onClick={() => reviewMutation.mutate({ id: req.id, action: 'REJECT' })}
+                              disabled={reviewMutation.isPending}
+                              className="p-1.5 rounded-lg bg-terracotta text-white hover:bg-terracotta/90 transition-colors shadow-sm"
+                              title="Reject Request"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+
+                            {/* Approve Button (Green) */}
+                            <button
+                              type="button"
+                              onClick={() => reviewMutation.mutate({ id: req.id, action: 'APPROVE' })}
+                              disabled={reviewMutation.isPending}
+                              className="p-1.5 rounded-lg bg-sage-deep text-white hover:bg-sage-deep/90 transition-colors shadow-sm"
+                              title="Approve Request"
+                            >
+                              <Check className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-[11px] text-text-muted font-mono">—</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
         </div>
       ) : (
-        <>
-          {/* Desktop table */}
-          <div className="hidden md:block card border border-blue-grey/20 p-0 overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-cream/60 border-b border-blue-grey/20">
-                <tr>
-                  {['Employee', 'Type', 'Period', 'Days', 'Status', 'Actions'].map((h) => (
-                    <th
-                      key={h}
-                      className="text-left px-5 py-3.5 text-xs font-semibold text-text-muted uppercase tracking-wide"
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-blue-grey/10">
-                {requests.map((req) => (
-                  <tr key={req.id} className="hover:bg-cream/30 transition-colors">
-                    <td className="px-5 py-4 font-medium text-text-primary">
-                      {req.employee?.firstName} {req.employee?.lastName}
-                    </td>
-                    <td className="px-5 py-4 text-text-muted">{req.type.name}</td>
-                    <td className="px-5 py-4 text-text-muted font-mono text-xs">
-                      {fmtDate(req.startDate)} → {fmtDate(req.endDate)}
-                    </td>
-                    <td className="px-5 py-4 font-semibold text-text-primary">{req.daysCount}</td>
-                    <td className="px-5 py-4">
-                      <StatusBadge status={req.status} />
-                    </td>
-                    <td className="px-5 py-4">
-                      {req.status === 'PENDING' ? (
-                        <div className="flex items-center space-x-2">
-                          <button
-                            onClick={() => reviewMutation.mutate({ id: req.id, action: 'APPROVE' })}
-                            disabled={reviewMutation.isPending}
-                            className="flex items-center space-x-1 px-3 py-1.5 text-xs font-semibold bg-sage-light/30 text-sage-deep border border-sage-light/60 rounded-lg hover:bg-sage-light/50 transition-colors disabled:opacity-50"
-                          >
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            <span>Approve</span>
-                          </button>
-                          <button
-                            onClick={() => reviewMutation.mutate({ id: req.id, action: 'REJECT' })}
-                            disabled={reviewMutation.isPending}
-                            className="flex items-center space-x-1 px-3 py-1.5 text-xs font-semibold bg-terracotta/10 text-terracotta border border-terracotta/30 rounded-lg hover:bg-terracotta/20 transition-colors disabled:opacity-50"
-                          >
-                            <XCircle className="w-3.5 h-3.5" />
-                            <span>Reject</span>
-                          </button>
-                        </div>
-                      ) : (
-                        <span className="text-xs text-text-muted">—</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mobile stacked cards */}
-          <div className="md:hidden space-y-3">
-            {requests.map((req) => (
-              <div key={req.id} className="card border border-blue-grey/20 space-y-3 py-4">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-sm font-semibold text-text-primary">
-                      {req.employee?.firstName} {req.employee?.lastName}
-                    </p>
-                    <p className="text-xs text-text-muted mt-0.5">{req.type.name}</p>
-                  </div>
-                  <StatusBadge status={req.status} />
+        /* Allocation Overview Tab */
+        <div className="card p-6 border border-blue-grey/20 bg-white shadow-sm space-y-4">
+          <h3 className="font-heading font-semibold text-sm text-text-primary">
+            Company Leave Allocations Overview
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {balances.map((b) => (
+              <div key={b.typeId} className="p-4 rounded-xl bg-cream/40 border border-blue-grey/20 space-y-2">
+                <span className="text-xs font-bold text-text-primary uppercase tracking-wide">
+                  {b.name}
+                </span>
+                <div className="flex justify-between items-center text-xs font-mono">
+                  <span className="text-text-muted">Quota: {b.daysAllocated}d</span>
+                  <span className="text-slate-brand font-bold">Remaining: {b.remaining}d</span>
                 </div>
-                <div className="text-xs text-text-muted space-y-0.5">
-                  <p>{fmtDate(req.startDate)} → {fmtDate(req.endDate)}</p>
-                  <p>
-                    <strong className="text-text-primary">{req.daysCount}</strong>{' '}
-                    day{req.daysCount !== 1 ? 's' : ''}
-                  </p>
-                </div>
-                {req.status === 'PENDING' && (
-                  <div className="flex space-x-2 pt-1">
-                    <button
-                      onClick={() => reviewMutation.mutate({ id: req.id, action: 'APPROVE' })}
-                      disabled={reviewMutation.isPending}
-                      className="flex-1 flex items-center justify-center space-x-1 py-2 text-xs font-semibold bg-sage-light/30 text-sage-deep border border-sage-light/60 rounded-lg disabled:opacity-50"
-                    >
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Approve</span>
-                    </button>
-                    <button
-                      onClick={() => reviewMutation.mutate({ id: req.id, action: 'REJECT' })}
-                      disabled={reviewMutation.isPending}
-                      className="flex-1 flex items-center justify-center space-x-1 py-2 text-xs font-semibold bg-terracotta/10 text-terracotta border border-terracotta/30 rounded-lg disabled:opacity-50"
-                    >
-                      <XCircle className="w-3.5 h-3.5" />
-                      <span>Reject</span>
-                    </button>
-                  </div>
-                )}
               </div>
             ))}
           </div>
-        </>
+        </div>
       )}
+
+      <NewRequestModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
     </div>
   );
 }
 
-// ─── Page root ─────────────────────────────────────────────────────────────────
+// ─── Main Page ─────────────────────────────────────────────────────────────────
 
 export const TimeOffPage: React.FC = () => {
   const { user } = useAuth();
   const isAdmin = user?.role === 'ADMIN' || user?.role === 'HR_OFFICER';
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fadeIn">
-      {/* Page header */}
-      <div className="flex items-start justify-between flex-wrap gap-4">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fadeIn">
+      {/* Header Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-blue-grey/20">
         <div>
-          <h1 className="text-2xl font-heading font-bold text-text-primary">
-            Time Off &amp; Leave
-          </h1>
+          <div className="flex items-center space-x-3">
+            <h1 className="text-3xl font-heading font-bold text-text-primary">
+              Time Off Management
+            </h1>
+            {isAdmin && (
+              <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-brand/10 text-slate-brand border border-slate-brand/20">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>Admin / Approver View</span>
+              </span>
+            )}
+          </div>
           <p className="text-sm text-text-muted mt-1">
-            {isAdmin
-              ? 'Review and manage leave requests across the company.'
-              : 'View your balances and submit leave requests.'}
+            Leave balance tracking, requests submission, and multi-user live approvals.
           </p>
         </div>
-        {isAdmin && (
-          <span className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-slate-brand/10 text-slate-brand text-xs font-semibold border border-slate-brand/20">
-            <ShieldAlert className="w-3.5 h-3.5" />
-            <span>{user?.role === 'ADMIN' ? 'Admin' : 'HR Officer'} view</span>
-          </span>
-        )}
       </div>
 
       {isAdmin ? <AdminView /> : <EmployeeView />}
