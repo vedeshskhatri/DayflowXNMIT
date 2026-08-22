@@ -35,7 +35,7 @@ export const SignIn: React.FC = () => {
       if (mustResetPwd) {
         navigate('/reset-password');
       } else {
-        navigate('/');
+        navigate('/employees');
       }
     } catch (err: unknown) {
       const e = err as { response?: { data?: { error?: string } }; message?: string };

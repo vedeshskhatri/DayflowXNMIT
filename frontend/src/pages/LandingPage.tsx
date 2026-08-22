@@ -272,11 +272,11 @@ export const LandingPage: React.FC = () => {
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 pt-2">
                 <Link
-                  to="/signup"
+                  to={user ? '/employees' : '/signup'}
                   data-testid="hero-primary-cta"
                   className="bg-slate-brand hover:bg-slate-brand/90 text-white font-heading font-semibold text-sm px-6 py-3.5 rounded-xl shadow-sm hover:shadow transition-all text-center flex items-center justify-center space-x-2 group"
                 >
-                  <span>Get Started Free</span>
+                  <span>{user ? 'Go to Dashboard' : 'Get Started Free'}</span>
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
                 </Link>
 
@@ -710,11 +710,11 @@ export const LandingPage: React.FC = () => {
 
             <div className="pt-4 flex flex-col sm:flex-row items-center justify-center space-y-3 sm:space-y-0 sm:space-x-4">
               <Link
-                to="/signup"
+                to={user ? '/employees' : '/signup'}
                 data-testid="cta-band-signup"
                 className="bg-white hover:bg-cream text-slate-brand font-heading font-semibold text-sm px-8 py-3.5 rounded-xl shadow-md transition-all w-full sm:w-auto"
               >
-                Get Started Free
+                {user ? 'Open Workspace Dashboard' : 'Get Started Free'}
               </Link>
               <Link
                 to="/login"

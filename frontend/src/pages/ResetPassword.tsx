@@ -44,7 +44,7 @@ export const ResetPassword: React.FC = () => {
         });
       }
 
-      navigate('/');
+      navigate('/employees');
     } catch (err: unknown) {
       const e = err as { response?: { data?: { error?: string } }; message?: string };
       setErrorMessage(
