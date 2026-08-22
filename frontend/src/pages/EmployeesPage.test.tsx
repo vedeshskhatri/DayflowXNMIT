@@ -122,11 +122,11 @@ describe('Employees Dashboard & Cards', () => {
     expect(leaveDot).toHaveStyle({ backgroundColor: '#8E9E83' });
     unmount2();
 
-    // 3. ABSENT -> Terracotta #C97B63
+    // 3. ABSENT -> Yellow #EAB308 (Wireframe: Yellow dot for absent)
     render(<StatusDot status="ABSENT" />);
     const absentDot = screen.getByTestId('status-dot');
     expect(absentDot).toHaveAttribute('data-status', 'ABSENT');
-    expect(absentDot).toHaveStyle({ backgroundColor: '#C97B63' });
+    expect(absentDot).toHaveStyle({ backgroundColor: '#EAB308' });
   });
 
   it('clicking an employee card navigates to /employees/:id', async () => {

@@ -97,13 +97,13 @@ export const StatusDot: React.FC<{ status: EmployeeStatus; className?: string }>
     );
   }
 
-  // ABSENT (Yellow / Red dot)
+  // ABSENT: 🟡 Yellow dot: Employee is absent. (Employee has not applied time off and is absent.)
   return (
     <span
       data-testid="status-dot"
       data-status="ABSENT"
-      className={`inline-block w-2.5 h-2.5 rounded-full bg-[#C97B63] shadow-[0_0_6px_rgba(201,123,99,0.8)] ${className}`}
-      style={{ backgroundColor: '#C97B63' }}
+      className={`inline-block w-2.5 h-2.5 rounded-full bg-[#EAB308] shadow-[0_0_6px_rgba(234,179,8,0.8)] ${className}`}
+      style={{ backgroundColor: '#EAB308' }}
       title="Absent (no time off applied)"
     />
   );

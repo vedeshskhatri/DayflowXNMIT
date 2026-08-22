@@ -43,7 +43,7 @@ export const Navbar: React.FC = () => {
         return 'bg-sage-deep shadow-[0_0_8px_rgba(142,158,131,0.8)]';
       case 'ABSENT':
       default:
-        return 'bg-terracotta shadow-[0_0_8px_rgba(201,123,99,0.8)]';
+        return 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]';
     }
   };
 
