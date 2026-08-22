@@ -24,11 +24,36 @@ interface TimeOffRequest {
 
 interface TimeOffCalendarProps {
   requests: TimeOffRequest[];
+  onDateClick?: (dateStr: string) => void;
 }
 
-export const TimeOffCalendar: React.FC<TimeOffCalendarProps> = ({ requests }) => {
+// Public Holidays per Image 1 Wireframe
+const PUBLIC_HOLIDAYS_2026: { date: string; name: string }[] = [
+  { date: '2026-01-14', name: 'Kite Festival' },
+  { date: '2026-01-26', name: 'Republic Day' },
+  { date: '2026-03-04', name: 'Dhuleti' },
+  { date: '2026-08-15', name: 'Independence Day' },
+  { date: '2026-08-28', name: 'Rakhi' },
+  { date: '2026-10-02', name: 'Gandhi Jayanti' },
+  { date: '2026-11-08', name: 'Diwali' },
+  { date: '2026-11-10', name: 'New Year' },
+  { date: '2026-11-11', name: 'Bhai Duj' },
+];
+
+function getWeekNumber(d: Date): number {
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNum = date.getUTCDay() || 7;
+  date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+  return Math.ceil(((date.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+}
+
+export const TimeOffCalendar: React.FC<TimeOffCalendarProps> = ({
+  requests,
+  onDateClick,
+}) => {
   const [viewMode, setViewMode] = useState<CalendarViewMode>('year');
-  const [currentDate, setCurrentDate] = useState<Date>(new Date());
+  const [currentDate, setCurrentDate] = useState<Date>(new Date(2026, 7, 22)); // August 2026 default
 
   const today = new Date();
   const todayDateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
@@ -51,6 +76,12 @@ export const TimeOffCalendar: React.FC<TimeOffCalendarProps> = ({ requests }) =>
     });
     return map;
   }, [requests]);
+
+  const holidaysMap = useMemo(() => {
+    const map = new Map<string, string>();
+    PUBLIC_HOLIDAYS_2026.forEach((h) => map.set(h.date, h.name));
+    return map;
+  }, []);
 
   // Navigation handlers
   const handlePrev = () => {
@@ -85,51 +116,28 @@ export const TimeOffCalendar: React.FC<TimeOffCalendarProps> = ({ requests }) =>
     setCurrentDate(new Date());
   };
 
-  // Header Title based on View Mode
-  const getHeaderTitle = () => {
-    if (viewMode === 'year') {
-      return `Leave Calendar Overview (${currentDate.getFullYear()})`;
-    }
-    if (viewMode === 'month') {
-      return currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-    }
-    if (viewMode === 'week') {
-      const startOfWeek = new Date(currentDate);
-      startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
-      const endOfWeek = new Date(startOfWeek);
-      endOfWeek.setDate(startOfWeek.getDate() + 6);
-      return `${startOfWeek.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })} - ${endOfWeek.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}`;
-    }
-    return currentDate.toLocaleDateString('en-US', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    });
-  };
-
   return (
-    <div className="p-5 rounded-2xl bg-white border border-blue-grey/20 shadow-sm space-y-5">
+    <div className="p-6 rounded-3xl bg-white border border-blue-grey/20 shadow-sm space-y-6">
       {/* ── Top Bar: Header Title, Navigation, View Mode Toggles ─────── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-blue-grey/15">
-        {/* Left: Title & Nav Arrows */}
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 rounded-2xl bg-slate-brand/10 text-slate-brand flex items-center justify-center border border-slate-brand/15">
             <CalendarIcon className="w-5 h-5" />
           </div>
           <div>
             <h3 className="font-heading font-bold text-base text-text-primary">
-              {getHeaderTitle()}
+              {viewMode === 'year'
+                ? `Yearly Time Off Calendar (${currentDate.getFullYear()})`
+                : currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
             </h3>
-            <p className="text-[11px] text-text-muted">
-              Track approved and pending leave schedule
+            <p className="text-xs text-text-muted">
+              Master annual calendar matrix with public holidays & statutory leave schedules
             </p>
           </div>
         </div>
 
-        {/* Right: Controls & Mode Toggles */}
+        {/* Right Controls */}
         <div className="flex flex-wrap items-center gap-3">
-          {/* Nav Buttons */}
           <div className="flex items-center space-x-1.5 bg-cream/70 p-1 rounded-xl border border-blue-grey/20">
             <button
               type="button"
@@ -156,7 +164,6 @@ export const TimeOffCalendar: React.FC<TimeOffCalendarProps> = ({ requests }) =>
             </button>
           </div>
 
-          {/* View Mode Toggle: [Year] [Month] [Week] [Day] */}
           <div className="flex items-center space-x-1 bg-cream/70 p-1 rounded-xl border border-blue-grey/20">
             {(['year', 'month', 'week', 'day'] as CalendarViewMode[]).map((mode) => (
               <button
@@ -176,121 +183,186 @@ export const TimeOffCalendar: React.FC<TimeOffCalendarProps> = ({ requests }) =>
         </div>
       </div>
 
-      {/* ── Legend Bar ────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center justify-between gap-2 text-xs bg-cream/40 px-3.5 py-2 rounded-xl border border-blue-grey/15">
-        <div className="flex items-center space-x-4">
-          <span className="flex items-center space-x-1.5">
-            <span className="w-3 h-3 rounded-md bg-slate-brand text-white text-[9px] flex items-center justify-center font-bold">
-              ★
-            </span>
-            <span className="font-bold text-slate-brand">
-              Today: {today.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
-            </span>
-          </span>
-          <span className="flex items-center space-x-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-sage-deep" />
-            <span className="text-text-muted">Approved Leave</span>
-          </span>
-          <span className="flex items-center space-x-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-terracotta" />
-            <span className="text-text-muted">Pending Request</span>
-          </span>
-        </div>
-        <span className="text-[11px] text-text-muted italic">
-          Click &lsquo;Today&rsquo; anytime to center on current date
-        </span>
-      </div>
-
-      {/* ── VIEW 1: Yearly View (12-Month Matrix) ──────────────────── */}
+      {/* ── VIEW 1: Yearly View with 12 Month Matrix + Legend & Public Holidays Sidebar (Exact Wireframe Image 1) ── */}
       {viewMode === 'year' && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 text-xs animate-fadeIn">
-          {Array.from({ length: 12 }, (_, m) => {
-            const year = currentDate.getFullYear();
-            const firstDay = new Date(year, m, 1).getDay();
-            const daysInMonth = new Date(year, m + 1, 0).getDate();
-            const monthName = new Date(year, m, 1).toLocaleDateString('en-US', { month: 'short' });
-            const isCurrentMonth = today.getFullYear() === year && today.getMonth() === m;
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start animate-fadeIn">
+          {/* 12-Month Matrix (4 Columns on Desktop) */}
+          <div className="xl:col-span-9 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {Array.from({ length: 12 }, (_, m) => {
+              const year = currentDate.getFullYear();
+              const firstDayOfMonth = new Date(year, m, 1).getDay();
+              const daysInMonth = new Date(year, m + 1, 0).getDate();
+              const monthName = new Date(year, m, 1).toLocaleDateString('en-US', { month: 'long' });
+              const isCurrentMonth = today.getFullYear() === year && today.getMonth() === m;
 
-            return (
-              <div
-                key={m}
-                className={`p-3 rounded-2xl border transition-all ${
-                  isCurrentMonth
-                    ? 'bg-slate-brand/5 border-slate-brand/30 ring-1 ring-slate-brand/20'
-                    : 'bg-cream/30 border-blue-grey/15'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-heading font-bold text-xs text-text-primary">
-                    {monthName}
-                  </span>
-                  {isCurrentMonth && (
-                    <span className="text-[9px] font-bold text-slate-brand uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-brand/10">
-                      Current
+              return (
+                <div
+                  key={m}
+                  className={`p-3 rounded-2xl border transition-all ${
+                    isCurrentMonth
+                      ? 'bg-slate-brand/5 border-slate-brand/30 ring-1 ring-slate-brand/20'
+                      : 'bg-white border-blue-grey/20 shadow-xs'
+                  }`}
+                >
+                  {/* Month Header */}
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-heading font-bold text-xs text-text-primary">
+                      {monthName} {year}
                     </span>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-7 gap-0.5 text-[9px] text-center font-mono">
-                  {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, idx) => (
-                    <span key={idx} className="text-text-muted font-bold pb-1">
-                      {d}
-                    </span>
-                  ))}
-                  {Array.from({ length: firstDay }, (_, i) => (
-                    <span key={`empty-${i}`} />
-                  ))}
-                  {Array.from({ length: daysInMonth }, (_, i) => {
-                    const dayNum = i + 1;
-                    const dateStr = `${year}-${String(m + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
-                    const leave = leaveMap.get(dateStr);
-                    const isToday = dateStr === todayDateStr;
-
-                    let cellClasses = 'text-text-primary hover:bg-cream';
-                    if (leave?.status === 'APPROVED') {
-                      cellClasses = 'bg-sage-deep text-white font-bold shadow-sm';
-                    } else if (leave?.status === 'PENDING') {
-                      cellClasses = 'bg-terracotta text-white font-bold shadow-sm';
-                    } else if (isToday) {
-                      cellClasses = 'bg-slate-brand text-white font-bold shadow-md ring-2 ring-slate-brand/40';
-                    }
-
-                    return (
-                      <span
-                        key={dayNum}
-                        className={`h-5 w-5 flex items-center justify-center rounded-md font-medium transition-all ${cellClasses} ${
-                          isToday && leave ? 'ring-2 ring-slate-brand ring-offset-1 font-bold' : ''
-                        }`}
-                        title={
-                          isToday
-                            ? `Today (${dayNum} ${monthName})${leave ? ` • ${leave.type} (${leave.status})` : ''}`
-                            : leave
-                            ? `${leave.type} (${leave.status})`
-                            : undefined
-                        }
-                      >
-                        {dayNum}
+                    {isCurrentMonth && (
+                      <span className="text-[8px] font-bold text-slate-brand uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-brand/10">
+                        Current
                       </span>
-                    );
-                  })}
+                    )}
+                  </div>
+
+                  {/* Day Table: Week No + S M T W T F S */}
+                  <table className="w-full text-center text-[10px] font-mono border-collapse">
+                    <thead>
+                      <tr className="text-text-muted border-b border-blue-grey/15">
+                        <th className="pb-1 text-[9px] font-normal text-text-muted/70 w-5">#</th>
+                        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, idx) => (
+                          <th key={idx} className="pb-1 font-bold">
+                            {d}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(() => {
+                        const rows = [];
+                        let dayCount = 1;
+                        let weekCount = 0;
+
+                        while (dayCount <= daysInMonth && weekCount < 6) {
+                          const weekDate = new Date(year, m, dayCount);
+                          const weekNum = getWeekNumber(weekDate);
+                          const cells = [];
+
+                          // Week number column on left
+                          cells.push(
+                            <td key={`wk-${weekCount}`} className="text-[8px] text-text-muted/60 font-sans py-0.5">
+                              {weekNum}
+                            </td>
+                          );
+
+                          for (let d = 0; d < 7; d++) {
+                            if ((weekCount === 0 && d < firstDayOfMonth) || dayCount > daysInMonth) {
+                              cells.push(<td key={`empty-${weekCount}-${d}`} className="py-0.5" />);
+                            } else {
+                              const currentDay = dayCount;
+                              const dateStr = `${year}-${String(m + 1).padStart(2, '0')}-${String(currentDay).padStart(2, '0')}`;
+                              const leave = leaveMap.get(dateStr);
+                              const isToday = dateStr === todayDateStr;
+                              const holiday = holidaysMap.get(dateStr);
+
+                              // Visual classes per wireframe legend:
+                              // Validated = Purple, To Approve = Amber/Striped, Refused = Line/Terracotta, Today = Red circle
+                              let bgClass = 'text-text-primary hover:bg-cream cursor-pointer';
+                              if (leave?.status === 'APPROVED') {
+                                bgClass = 'bg-[#9333ea] text-white font-bold rounded-md shadow-xs';
+                              } else if (leave?.status === 'PENDING') {
+                                bgClass = 'bg-amber-400 text-slate-900 font-bold rounded-md shadow-xs';
+                              } else if (leave?.status === 'REJECTED') {
+                                bgClass = 'text-terracotta line-through font-bold';
+                              } else if (holiday) {
+                                bgClass = 'bg-sage-light text-sage-deep font-bold rounded-md';
+                              } else if (isToday) {
+                                bgClass = 'bg-red-500 text-white font-bold rounded-full shadow-sm ring-2 ring-red-300';
+                              }
+
+                              cells.push(
+                                <td key={`day-${currentDay}`} className="py-0.5 px-0.5">
+                                  <button
+                                    type="button"
+                                    onClick={() => onDateClick && onDateClick(dateStr)}
+                                    className={`w-5 h-5 flex items-center justify-center mx-auto text-[9.5px] transition-transform hover:scale-110 ${bgClass}`}
+                                    title={
+                                      isToday
+                                        ? `Today (${currentDay} ${monthName})`
+                                        : holiday
+                                        ? `Holiday: ${holiday}`
+                                        : leave
+                                        ? `${leave.type} (${leave.status})`
+                                        : `${currentDay} ${monthName}`
+                                    }
+                                  >
+                                    {currentDay}
+                                  </button>
+                                </td>
+                              );
+                              dayCount++;
+                            }
+                          }
+                          rows.push(<tr key={`row-${weekCount}`}>{cells}</tr>);
+                          weekCount++;
+                        }
+                        return rows;
+                      })()}
+                    </tbody>
+                  </table>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* ── Right Sidebar: Legend & Public Holidays (Exact Wireframe Image 1) ── */}
+          <div className="xl:col-span-3 space-y-6 bg-cream/40 p-5 rounded-3xl border border-blue-grey/20">
+            {/* Legend Box */}
+            <div className="space-y-3 pb-5 border-b border-blue-grey/20">
+              <h4 className="font-heading font-bold text-xs text-text-primary uppercase tracking-wider">
+                Legend
+              </h4>
+              <div className="space-y-2 text-xs">
+                {/* Validated */}
+                <div className="flex items-center space-x-2.5">
+                  <span className="w-4 h-4 rounded-md bg-[#9333ea] flex-shrink-0 shadow-xs" />
+                  <span className="font-medium text-text-primary">Validated</span>
+                </div>
+                {/* To Approve */}
+                <div className="flex items-center space-x-2.5">
+                  <span className="w-4 h-4 rounded-md bg-amber-400 flex-shrink-0 shadow-xs" />
+                  <span className="font-medium text-text-primary">To Approve</span>
+                </div>
+                {/* Refused */}
+                <div className="flex items-center space-x-2.5">
+                  <span className="w-4 h-4 flex items-center justify-center font-bold text-terracotta text-sm">
+                    —
+                  </span>
+                  <span className="font-medium text-text-primary">Refused</span>
                 </div>
               </div>
-            );
-          })}
+            </div>
+
+            {/* Public Holidays Box */}
+            <div className="space-y-3">
+              <h4 className="font-heading font-bold text-xs text-text-primary uppercase tracking-wider">
+                Public Holidays (2026)
+              </h4>
+              <div className="space-y-2 text-xs">
+                {PUBLIC_HOLIDAYS_2026.map((h, idx) => (
+                  <div key={idx} className="flex flex-col py-1 border-b border-blue-grey/15 last:border-0">
+                    <span className="font-semibold text-text-primary">
+                      {new Date(h.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}:
+                    </span>
+                    <span className="text-slate-brand text-[11px] font-medium">{h.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* ── VIEW 2: Monthly View (Full Grid) ───────────────────────── */}
+      {/* ── VIEW 2: Monthly View ───────────────────────────────────── */}
       {viewMode === 'month' && (
         <div className="space-y-3 animate-fadeIn">
-          {/* Day Names Row */}
           <div className="grid grid-cols-7 gap-2 text-center text-xs font-heading font-bold text-text-muted py-2 bg-cream/50 rounded-xl">
             {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((d) => (
               <span key={d}>{d}</span>
             ))}
           </div>
 
-          {/* Month Day Cells */}
           <div className="grid grid-cols-7 gap-2 text-xs">
             {(() => {
               const year = currentDate.getFullYear();
@@ -306,11 +378,13 @@ export const TimeOffCalendar: React.FC<TimeOffCalendarProps> = ({ requests }) =>
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
                 const leave = leaveMap.get(dateStr);
                 const isToday = dateStr === todayDateStr;
+                const holiday = holidaysMap.get(dateStr);
 
                 cells.push(
                   <div
                     key={dayNum}
-                    className={`min-h-[90px] p-2.5 rounded-2xl border transition-all flex flex-col justify-between ${
+                    onClick={() => onDateClick && onDateClick(dateStr)}
+                    className={`min-h-[90px] p-2.5 rounded-2xl border transition-all flex flex-col justify-between cursor-pointer ${
                       isToday
                         ? 'bg-slate-brand/10 border-slate-brand ring-2 ring-slate-brand/30 shadow-md'
                         : 'bg-white border-blue-grey/20 hover:border-slate-brand/40'
@@ -319,9 +393,7 @@ export const TimeOffCalendar: React.FC<TimeOffCalendarProps> = ({ requests }) =>
                     <div className="flex items-center justify-between">
                       <span
                         className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold ${
-                          isToday
-                            ? 'bg-slate-brand text-white'
-                            : 'text-text-primary'
+                          isToday ? 'bg-slate-brand text-white' : 'text-text-primary'
                         }`}
                       >
                         {dayNum}
@@ -333,14 +405,19 @@ export const TimeOffCalendar: React.FC<TimeOffCalendarProps> = ({ requests }) =>
                       )}
                     </div>
 
-                    {leave ? (
+                    {holiday ? (
+                      <div className="p-1 rounded bg-sage-light text-sage-deep text-[10px] font-semibold truncate">
+                        {holiday}
+                      </div>
+                    ) : leave ? (
                       <div
                         className={`p-1.5 rounded-lg text-[10px] font-semibold truncate ${
                           leave.status === 'APPROVED'
-                            ? 'bg-sage-deep text-white'
-                            : 'bg-terracotta text-white'
+                            ? 'bg-[#9333ea] text-white'
+                            : leave.status === 'PENDING'
+                            ? 'bg-amber-400 text-slate-900'
+                            : 'bg-terracotta text-white line-through'
                         }`}
-                        title={`${leave.type} (${leave.status})`}
                       >
                         {leave.type}
                       </div>
@@ -356,7 +433,7 @@ export const TimeOffCalendar: React.FC<TimeOffCalendarProps> = ({ requests }) =>
         </div>
       )}
 
-      {/* ── VIEW 3: Weekly View (7 Days) ───────────────────────────── */}
+      {/* ── VIEW 3: Weekly View ────────────────────────────────────── */}
       {viewMode === 'week' && (
         <div className="grid grid-cols-1 sm:grid-cols-7 gap-3 text-xs animate-fadeIn">
           {Array.from({ length: 7 }, (_, i) => {
@@ -365,13 +442,15 @@ export const TimeOffCalendar: React.FC<TimeOffCalendarProps> = ({ requests }) =>
             const dateStr = `${startOfWeek.getFullYear()}-${String(startOfWeek.getMonth() + 1).padStart(2, '0')}-${String(startOfWeek.getDate()).padStart(2, '0')}`;
             const leave = leaveMap.get(dateStr);
             const isToday = dateStr === todayDateStr;
+            const holiday = holidaysMap.get(dateStr);
             const dayName = startOfWeek.toLocaleDateString('en-US', { weekday: 'short' });
             const formattedDate = startOfWeek.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
 
             return (
               <div
                 key={i}
-                className={`p-4 rounded-2xl border flex flex-col justify-between min-h-[140px] transition-all ${
+                onClick={() => onDateClick && onDateClick(dateStr)}
+                className={`p-4 rounded-2xl border flex flex-col justify-between min-h-[140px] transition-all cursor-pointer ${
                   isToday
                     ? 'bg-slate-brand/10 border-slate-brand ring-2 ring-slate-brand/30 shadow-md'
                     : 'bg-white border-blue-grey/20'
@@ -393,11 +472,17 @@ export const TimeOffCalendar: React.FC<TimeOffCalendarProps> = ({ requests }) =>
                   </p>
                 </div>
 
-                {leave ? (
+                {holiday ? (
+                  <div className="p-2 rounded-xl bg-sage-light text-sage-deep text-[11px] font-semibold mt-3">
+                    {holiday}
+                  </div>
+                ) : leave ? (
                   <div
                     className={`p-2 rounded-xl text-[11px] font-semibold mt-3 ${
                       leave.status === 'APPROVED'
-                        ? 'bg-sage-deep text-white'
+                        ? 'bg-[#9333ea] text-white'
+                        : leave.status === 'PENDING'
+                        ? 'bg-amber-400 text-slate-900'
                         : 'bg-terracotta text-white'
                     }`}
                   >
@@ -416,13 +501,14 @@ export const TimeOffCalendar: React.FC<TimeOffCalendarProps> = ({ requests }) =>
         </div>
       )}
 
-      {/* ── VIEW 4: Daily View (Single Day) ────────────────────────── */}
+      {/* ── VIEW 4: Daily View ─────────────────────────────────────── */}
       {viewMode === 'day' && (
         <div className="p-6 rounded-2xl bg-cream/30 border border-blue-grey/20 space-y-4 animate-fadeIn">
           {(() => {
             const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
             const leave = leaveMap.get(dateStr);
             const isToday = dateStr === todayDateStr;
+            const holiday = holidaysMap.get(dateStr);
 
             return (
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -437,9 +523,11 @@ export const TimeOffCalendar: React.FC<TimeOffCalendarProps> = ({ requests }) =>
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-text-muted">
-                    Detailed daily leave and presence breakdown
-                  </p>
+                  {holiday && (
+                    <p className="text-xs font-bold text-sage-deep">
+                      Public Holiday: {holiday}
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex items-center space-x-3">
@@ -447,7 +535,7 @@ export const TimeOffCalendar: React.FC<TimeOffCalendarProps> = ({ requests }) =>
                     <div className="p-4 rounded-xl bg-white border border-blue-grey/20 shadow-sm flex items-center space-x-3">
                       <div
                         className={`w-10 h-10 rounded-xl flex items-center justify-center text-white ${
-                          leave.status === 'APPROVED' ? 'bg-sage-deep' : 'bg-terracotta'
+                          leave.status === 'APPROVED' ? 'bg-[#9333ea]' : 'bg-amber-400 text-slate-900'
                         }`}
                       >
                         <Clock className="w-5 h-5" />
@@ -456,24 +544,15 @@ export const TimeOffCalendar: React.FC<TimeOffCalendarProps> = ({ requests }) =>
                         <span className="text-xs font-bold text-text-primary block">
                           {leave.type}
                         </span>
-                        <span
-                          className={`text-[10px] font-bold uppercase tracking-wider ${
-                            leave.status === 'APPROVED' ? 'text-sage-deep' : 'text-terracotta'
-                          }`}
-                        >
+                        <span className="text-[10px] font-bold uppercase tracking-wider">
                           Status: {leave.status}
                         </span>
-                        {leave.remarks && (
-                          <p className="text-[11px] text-text-muted mt-0.5 italic">
-                            &ldquo;{leave.remarks}&rdquo;
-                          </p>
-                        )}
                       </div>
                     </div>
                   ) : (
                     <div className="p-3.5 rounded-xl bg-white border border-blue-grey/20 shadow-sm flex items-center space-x-2.5 text-xs text-text-primary">
                       <Sparkles className="w-4 h-4 text-sage-deep" />
-                      <span>Regular Working Day &bull; No active leave requests</span>
+                      <span>Regular Working Day</span>
                     </div>
                   )}
                 </div>
@@ -485,3 +564,4 @@ export const TimeOffCalendar: React.FC<TimeOffCalendarProps> = ({ requests }) =>
     </div>
   );
 };
+

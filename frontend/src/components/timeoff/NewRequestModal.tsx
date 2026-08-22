@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { CalendarDays, CheckCircle2, Loader2, Upload, X, AlertCircle, FileText } from 'lucide-react';
+import { Upload, X, AlertCircle, FileCheck } from 'lucide-react';
 import { api } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
 
@@ -43,9 +43,10 @@ interface Balance {
 interface NewRequestModalProps {
   isOpen: boolean;
   onClose: () => void;
+  defaultStartDate?: string;
 }
 
-export function NewRequestModal({ isOpen, onClose }: NewRequestModalProps) {
+export function NewRequestModal({ isOpen, onClose, defaultStartDate }: NewRequestModalProps) {
   const { user } = useAuth();
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -58,6 +59,7 @@ export function NewRequestModal({ isOpen, onClose }: NewRequestModalProps) {
     handleSubmit,
     watch,
     reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -85,7 +87,7 @@ export function NewRequestModal({ isOpen, onClose }: NewRequestModalProps) {
   const balance = balances.find((b) => b.typeId === watchedTypeId);
 
   // Inclusive day count
-  const daysCount =
+  const rawDays =
     watchedStart && watchedEnd && new Date(watchedEnd) >= new Date(watchedStart)
       ? Math.round(
           (new Date(watchedEnd).getTime() - new Date(watchedStart).getTime()) /
@@ -93,25 +95,32 @@ export function NewRequestModal({ isOpen, onClose }: NewRequestModalProps) {
         ) + 1
       : 0;
 
+  const formattedAllocation = String(rawDays).padStart(2, '0') + '.00';
+
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      if (defaultStartDate) {
+        setValue('startDate', defaultStartDate);
+        setValue('endDate', defaultStartDate);
+      }
+    } else {
       reset();
       fileState.current = null;
       setFileDisplay('');
       setServerError('');
     }
-  }, [isOpen, reset]);
+  }, [isOpen, defaultStartDate, setValue, reset]);
 
   const mutation = useMutation({
     mutationFn: async (values: FormValues) => {
       const formData = new FormData();
       formData.append('typeId', values.typeId);
-      
+
       const startDateIso = new Date(values.startDate).toISOString();
       const endDateIso = new Date(values.endDate).toISOString();
       formData.append('startDate', startDateIso);
       formData.append('endDate', endDateIso);
-      
+
       if (values.remarks) formData.append('remarks', values.remarks);
       if (fileState.current) formData.append('attachment', fileState.current);
 
@@ -150,8 +159,8 @@ export function NewRequestModal({ isOpen, onClose }: NewRequestModalProps) {
       setServerError('This leave type requires a medical certificate or supporting document.');
       return;
     }
-    if (balance && daysCount > balance.remaining) {
-      setServerError(`Requested duration (${daysCount} days) exceeds available balance (${balance.remaining} days).`);
+    if (balance && rawDays > balance.remaining) {
+      setServerError(`Requested duration (${rawDays} days) exceeds available balance (${balance.remaining} days).`);
       return;
     }
     mutation.mutate(values);
@@ -165,206 +174,175 @@ export function NewRequestModal({ isOpen, onClose }: NewRequestModalProps) {
       aria-modal="true"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn"
     >
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden border border-blue-grey/20 animate-scaleUp">
-        {/* ── Header (Wireframe: Time off Type Request) ──────────────────── */}
-        <div className="flex items-center justify-between p-6 border-b border-blue-grey/15 bg-cream/40">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-2xl bg-slate-brand/10 text-slate-brand flex items-center justify-center border border-slate-brand/20">
-              <CalendarDays className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-lg font-heading font-bold text-text-primary">
-                Time off Type Request
-              </h2>
-              <p className="text-xs text-text-muted mt-0.5">
-                Submit a new leave application for approval
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="p-2 text-text-muted hover:text-text-primary hover:bg-cream rounded-xl transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* ── Form Body ─────────────────────────────────────────────────── */}
-        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4 text-xs">
-          {serverError && (
-            <div className="p-3.5 rounded-xl bg-terracotta/10 border border-terracotta/20 flex items-start space-x-2 text-terracotta animate-fadeIn">
-              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-              <span>{serverError}</span>
-            </div>
-          )}
-
-          {/* Employee Name (Wireframe: Employee :- [Employee]) */}
-          <div className="p-3 rounded-xl bg-cream/40 border border-blue-grey/15 flex items-center justify-between">
-            <span className="font-semibold text-text-muted uppercase tracking-wider text-[11px]">
-              Employee :-
-            </span>
-            <span className="font-heading font-bold text-sm text-text-primary">
-              {user ? `${user.firstName} ${user.lastName}` : 'Current Employee'}
-            </span>
-          </div>
-
-          {/* Time off Type (Wireframe: Time off Type :- [Paid time off]) */}
-          <div>
-            <label className="label text-[11px] font-bold" htmlFor="typeId">
-              Time off Type :- *
-            </label>
-            <select
-              id="typeId"
-              className={`input py-2.5 text-xs bg-cream/30 ${errors.typeId ? 'input-error' : ''}`}
-              {...register('typeId')}
-            >
-              <option value="">Select Time Off Type…</option>
-              {types.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
-            {errors.typeId && <p className="error-text">{errors.typeId.message}</p>}
-          </div>
-
-          {/* Balance info badge */}
-          {balance && (
-            <div className="flex items-center space-x-2 bg-sage-light/30 rounded-xl px-3.5 py-2 text-xs text-text-primary border border-sage-light">
-              <CheckCircle2 className="w-4 h-4 text-sage-deep flex-shrink-0" />
-              <span>
-                Available Balance:{' '}
-                <strong className="text-sage-deep font-bold font-mono">
-                  {balance.remaining} / {balance.daysAllocated} Days
-                </strong>
-              </span>
-            </div>
-          )}
-
-          {/* Validity Period (Wireframe: Validity Period :- May 13 To May 14) */}
-          <div>
-            <label className="label text-[11px] font-bold">Validity Period :- *</label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
-              <div>
-                <span className="text-[10px] text-text-muted block mb-1">From Date:</span>
-                <input
-                  id="startDate"
-                  type="date"
-                  className={`input py-2 text-xs bg-cream/30 ${errors.startDate ? 'input-error' : ''}`}
-                  {...register('startDate')}
-                />
-                {errors.startDate && <p className="error-text">{errors.startDate.message}</p>}
-              </div>
-
-              <div>
-                <span className="text-[10px] text-text-muted block mb-1">To Date:</span>
-                <input
-                  id="endDate"
-                  type="date"
-                  className={`input py-2 text-xs bg-cream/30 ${errors.endDate ? 'input-error' : ''}`}
-                  min={watchedStart}
-                  {...register('endDate')}
-                />
-                {errors.endDate && <p className="error-text">{errors.endDate.message}</p>}
-              </div>
-            </div>
-          </div>
-
-          {/* Allocation / Duration Display (Wireframe: Allocation :- 01.00 Days) */}
-          <div className="p-3 rounded-xl bg-cream/50 border border-blue-grey/20 flex items-center justify-between">
-            <span className="font-semibold text-text-muted text-[11px]">Allocation / Duration :-</span>
-            <span className="font-mono font-bold text-sm text-slate-brand">
-              {daysCount > 0 ? `${String(daysCount).padStart(2, '0')}.00 Days` : '00.00 Days'}
-            </span>
-          </div>
-
-          {/* Attachment (Wireframe: Attachment: [Icon] (For sick leave certificate)) */}
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="label mb-0 text-[11px] font-bold">Attachment :-</label>
-              <span className="text-[11px] text-text-muted italic">
-                (For sick leave certificate)
-              </span>
-            </div>
-
-            <input
-              ref={fileRef}
-              type="file"
-              accept=".pdf,.png,.jpg,.jpeg"
-              className="hidden"
-              onChange={handleFileChange}
-            />
-
-            {fileDisplay ? (
-              <div className="flex items-center justify-between p-2.5 bg-cream rounded-xl border border-blue-grey/20">
-                <div className="flex items-center space-x-2 truncate">
-                  <FileText className="w-4 h-4 text-slate-brand flex-shrink-0" />
-                  <span className="truncate text-xs font-medium text-text-primary">{fileDisplay}</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    fileState.current = null;
-                    setFileDisplay('');
-                    if (fileRef.current) fileRef.current.value = '';
-                  }}
-                  className="p-1 text-text-muted hover:text-terracotta"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => fileRef.current?.click()}
-                className="w-full flex items-center justify-center space-x-2 py-2.5 border-2 border-dashed border-blue-grey/30 hover:border-slate-brand/50 rounded-xl bg-cream/20 hover:bg-cream/40 transition-all text-xs text-text-muted hover:text-slate-brand font-semibold"
-              >
-                <Upload className="w-4 h-4" />
-                <span>Choose Certificate / Medical Proof</span>
-              </button>
-            )}
-          </div>
-
-          {/* Remarks */}
-          <div>
-            <label className="label text-[11px]" htmlFor="remarks">
-              Remarks (Optional) :-
-            </label>
-            <textarea
-              id="remarks"
-              className="input resize-none h-16 text-xs bg-cream/30"
-              placeholder="Add any specific context for HR / Approver…"
-              {...register('remarks')}
-            />
-          </div>
-
-          {/* ── Footer Actions (Wireframe: Submit & Discard buttons) ──── */}
-          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-blue-grey/15">
+      <div className="flex flex-col lg:flex-row items-center gap-6 max-w-4xl w-full">
+        {/* ── Main Modal (Exact Wireframe Image 2: Time off Type Request) ── */}
+        <div className="bg-[#242426] text-white rounded-3xl shadow-2xl w-full max-w-xl overflow-hidden border border-gray-700/60 animate-scaleUp">
+          {/* Header */}
+          <div className="flex items-center justify-between px-7 py-5 border-b border-gray-700/50">
+            <h2 className="text-lg font-heading font-semibold text-gray-100">
+              Time off Type Request
+            </h2>
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 rounded-xl border border-blue-grey/20 hover:bg-cream text-xs font-semibold text-text-muted hover:text-text-primary transition-colors"
+              className="p-1.5 text-gray-400 hover:text-white rounded-lg transition-colors"
             >
-              Discard
-            </button>
-
-            <button
-              type="submit"
-              disabled={isSubmitting || mutation.isPending}
-              className="btn-primary py-2.5 px-6 text-xs font-semibold flex items-center space-x-2 shadow-sm"
-            >
-              {isSubmitting || mutation.isPending ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Submitting…</span>
-                </>
-              ) : (
-                <span>Submit</span>
-              )}
+              <X className="w-5 h-5" />
             </button>
           </div>
-        </form>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit(onSubmit)} className="p-7 space-y-6 text-sm">
+            {serverError && (
+              <div className="p-3.5 rounded-xl bg-red-950/50 border border-red-800/60 flex items-start space-x-2 text-red-200 animate-fadeIn text-xs">
+                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span>{serverError}</span>
+              </div>
+            )}
+
+            {/* Row 1: Employee */}
+            <div className="grid grid-cols-12 items-center gap-4">
+              <span className="col-span-4 font-medium text-gray-300">Employee</span>
+              <div className="col-span-8">
+                <div className="px-4 py-2.5 rounded-xl bg-[#2e2e32] border border-gray-700 text-sky-400 font-mono font-medium">
+                  [{user ? `${user.firstName} ${user.lastName}` : 'Employee'}]
+                </div>
+              </div>
+            </div>
+
+            {/* Row 2: Time off Type */}
+            <div className="grid grid-cols-12 items-center gap-4">
+              <span className="col-span-4 font-medium text-gray-300">Time off Type</span>
+              <div className="col-span-8">
+                <select
+                  id="typeId"
+                  className="w-full px-4 py-2.5 rounded-xl bg-[#2e2e32] border border-gray-700 text-sky-400 font-mono focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  {...register('typeId')}
+                >
+                  <option value="">[Select Time off type]</option>
+                  {types.map((t) => (
+                    <option key={t.id} value={t.id} className="text-white bg-[#242426]">
+                      [{t.name}]
+                    </option>
+                  ))}
+                </select>
+                {errors.typeId && (
+                  <p className="text-xs text-red-400 mt-1">{errors.typeId.message}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Row 3: Validity Period */}
+            <div className="grid grid-cols-12 items-center gap-4">
+              <span className="col-span-4 font-medium text-gray-300">Validity Period</span>
+              <div className="col-span-8 flex items-center space-x-3">
+                <input
+                  type="date"
+                  className="w-full px-3 py-2 rounded-xl bg-[#2e2e32] border border-gray-700 text-sky-400 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  {...register('startDate')}
+                />
+                <span className="text-gray-400 font-medium text-xs">To</span>
+                <input
+                  type="date"
+                  className="w-full px-3 py-2 rounded-xl bg-[#2e2e32] border border-gray-700 text-sky-400 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  {...register('endDate')}
+                />
+              </div>
+            </div>
+            {errors.endDate && (
+              <p className="text-xs text-red-400 text-right">{errors.endDate.message}</p>
+            )}
+
+            {/* Row 4: Allocation */}
+            <div className="grid grid-cols-12 items-center gap-4">
+              <span className="col-span-4 font-medium text-gray-300">Allocation</span>
+              <div className="col-span-8 flex items-center space-x-3">
+                <span className="font-mono text-sky-400 font-bold text-base">
+                  {formattedAllocation}
+                </span>
+                <span className="text-sky-400 font-medium">Days</span>
+                {balance && (
+                  <span className="text-xs text-gray-400 ml-auto">
+                    (Avail: {balance.remaining}d)
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Row 5: Attachment */}
+            <div className="grid grid-cols-12 items-center gap-4">
+              <span className="col-span-4 font-medium text-gray-300">Attachment:</span>
+              <div className="col-span-8 flex items-center space-x-3">
+                <button
+                  type="button"
+                  onClick={() => fileRef.current?.click()}
+                  className="w-9 h-9 rounded-xl bg-sky-600 hover:bg-sky-500 text-white flex items-center justify-center transition-colors shadow-sm"
+                  title="Upload certificate"
+                >
+                  <Upload className="w-5 h-5" />
+                </button>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*,application/pdf"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                <span className="text-xs text-gray-400 italic">
+                  {fileDisplay ? (
+                    <span className="text-sky-300 font-mono flex items-center space-x-1">
+                      <FileCheck className="w-4 h-4 text-emerald-400 inline mr-1" />
+                      {fileDisplay}
+                    </span>
+                  ) : (
+                    '(For sick leave certificate)'
+                  )}
+                </span>
+              </div>
+            </div>
+
+            {/* Action Buttons (Wireframe: Submit [Purple] | Discard [Dark]) */}
+            <div className="flex items-center space-x-4 pt-4 border-t border-gray-700/50">
+              <button
+                type="submit"
+                disabled={isSubmitting || mutation.isPending}
+                className="px-6 py-2.5 rounded-xl bg-[#a855f7] hover:bg-[#9333ea] text-white font-medium text-sm transition-all shadow-md active:scale-95 disabled:opacity-50"
+              >
+                {isSubmitting || mutation.isPending ? 'Submitting…' : 'Submit'}
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-6 py-2.5 rounded-xl bg-[#2e2e32] hover:bg-[#38383e] text-gray-200 font-medium text-sm transition-colors"
+              >
+                Discard
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* ── Side Guide Card (Wireframe Image 2 Right Box: TimeOff Types) ── */}
+        <div className="bg-[#242426]/95 text-white rounded-3xl p-6 border border-gray-700/60 w-full lg:w-72 shadow-xl self-stretch flex flex-col justify-center">
+          <div className="p-4 rounded-2xl border border-dashed border-gray-600 bg-[#1e1e20] space-y-3">
+            <h3 className="font-heading font-bold text-lg text-amber-300 border-b border-gray-700 pb-2">
+              TimeOff Types:
+            </h3>
+            <ul className="space-y-2 text-sm text-gray-300 font-medium">
+              <li className="flex items-center space-x-2">
+                <span className="text-purple-400 font-bold">-</span>
+                <span>Paid Time off</span>
+              </li>
+              <li className="flex items-center space-x-2">
+                <span className="text-sky-400 font-bold">-</span>
+                <span>Sick Leave</span>
+              </li>
+              <li className="flex items-center space-x-2">
+                <span className="text-amber-400 font-bold">-</span>
+                <span>Unpaid Leaves</span>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );
