@@ -10,6 +10,7 @@ import {
   ArrowUpRight
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { AttendanceControl } from '../components/AttendanceControl';
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -119,10 +120,7 @@ export const Dashboard: React.FC = () => {
         </div>
 
         <div className="flex items-center space-x-3">
-          <Link to="/attendance" className="btn-primary flex items-center space-x-2 text-sm">
-            <Clock className="w-4 h-4" />
-            <span>Check In / Out</span>
-          </Link>
+          <AttendanceControl compact />
           <Link to="/timeoff" className="btn-secondary flex items-center space-x-2 text-sm">
             <CalendarDays className="w-4 h-4" />
             <span>Request Time Off</span>

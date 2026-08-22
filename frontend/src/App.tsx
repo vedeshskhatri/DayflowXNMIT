@@ -10,6 +10,8 @@ import { Dashboard } from './pages/Dashboard';
 import { EmployeesPage } from './pages/EmployeesPage';
 import { AttendancePage } from './pages/AttendancePage';
 import { TimeOffPage } from './pages/TimeOffPage';
+import { ProfilePage } from './pages/ProfilePage';
+import { EmployeeDetailPage } from './pages/EmployeeDetailPage';
 
 // Protected layout wrapper
 const ProtectedLayout: React.FC = () => {
@@ -67,6 +69,8 @@ export default function App() {
             <Route element={<ProtectedLayout />}>
               <Route path="/" element={<Dashboard />} />
               <Route path="/employees" element={<EmployeesPage />} />
+              <Route path="/employees/:id" element={<EmployeeDetailPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
               <Route path="/attendance" element={<AttendancePage />} />
               <Route path="/timeoff" element={<TimeOffPage />} />
             </Route>
