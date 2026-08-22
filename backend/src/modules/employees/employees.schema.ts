@@ -22,7 +22,7 @@ const tagArraySchema = z
 export const employeeSelfUpdateSchema = z.object({
   address:        z.string().max(500).optional(),
   phone:          phoneSchema.optional(),
-  profilePicUrl:  z.string().url().optional().or(z.literal('')),
+  profilePicUrl:  z.string().max(10000000).optional().or(z.literal('')),
   bio:            z.string().max(2000).optional(),
   jobLove:        z.string().max(1000).optional(),
   interests:      z.string().max(1000).optional(),
@@ -39,7 +39,7 @@ export const adminEmployeeUpdateSchema = z.object({
   email:          z.string().email().optional(),
   phone:          phoneSchema.optional(),
   address:        z.string().max(500).optional(),
-  profilePicUrl:  z.string().url().optional().or(z.literal('')),
+  profilePicUrl:  z.string().max(10000000).optional().or(z.literal('')),
   bio:            z.string().max(2000).optional(),
   jobLove:        z.string().max(1000).optional(),
   interests:      z.string().max(1000).optional(),

@@ -104,7 +104,7 @@ describe('Employee Profile Module (Frontend)', () => {
     // Private Info inputs
     expect(screen.getByTestId('input-phone')).toBeInTheDocument();
     expect(screen.getByTestId('input-address')).toBeInTheDocument();
-    expect(screen.getByTestId('input-profilepic')).toBeInTheDocument();
+    expect(screen.getByTestId('input-photo-file')).toBeInTheDocument();
   });
 
   it('/profile allows employees to view their own salary info in read-only mode without save button', async () => {
