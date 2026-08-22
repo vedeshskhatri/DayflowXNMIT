@@ -20,12 +20,14 @@ import {
   Copy,
   Check,
   Upload,
+  X,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 const signUpSchema = z
   .object({
     companyName: z.string().min(2, 'Company name must be at least 2 characters').max(100),
-    companyLogoUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+    companyLogoUrl: z.string().max(5000000).optional().or(z.literal('')),
     name: z.string().min(2, 'Full name must be at least 2 characters').max(100),
     email: z.string().email('Must be a valid email address'),
     phone: z
@@ -53,9 +55,12 @@ export const SignUp: React.FC = () => {
   const { updateUser } = useAuth();
   const navigate = useNavigate();
 
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [logoFileName, setLogoFileName] = useState<string | null>(null);
   const [successData, setSuccessData] = useState<{
     loginId: string;
     companyCode: string;
@@ -66,6 +71,7 @@ export const SignUp: React.FC = () => {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
@@ -79,6 +85,36 @@ export const SignUp: React.FC = () => {
       confirmPassword: '',
     },
   });
+
+  const handleLogoFile = (file: File) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setErrorMessage('Please select a valid image file (PNG, JPG, SVG, WebP)');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMessage('Image size should be less than 5MB');
+      return;
+    }
+
+    setLogoFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      setLogoPreview(result);
+      setValue('companyLogoUrl', result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveLogo = () => {
+    setLogoPreview(null);
+    setLogoFileName(null);
+    setValue('companyLogoUrl', '');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const onSubmit = async (data: SignUpFormValues) => {
     setErrorMessage(null);
@@ -230,9 +266,33 @@ export const SignUp: React.FC = () => {
               )}
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                {/* Company Name + Logo URL */}
+                {/* Hidden File Input for Logo */}
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      handleLogoFile(e.target.files[0]);
+                    }
+                  }}
+                />
+
+                {/* Company Name & Upload Logo Row */}
                 <div>
-                  <label className="label">Company Name :- *</label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="label mb-0">Company Name :- *</label>
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="text-xs font-semibold text-slate-brand hover:text-slate-brand/80 flex items-center space-x-1.5 py-1 px-2.5 rounded-lg bg-slate-brand/10 hover:bg-slate-brand/15 border border-slate-brand/20 transition-all shadow-sm"
+                      title="Upload Logo File"
+                    >
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>Upload Logo</span>
+                    </button>
+                  </div>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-blue-grey">
                       <Building2 className="w-4 h-4" />
@@ -251,26 +311,66 @@ export const SignUp: React.FC = () => {
                   )}
                 </div>
 
-                {/* Company Logo (Optional URL or Preset) */}
-                <div>
-                  <label className="label">Company Logo URL (Optional) :-</label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-blue-grey">
-                      <Upload className="w-4 h-4" />
+                {/* Company Logo Preview or Dropzone */}
+                {logoPreview ? (
+                  /* Uploaded Logo Preview Card */
+                  <div className="p-3 rounded-xl bg-cream/80 border border-blue-grey/25 flex items-center justify-between animate-fadeIn">
+                    <div className="flex items-center space-x-3">
+                      <img
+                        src={logoPreview}
+                        alt="Company Logo Preview"
+                        className="w-12 h-12 rounded-xl object-contain bg-white border border-blue-grey/20 p-1 shadow-sm"
+                      />
+                      <div>
+                        <span className="text-xs font-bold text-text-primary block truncate max-w-[200px]">
+                          {logoFileName || 'Company Logo'}
+                        </span>
+                        <span className="text-[11px] text-sage-deep font-medium flex items-center space-x-1">
+                          <Check className="w-3 h-3" />
+                          <span>Logo attached successfully</span>
+                        </span>
+                      </div>
                     </div>
-                    <input
-                      type="text"
-                      {...register('companyLogoUrl')}
-                      placeholder="https://example.com/logo.png"
-                      className="input pl-10 text-sm bg-cream/40"
-                    />
+                    <div className="flex items-center space-x-1">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="p-1.5 text-xs text-text-muted hover:text-slate-brand rounded-lg hover:bg-cream"
+                        title="Change Logo"
+                      >
+                        Change
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleRemoveLogo}
+                        className="p-1.5 text-text-muted hover:text-terracotta rounded-lg hover:bg-terracotta/10 transition-colors"
+                        title="Remove Logo"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
-                  {errors.companyLogoUrl && (
-                    <span className="text-[11px] text-terracotta mt-1 block">
-                      {errors.companyLogoUrl.message}
-                    </span>
-                  )}
-                </div>
+                ) : (
+                  /* Compact Dropzone Area */
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      if (e.dataTransfer.files?.[0]) {
+                        handleLogoFile(e.dataTransfer.files[0]);
+                      }
+                    }}
+                    className="border-2 border-dashed border-blue-grey/30 hover:border-slate-brand/50 rounded-xl p-3 text-center cursor-pointer bg-cream/20 hover:bg-cream/50 transition-all group"
+                  >
+                    <div className="flex items-center justify-center space-x-2 text-xs text-text-muted group-hover:text-slate-brand">
+                      <ImageIcon className="w-4 h-4 text-blue-grey group-hover:text-slate-brand" />
+                      <span className="font-medium">
+                        Click or drag & drop company logo (PNG, JPG, SVG, WebP)
+                      </span>
+                    </div>
+                  </div>
+                )}
 
                 {/* Name */}
                 <div>

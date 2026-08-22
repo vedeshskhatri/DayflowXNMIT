@@ -68,7 +68,7 @@ export const signupSchema = z
       .string({ required_error: 'Company name is required' })
       .min(2, 'Company name must be at least 2 characters')
       .max(100),
-    companyLogoUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+    companyLogoUrl: z.string().max(5000000).optional().or(z.literal('')),
     name: z
       .string({ required_error: 'Full name is required' })
       .min(2, 'Full name must be at least 2 characters')
