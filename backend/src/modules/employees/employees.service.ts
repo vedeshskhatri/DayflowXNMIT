@@ -8,13 +8,19 @@ export type DerivedStatus = 'PRESENT' | 'ON_LEAVE' | 'ABSENT';
 
 export interface EmployeeListItem {
   id: string;
+  loginId?: string;
   firstName: string;
   lastName: string;
   email: string;
+  phone?: string | null;
+  role?: string;
+  bio?: string | null;
   jobTitle: string | null;
   department: string | null;
   profilePicUrl: string | null;
   status: DerivedStatus;
+  skills?: { id?: string; name: string }[];
+  gamificationPoints?: { streak: number; total: number } | null;
 }
 
 export interface EmployeeFullRecord {
@@ -74,12 +80,18 @@ export async function getEmployeeList(companyId: string): Promise<EmployeeListIt
       where: { companyId },
       select: {
         id: true,
+        loginId: true,
         firstName: true,
         lastName: true,
         email: true,
+        phone: true,
+        role: true,
+        bio: true,
         jobTitle: true,
         department: true,
         profilePicUrl: true,
+        skills: { select: { id: true, name: true } },
+        gamificationPoints: { select: { streak: true, total: true } },
       },
       orderBy: [{ firstName: 'asc' }, { lastName: 'asc' }],
     }),
