@@ -1,5 +1,13 @@
 /* Import Google Fonts — must load before Tailwind base */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Special+Gothic+Expanded+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Special+Gothic:wght@400;600;700;800;900&family=Special+Gothic+Expanded+One&display=swap');
+
+@font-face {
+  font-family: 'Special Gothic Expanded One';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('https://fonts.gstatic.com/s/specialgothicexpandedone/v2/IurO6Zxk74-YaYk1r3HOet4g75ENmBxUmOK61tA0Iu5gnw.ttf') format('truetype');
+}
 
 @tailwind base;
 @tailwind components;
@@ -20,9 +28,9 @@
     min-height: 100dvh;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Special Gothic Expanded One', 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
-    @apply text-text-primary tracking-tight;
+  h1, h2, h3, h4, h5, h6, .font-heading {
+    font-family: 'Special Gothic Expanded One', 'Special Gothic', sans-serif !important;
+    letter-spacing: -0.01em;
   }
 
   /* Custom scrollbar — minimal, matches the warm palette */
