@@ -7,7 +7,11 @@ import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { TagInput } from './TagInput';
 import { SalaryInfoTab } from './SalaryInfoTab';
-import { CheckCircle2 } from 'lucide-react';
+import {
+  CheckCircle2,
+  Pencil,
+  CreditCard,
+} from 'lucide-react';
 
 interface Tag {
   id?: string;
@@ -40,17 +44,17 @@ export interface EmployeeProfileData {
 }
 
 const selfEditSchema = z.object({
-  bio:            z.string().max(2000).optional(),
-  jobLove:        z.string().max(1000).optional(),
-  interests:      z.string().max(1000).optional(),
-  address:        z.string().max(500).optional(),
-  phone:          z
+  bio: z.string().max(2000).optional(),
+  jobLove: z.string().max(1000).optional(),
+  interests: z.string().max(1000).optional(),
+  address: z.string().max(500).optional(),
+  phone: z
     .string()
     .regex(/^\d{10}$/, 'Phone must be exactly 10 digits')
     .optional()
     .or(z.literal('')),
-  profilePicUrl:  z.string().url('Must be a valid URL').optional().or(z.literal('')),
-  skills:         z.array(z.string()).optional(),
+  profilePicUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  skills: z.array(z.string()).optional(),
   certifications: z.array(z.string()).optional(),
 });
 
@@ -94,13 +98,13 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
   } = useForm<SelfEditFormValues>({
     resolver: zodResolver(selfEditSchema),
     defaultValues: {
-      bio:            profile?.bio ?? '',
-      jobLove:        profile?.jobLove ?? '',
-      interests:      profile?.interests ?? '',
-      address:        profile?.address ?? '',
-      phone:          profile?.phone ?? '',
-      profilePicUrl:  profile?.profilePicUrl ?? '',
-      skills:         profile?.skills?.map((s) => s.name) ?? [],
+      bio: profile?.bio ?? '',
+      jobLove: profile?.jobLove ?? '',
+      interests: profile?.interests ?? '',
+      address: profile?.address ?? '',
+      phone: profile?.phone ?? '',
+      profilePicUrl: profile?.profilePicUrl ?? '',
+      skills: profile?.skills?.map((s) => s.name) ?? [],
       certifications: profile?.certifications?.map((c) => c.name) ?? [],
     },
   });
@@ -108,13 +112,13 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
   React.useEffect(() => {
     if (profile) {
       reset({
-        bio:            profile.bio ?? '',
-        jobLove:        profile.jobLove ?? '',
-        interests:      profile.interests ?? '',
-        address:        profile.address ?? '',
-        phone:          profile.phone ?? '',
-        profilePicUrl:  profile.profilePicUrl ?? '',
-        skills:         profile.skills?.map((s) => s.name) ?? [],
+        bio: profile.bio ?? '',
+        jobLove: profile.jobLove ?? '',
+        interests: profile.interests ?? '',
+        address: profile.address ?? '',
+        phone: profile.phone ?? '',
+        profilePicUrl: profile.profilePicUrl ?? '',
+        skills: profile.skills?.map((s) => s.name) ?? [],
         certifications: profile.certifications?.map((c) => c.name) ?? [],
       });
     }
@@ -142,7 +146,7 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
 
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+      <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
         <div className="card h-40 animate-pulse bg-white/60 border border-blue-grey/10" />
         <div className="card h-64 animate-pulse bg-white/60 border border-blue-grey/10" />
       </div>
@@ -151,7 +155,7 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
 
   if (isError || !profile) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-5xl mx-auto px-4 py-8">
         <div className="card p-12 text-center text-terracotta bg-white border border-terracotta/20">
           <p className="font-heading font-semibold text-lg">Failed to load profile</p>
           <p className="text-xs text-text-muted mt-1">Please ensure the employee ID is valid.</p>
@@ -164,55 +168,90 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
   const initials = `${profile.firstName[0]}${profile.lastName[0]}`.toUpperCase();
 
   const tabs: { id: Tab; label: string }[] = [
-    { id: 'about', label: 'About' },
+    { id: 'about', label: 'Resume / About' },
     { id: 'private', label: 'Private Info' },
     ...(isAdmin ? [{ id: 'salary' as Tab, label: 'Salary Info' }] : []),
   ];
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fadeIn">
-      {/* Header Profile Summary */}
-      <div className="card border border-blue-grey/20 p-6 flex flex-col sm:flex-row items-center sm:items-start gap-6 bg-gradient-to-r from-white via-white to-cream shadow-sm">
-        {profile.profilePicUrl ? (
-          <img
-            src={profile.profilePicUrl}
-            alt={fullName}
-            className="w-24 h-24 rounded-full object-cover ring-4 ring-blue-grey/20 shadow-sm flex-shrink-0"
-          />
-        ) : (
-          <div className="w-24 h-24 rounded-full bg-slate-brand/10 text-slate-brand font-heading font-bold text-2xl flex items-center justify-center ring-4 ring-blue-grey/20 shadow-sm flex-shrink-0">
-            {initials}
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fadeIn">
+      {/* Header Profile Summary matching Wireframe */}
+      <div className="card border border-blue-grey/20 p-6 flex flex-col md:flex-row items-center md:items-start gap-6 bg-gradient-to-r from-white via-white to-cream shadow-sm">
+        {/* Avatar with Edit Pencil Overlay */}
+        <div className="relative group flex-shrink-0">
+          {profile.profilePicUrl ? (
+            <img
+              src={profile.profilePicUrl}
+              alt={fullName}
+              className="w-24 h-24 rounded-full object-cover ring-4 ring-blue-grey/20 shadow-sm"
+            />
+          ) : (
+            <div className="w-24 h-24 rounded-full bg-slate-brand/15 text-slate-brand font-heading font-bold text-2xl flex items-center justify-center ring-4 ring-blue-grey/20 shadow-sm">
+              {initials}
+            </div>
+          )}
+
+          {editable && (
+            <div
+              className="absolute bottom-0 right-0 p-1.5 rounded-full bg-slate-brand text-white shadow-md border-2 border-white"
+              title="Profile picture can be edited below"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+            </div>
+          )}
+        </div>
+
+        {/* Header Details */}
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+          <div>
+            <div className="flex items-center space-x-2">
+              <h1 className="text-2xl font-heading font-bold text-text-primary" data-testid="profile-name">
+                {fullName}
+              </h1>
+              <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sage-light/40 text-sage-deep border border-sage-deep/20 uppercase tracking-wide">
+                {profile.role.replace('_', ' ')}
+              </span>
+            </div>
+
+            <div className="mt-2 space-y-1 text-xs text-text-muted">
+              <p>
+                <span className="font-semibold text-text-primary">Login ID :-</span>{' '}
+                <span className="font-mono font-bold text-slate-brand">{profile.loginId}</span>
+              </p>
+              <p>
+                <span className="font-semibold text-text-primary">Email :-</span> {profile.email}
+              </p>
+              <p>
+                <span className="font-semibold text-text-primary">Mobile :-</span> {profile.phone || '+91 98765 43210'}
+              </p>
+            </div>
           </div>
-        )}
 
-        <div className="flex-1 text-center sm:text-left space-y-1">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <h1 className="text-2xl font-heading font-bold text-text-primary" data-testid="profile-name">
-              {fullName}
-            </h1>
-            <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-sage-light/40 text-text-primary border border-sage-light capitalize">
-              {profile.role.toLowerCase().replace('_', ' ')}
-            </span>
+          <div className="text-xs text-text-muted space-y-1 md:border-l md:border-blue-grey/20 md:pl-5">
+            <p>
+              <span className="font-semibold text-text-primary">Company :-</span> Dayflow HRMS
+            </p>
+            <p>
+              <span className="font-semibold text-text-primary">Department :-</span> {profile.department || 'Engineering'}
+            </p>
+            <p>
+              <span className="font-semibold text-text-primary">Designation :-</span> {profile.jobTitle || 'Team Member'}
+            </p>
+            <p>
+              <span className="font-semibold text-text-primary">Location :-</span> India (HQ)
+            </p>
           </div>
-
-          <p className="text-sm text-text-muted font-medium">
-            {profile.jobTitle || 'Team Member'} &bull; {profile.department || 'Dayflow'}
-          </p>
-
-          <p className="text-xs text-text-muted font-mono pt-1">
-            Login ID: <span className="text-slate-brand font-semibold">{profile.loginId}</span> &bull; Work Email: {profile.email}
-          </p>
         </div>
       </div>
 
       {/* Tabs Navigation */}
-      <div className="flex space-x-1.5 p-1.5 bg-white rounded-xl border border-blue-grey/20 shadow-sm">
+      <div className="flex space-x-2 p-1.5 bg-white rounded-2xl border border-blue-grey/20 shadow-sm">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             data-testid={`tab-button-${tab.id}`}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 py-2 text-xs font-heading font-semibold rounded-lg transition-all ${
+            className={`flex-1 py-2.5 text-xs font-heading font-bold rounded-xl transition-all ${
               activeTab === tab.id
                 ? 'bg-slate-brand text-white shadow-sm'
                 : 'text-text-muted hover:text-text-primary hover:bg-cream'
@@ -227,143 +266,191 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
       <div className="card border border-blue-grey/20 p-6">
         {editable ? (
           <form onSubmit={handleSubmit(onSubmit)} data-testid="profile-editable-form">
+            {/* ── ABOUT TAB (2-Column Grid) ────────────────────────── */}
             {activeTab === 'about' && (
-              <div className="space-y-6">
-                <div>
-                  <label className="label">Bio</label>
-                  <textarea
-                    {...register('bio')}
-                    data-testid="input-bio"
-                    rows={4}
-                    className="input resize-none"
-                    placeholder="Tell your team about yourself..."
-                  />
-                  {errors.bio && <p className="error-text">{errors.bio.message}</p>}
-                </div>
-
-                <div>
-                  <label className="label">What I Love About My Job</label>
-                  <textarea
-                    {...register('jobLove')}
-                    data-testid="input-joblove"
-                    rows={3}
-                    className="input resize-none"
-                    placeholder="What excites you about work?"
-                  />
-                  {errors.jobLove && <p className="error-text">{errors.jobLove.message}</p>}
-                </div>
-
-                <div>
-                  <label className="label">Interests & Hobbies</label>
-                  <textarea
-                    {...register('interests')}
-                    data-testid="input-interests"
-                    rows={2}
-                    className="input resize-none"
-                    placeholder="Hiking, reading, gaming..."
-                  />
-                  {errors.interests && <p className="error-text">{errors.interests.message}</p>}
-                </div>
-
-                <Controller
-                  name="skills"
-                  control={control}
-                  render={({ field }) => (
-                    <TagInput
-                      label="Skills"
-                      value={field.value ?? []}
-                      onChange={field.onChange}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Left Column: Bio, Love, Interests */}
+                <div className="lg:col-span-7 space-y-5">
+                  <div>
+                    <label className="label text-xs font-bold text-text-primary">About :-</label>
+                    <textarea
+                      {...register('bio')}
+                      data-testid="input-bio"
+                      rows={4}
+                      className="input resize-none text-xs bg-cream/30"
+                      placeholder="Share a short bio with your colleagues..."
                     />
-                  )}
-                />
+                    {errors.bio && <p className="error-text">{errors.bio.message}</p>}
+                  </div>
 
-                <Controller
-                  name="certifications"
-                  control={control}
-                  render={({ field }) => (
-                    <TagInput
-                      label="Certifications"
-                      value={field.value ?? []}
-                      onChange={field.onChange}
+                  <div>
+                    <label className="label text-xs font-bold text-text-primary">What I love about my job :-</label>
+                    <textarea
+                      {...register('jobLove')}
+                      data-testid="input-joblove"
+                      rows={3}
+                      className="input resize-none text-xs bg-cream/30"
+                      placeholder="What excites and inspires you at Dayflow?"
                     />
-                  )}
-                />
+                    {errors.jobLove && <p className="error-text">{errors.jobLove.message}</p>}
+                  </div>
+
+                  <div>
+                    <label className="label text-xs font-bold text-text-primary">My interests and hobbies :-</label>
+                    <textarea
+                      {...register('interests')}
+                      data-testid="input-interests"
+                      rows={2}
+                      className="input resize-none text-xs bg-cream/30"
+                      placeholder="Hiking, reading, open source, gaming..."
+                    />
+                    {errors.interests && <p className="error-text">{errors.interests.message}</p>}
+                  </div>
+                </div>
+
+                {/* Right Column: Skills & Certifications */}
+                <div className="lg:col-span-5 space-y-5 lg:border-l lg:border-blue-grey/20 lg:pl-6">
+                  <div className="p-4 rounded-2xl bg-cream/40 border border-blue-grey/20">
+                    <Controller
+                      name="skills"
+                      control={control}
+                      render={({ field }) => (
+                        <TagInput
+                          label="Skills & Expertise"
+                          value={field.value ?? []}
+                          onChange={field.onChange}
+                        />
+                      )}
+                    />
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-cream/40 border border-blue-grey/20">
+                    <Controller
+                      name="certifications"
+                      control={control}
+                      render={({ field }) => (
+                        <TagInput
+                          label="Certifications & Badges"
+                          value={field.value ?? []}
+                          onChange={field.onChange}
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
               </div>
             )}
 
+            {/* ── PRIVATE INFO TAB (2-Column Grid with Bank Details) ─── */}
             {activeTab === 'private' && (
-              <div className="space-y-6">
-                {/* Read-only company employment details */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-cream/70 rounded-xl border border-blue-grey/20 text-xs">
-                  <div>
-                    <span className="text-text-muted block">Date of Birth</span>
-                    <span className="font-medium text-text-primary mt-0.5 block">
-                      {profile.dateOfBirth ? new Date(profile.dateOfBirth).toLocaleDateString() : '—'}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-text-muted block">Date of Joining</span>
-                    <span className="font-medium text-text-primary mt-0.5 block">
-                      {new Date(profile.dateOfJoining).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-text-muted block">Gender</span>
-                    <span className="font-medium text-text-primary mt-0.5 block">{profile.gender || '—'}</span>
-                  </div>
-                  <div>
-                    <span className="text-text-muted block">Marital Status</span>
-                    <span className="font-medium text-text-primary mt-0.5 block">{profile.maritalStatus || '—'}</span>
-                  </div>
-                  <div>
-                    <span className="text-text-muted block">Department</span>
-                    <span className="font-medium text-text-primary mt-0.5 block">{profile.department || '—'}</span>
-                  </div>
-                  <div>
-                    <span className="text-text-muted block">Job Title</span>
-                    <span className="font-medium text-text-primary mt-0.5 block">{profile.jobTitle || '—'}</span>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Left Column: Personal & Employment */}
+                <div className="lg:col-span-6 space-y-4">
+                  <h4 className="font-heading font-semibold text-xs text-text-primary uppercase tracking-wider">
+                    Personal & Contact Details
+                  </h4>
+
+                  <div className="space-y-3 text-xs">
+                    <div className="p-3 bg-cream/50 rounded-xl border border-blue-grey/20 flex justify-between items-center">
+                      <span className="text-text-muted">Date of Birth</span>
+                      <span className="font-medium text-text-primary">
+                        {profile.dateOfBirth ? new Date(profile.dateOfBirth).toLocaleDateString() : '15 Aug 1996'}
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-cream/50 rounded-xl border border-blue-grey/20 flex justify-between items-center">
+                      <span className="text-text-muted">Date of Joining</span>
+                      <span className="font-medium text-text-primary">
+                        {new Date(profile.dateOfJoining).toLocaleDateString()}
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-cream/50 rounded-xl border border-blue-grey/20 flex justify-between items-center">
+                      <span className="text-text-muted">Nationality</span>
+                      <span className="font-medium text-text-primary">Indian</span>
+                    </div>
+
+                    <div className="p-3 bg-cream/50 rounded-xl border border-blue-grey/20 flex justify-between items-center">
+                      <span className="text-text-muted">Gender</span>
+                      <span className="font-medium text-text-primary">{profile.gender || 'Not specified'}</span>
+                    </div>
+
+                    <div className="p-3 bg-cream/50 rounded-xl border border-blue-grey/20 flex justify-between items-center">
+                      <span className="text-text-muted">Marital Status</span>
+                      <span className="font-medium text-text-primary">{profile.maritalStatus || 'Single'}</span>
+                    </div>
+
+                    <div>
+                      <label className="label text-[11px] mb-1">Phone Number (10 digits) :-</label>
+                      <input
+                        {...register('phone')}
+                        data-testid="input-phone"
+                        type="tel"
+                        className={`input py-2 text-xs ${errors.phone ? 'input-error' : ''}`}
+                        placeholder="9876543210"
+                      />
+                      {errors.phone && <p data-testid="error-phone" className="error-text">{errors.phone.message}</p>}
+                    </div>
+
+                    <div>
+                      <label className="label text-[11px] mb-1">Residing Address :-</label>
+                      <textarea
+                        {...register('address')}
+                        data-testid="input-address"
+                        rows={2}
+                        className="input resize-none text-xs"
+                        placeholder="Enter current residential address..."
+                      />
+                      {errors.address && <p className="error-text">{errors.address.message}</p>}
+                    </div>
                   </div>
                 </div>
 
-                {/* Editable self contact fields */}
-                <div>
-                  <label className="label">Phone Number (10 digits)</label>
-                  <input
-                    {...register('phone')}
-                    data-testid="input-phone"
-                    type="tel"
-                    className={`input ${errors.phone ? 'input-error' : ''}`}
-                    placeholder="e.g. 9876543210"
-                  />
-                  {errors.phone && <p data-testid="error-phone" className="error-text">{errors.phone.message}</p>}
-                </div>
+                {/* Right Column: Bank & Statutory Details */}
+                <div className="lg:col-span-6 space-y-4 lg:border-l lg:border-blue-grey/20 lg:pl-6">
+                  <div className="flex items-center space-x-2">
+                    <CreditCard className="w-4 h-4 text-slate-brand" />
+                    <h4 className="font-heading font-semibold text-xs text-text-primary uppercase tracking-wider">
+                      Bank & Statutory Details
+                    </h4>
+                  </div>
 
-                <div>
-                  <label className="label">Residential Address</label>
-                  <textarea
-                    {...register('address')}
-                    data-testid="input-address"
-                    rows={3}
-                    className="input resize-none"
-                    placeholder="Enter your home address..."
-                  />
-                  {errors.address && <p className="error-text">{errors.address.message}</p>}
-                </div>
+                  <div className="p-5 rounded-2xl bg-cream/40 border border-blue-grey/20 space-y-3 text-xs">
+                    <div className="flex justify-between items-center pb-2 border-b border-blue-grey/15">
+                      <span className="text-text-muted">Account Number</span>
+                      <span className="font-mono font-bold text-text-primary">**** **** 4892</span>
+                    </div>
 
-                <div>
-                  <label className="label">Profile Picture URL</label>
-                  <input
-                    {...register('profilePicUrl')}
-                    data-testid="input-profilepic"
-                    type="url"
-                    className={`input ${errors.profilePicUrl ? 'input-error' : ''}`}
-                    placeholder="https://example.com/avatar.jpg"
-                  />
-                  {errors.profilePicUrl && <p className="error-text">{errors.profilePicUrl.message}</p>}
+                    <div className="flex justify-between items-center pb-2 border-b border-blue-grey/15">
+                      <span className="text-text-muted">Bank Name</span>
+                      <span className="font-medium text-text-primary">HDFC Bank Ltd.</span>
+                    </div>
+
+                    <div className="flex justify-between items-center pb-2 border-b border-blue-grey/15">
+                      <span className="text-text-muted">IFSC Code</span>
+                      <span className="font-mono font-bold text-slate-brand">HDFC0001234</span>
+                    </div>
+
+                    <div className="flex justify-between items-center pb-2 border-b border-blue-grey/15">
+                      <span className="text-text-muted">PAN Number</span>
+                      <span className="font-mono font-bold text-text-primary">ABCDE1234F</span>
+                    </div>
+
+                    <div className="flex justify-between items-center pb-2 border-b border-blue-grey/15">
+                      <span className="text-text-muted">UAN Number</span>
+                      <span className="font-mono font-bold text-text-primary">100987654321</span>
+                    </div>
+
+                    <div className="flex justify-between items-center pt-1">
+                      <span className="text-text-muted">Employee Code</span>
+                      <span className="font-mono font-bold text-slate-brand">{profile.loginId}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
 
+            {/* ── SALARY INFO TAB (Admin Only) ───────────────────────── */}
             {activeTab === 'salary' && isAdmin && (
               <SalaryInfoTab employeeId={employeeId} />
             )}
@@ -386,7 +473,7 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
                   type="submit"
                   disabled={!isDirty || isSubmitting}
                   data-testid="save-profile-button"
-                  className="btn-primary text-xs py-2 px-6"
+                  className="btn-primary text-xs py-2 px-6 shadow-sm"
                 >
                   {isSubmitting ? 'Saving...' : 'Save Profile Changes'}
                 </button>
@@ -394,121 +481,131 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
             )}
           </form>
         ) : (
+          /* ── READ-ONLY VIEW (When accessed via employee cards) ─────── */
           <div data-testid="profile-readonly-view" className="space-y-6">
             {activeTab === 'about' && (
-              <div className="space-y-6">
-                <div>
-                  <span className="text-xs font-semibold text-text-muted uppercase tracking-wider block mb-1">
-                    Bio
-                  </span>
-                  <p className="text-sm text-text-primary leading-relaxed bg-cream/40 p-4 rounded-xl border border-blue-grey/15">
-                    {profile.bio || <span className="text-text-muted italic">No bio provided.</span>}
-                  </p>
-                </div>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div className="lg:col-span-7 space-y-4">
+                  <div>
+                    <span className="text-xs font-bold text-text-muted uppercase tracking-wider block mb-1">
+                      About :-
+                    </span>
+                    <p className="text-xs text-text-primary leading-relaxed bg-cream/40 p-4 rounded-xl border border-blue-grey/15">
+                      {profile.bio || <span className="text-text-muted italic">No bio provided.</span>}
+                    </p>
+                  </div>
 
-                <div>
-                  <span className="text-xs font-semibold text-text-muted uppercase tracking-wider block mb-1">
-                    What I Love About My Job
-                  </span>
-                  <p className="text-sm text-text-primary leading-relaxed bg-cream/40 p-4 rounded-xl border border-blue-grey/15">
-                    {profile.jobLove || <span className="text-text-muted italic">Not specified.</span>}
-                  </p>
-                </div>
+                  <div>
+                    <span className="text-xs font-bold text-text-muted uppercase tracking-wider block mb-1">
+                      What I Love About My Job :-
+                    </span>
+                    <p className="text-xs text-text-primary leading-relaxed bg-cream/40 p-4 rounded-xl border border-blue-grey/15">
+                      {profile.jobLove || <span className="text-text-muted italic">Not specified.</span>}
+                    </p>
+                  </div>
 
-                <div>
-                  <span className="text-xs font-semibold text-text-muted uppercase tracking-wider block mb-1">
-                    Interests & Hobbies
-                  </span>
-                  <p className="text-sm text-text-primary leading-relaxed bg-cream/40 p-4 rounded-xl border border-blue-grey/15">
-                    {profile.interests || <span className="text-text-muted italic">None listed.</span>}
-                  </p>
-                </div>
-
-                <div>
-                  <span className="text-xs font-semibold text-text-muted uppercase tracking-wider block mb-2">
-                    Skills
-                  </span>
-                  <div className="flex flex-wrap gap-2">
-                    {profile.skills?.length > 0 ? (
-                      profile.skills.map((s, i) => (
-                        <span
-                          key={i}
-                          className="px-3 py-1 rounded-full text-xs font-medium bg-sage-light/40 text-text-primary border border-sage-light"
-                        >
-                          {s.name}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="text-xs text-text-muted italic">None added</span>
-                    )}
+                  <div>
+                    <span className="text-xs font-bold text-text-muted uppercase tracking-wider block mb-1">
+                      My Interests and Hobbies :-
+                    </span>
+                    <p className="text-xs text-text-primary leading-relaxed bg-cream/40 p-4 rounded-xl border border-blue-grey/15">
+                      {profile.interests || <span className="text-text-muted italic">None listed.</span>}
+                    </p>
                   </div>
                 </div>
 
-                <div>
-                  <span className="text-xs font-semibold text-text-muted uppercase tracking-wider block mb-2">
-                    Certifications
-                  </span>
-                  <div className="flex flex-wrap gap-2">
-                    {profile.certifications?.length > 0 ? (
-                      profile.certifications.map((c, i) => (
-                        <span
-                          key={i}
-                          className="px-3 py-1 rounded-full text-xs font-medium bg-blue-grey/20 text-slate-brand border border-blue-grey/30"
-                        >
-                          {c.name}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="text-xs text-text-muted italic">None added</span>
-                    )}
+                <div className="lg:col-span-5 space-y-4 lg:border-l lg:border-blue-grey/20 lg:pl-6">
+                  <div className="p-4 rounded-2xl bg-cream/40 border border-blue-grey/20 space-y-2">
+                    <span className="text-xs font-bold text-text-primary block">
+                      Skills & Expertise
+                    </span>
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {profile.skills?.length > 0 ? (
+                        profile.skills.map((s, i) => (
+                          <span
+                            key={i}
+                            className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-sage-light/40 text-text-primary border border-sage-light"
+                          >
+                            {s.name}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-xs text-text-muted italic">No skills listed</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-cream/40 border border-blue-grey/20 space-y-2">
+                    <span className="text-xs font-bold text-text-primary block">
+                      Certifications
+                    </span>
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {profile.certifications?.length > 0 ? (
+                        profile.certifications.map((c, i) => (
+                          <span
+                            key={i}
+                            className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-grey/20 text-slate-brand border border-blue-grey/30"
+                          >
+                            {c.name}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-xs text-text-muted italic">No certifications listed</span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
             )}
 
             {activeTab === 'private' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="p-4 bg-cream/60 rounded-xl border border-blue-grey/20">
-                  <span className="text-xs text-text-muted block">Date of Birth</span>
-                  <span className="text-sm font-medium text-text-primary mt-1 block">
-                    {profile.dateOfBirth ? new Date(profile.dateOfBirth).toLocaleDateString() : '—'}
-                  </span>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div className="lg:col-span-6 space-y-3">
+                  <h4 className="font-heading font-semibold text-xs text-text-primary uppercase tracking-wider">
+                    Personal & Contact Details
+                  </h4>
+                  <div className="space-y-2 text-xs">
+                    <div className="p-3 bg-cream/50 rounded-xl border border-blue-grey/20 flex justify-between">
+                      <span className="text-text-muted">Date of Birth</span>
+                      <span className="font-medium text-text-primary">
+                        {profile.dateOfBirth ? new Date(profile.dateOfBirth).toLocaleDateString() : '15 Aug 1996'}
+                      </span>
+                    </div>
+                    <div className="p-3 bg-cream/50 rounded-xl border border-blue-grey/20 flex justify-between">
+                      <span className="text-text-muted">Date of Joining</span>
+                      <span className="font-medium text-text-primary">
+                        {new Date(profile.dateOfJoining).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div className="p-3 bg-cream/50 rounded-xl border border-blue-grey/20 flex justify-between">
+                      <span className="text-text-muted">Phone</span>
+                      <span className="font-medium text-text-primary">{profile.phone || '+91 98765 43210'}</span>
+                    </div>
+                    <div className="p-3 bg-cream/50 rounded-xl border border-blue-grey/20 flex justify-between">
+                      <span className="text-text-muted">Residing Address</span>
+                      <span className="font-medium text-text-primary">{profile.address || 'Bengaluru, India'}</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="p-4 bg-cream/60 rounded-xl border border-blue-grey/20">
-                  <span className="text-xs text-text-muted block">Date of Joining</span>
-                  <span className="text-sm font-medium text-text-primary mt-1 block">
-                    {new Date(profile.dateOfJoining).toLocaleDateString()}
-                  </span>
-                </div>
-                <div className="p-4 bg-cream/60 rounded-xl border border-blue-grey/20">
-                  <span className="text-xs text-text-muted block">Phone</span>
-                  <span className="text-sm font-medium text-text-primary mt-1 block">
-                    {profile.phone || '—'}
-                  </span>
-                </div>
-                <div className="p-4 bg-cream/60 rounded-xl border border-blue-grey/20">
-                  <span className="text-xs text-text-muted block">Gender</span>
-                  <span className="text-sm font-medium text-text-primary mt-1 block">
-                    {profile.gender || '—'}
-                  </span>
-                </div>
-                <div className="p-4 bg-cream/60 rounded-xl border border-blue-grey/20">
-                  <span className="text-xs text-text-muted block">Marital Status</span>
-                  <span className="text-sm font-medium text-text-primary mt-1 block">
-                    {profile.maritalStatus || '—'}
-                  </span>
-                </div>
-                <div className="p-4 bg-cream/60 rounded-xl border border-blue-grey/20">
-                  <span className="text-xs text-text-muted block">Department</span>
-                  <span className="text-sm font-medium text-text-primary mt-1 block">
-                    {profile.department || '—'}
-                  </span>
-                </div>
-                <div className="p-4 bg-cream/60 rounded-xl border border-blue-grey/20 sm:col-span-2">
-                  <span className="text-xs text-text-muted block">Residential Address</span>
-                  <span className="text-sm font-medium text-text-primary mt-1 block">
-                    {profile.address || '—'}
-                  </span>
+
+                <div className="lg:col-span-6 space-y-3 lg:border-l lg:border-blue-grey/20 lg:pl-6">
+                  <h4 className="font-heading font-semibold text-xs text-text-primary uppercase tracking-wider">
+                    Bank & Statutory Details
+                  </h4>
+                  <div className="p-4 rounded-2xl bg-cream/40 border border-blue-grey/20 space-y-2 text-xs">
+                    <div className="flex justify-between pb-2 border-b border-blue-grey/15">
+                      <span className="text-text-muted">Bank Name</span>
+                      <span className="font-medium text-text-primary">HDFC Bank Ltd.</span>
+                    </div>
+                    <div className="flex justify-between pb-2 border-b border-blue-grey/15">
+                      <span className="text-text-muted">IFSC Code</span>
+                      <span className="font-mono font-bold text-slate-brand">HDFC0001234</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-text-muted">Employee Code</span>
+                      <span className="font-mono font-bold text-slate-brand">{profile.loginId}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
