@@ -162,27 +162,23 @@ function EmployeeView() {
 
   return (
     <div className="space-y-6 animate-fadeIn">
-      {/* ── Subheader & NEW Action Bar (Exact Wireframe Image 1) ── */}
-      <div className="space-y-3">
-        {/* Tab box: Time Off */}
-        <div className="inline-block px-5 py-2 rounded-xl bg-[#523330] border border-[#784641] text-white font-heading font-bold text-sm tracking-wide shadow-sm">
+      {/* ── Subheader & NEW Action Bar (Single line with matching theme colors) ── */}
+      <div className="flex items-center space-x-3">
+        <div className="inline-flex items-center px-4 py-2 rounded-xl bg-cream text-text-primary border border-blue-grey/25 font-heading font-bold text-xs shadow-xs">
           Time Off
         </div>
 
-        {/* Action button: NEW [Purple] */}
-        <div>
-          <button
-            type="button"
-            onClick={() => {
-              setSelectedDate(undefined);
-              setModalOpen(true);
-            }}
-            className="px-6 py-2 rounded-xl bg-[#a855f7] hover:bg-[#9333ea] text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 flex items-center space-x-2"
-          >
-            <Plus className="w-4 h-4" />
-            <span>NEW</span>
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => {
+            setSelectedDate(undefined);
+            setModalOpen(true);
+          }}
+          className="btn-primary py-2 px-4 text-xs font-bold flex items-center space-x-1.5 shadow-sm active:scale-95 transition-all cursor-pointer rounded-xl"
+        >
+          <Plus className="w-4 h-4" />
+          <span>NEW</span>
+        </button>
       </div>
 
       {/* ── Quota Cards (Wireframe: Paid time Off 24 Days | Sick time off 07 Days) ── */}
