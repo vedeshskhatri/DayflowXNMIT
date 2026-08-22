@@ -8,7 +8,11 @@ import { QueryClient } from '@tanstack/react-query';
  * `withCredentials: true` is required so that the httpOnly JWT cookie
  * is sent with every request and received properly across origins.
  */
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+export const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  (typeof window !== 'undefined'
+    ? `${window.location.protocol}//${window.location.hostname}:4000`
+    : 'http://localhost:4000');
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
