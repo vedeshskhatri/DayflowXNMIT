@@ -124,7 +124,9 @@ function BalanceCardsBar({ balances }: { balances: Balance[] }) {
 // ─── Annual Calendar Grid (Wireframe Employee View) ───────────────────────────
 
 function YearCalendarGrid({ requests }: { requests: TimeOffRequest[] }) {
-  const currentYear = new Date().getFullYear();
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const todayDateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
   const months = Array.from({ length: 12 }, (_, i) => i);
 
   // Set of leave dates in YYYY-MM-DD
@@ -144,7 +146,7 @@ function YearCalendarGrid({ requests }: { requests: TimeOffRequest[] }) {
 
   return (
     <div className="p-5 rounded-2xl bg-white border border-blue-grey/20 shadow-sm space-y-4">
-      <div className="flex items-center justify-between pb-3 border-b border-blue-grey/15">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-blue-grey/15">
         <div className="flex items-center space-x-2">
           <CalendarIcon className="w-4 h-4 text-slate-brand" />
           <h3 className="font-heading font-semibold text-sm text-text-primary">
@@ -152,6 +154,12 @@ function YearCalendarGrid({ requests }: { requests: TimeOffRequest[] }) {
           </h3>
         </div>
         <div className="flex items-center space-x-3 text-[11px]">
+          <span className="flex items-center space-x-1">
+            <span className="w-2.5 h-2.5 rounded-full bg-slate-brand ring-2 ring-slate-brand/40" />
+            <span className="font-bold text-slate-brand">
+              Today ({today.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })})
+            </span>
+          </span>
           <span className="flex items-center space-x-1">
             <span className="w-2.5 h-2.5 rounded-full bg-sage-deep" />
             <span>Approved</span>
@@ -187,18 +195,30 @@ function YearCalendarGrid({ requests }: { requests: TimeOffRequest[] }) {
                   const dayNum = i + 1;
                   const dateStr = `${currentYear}-${String(m + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
                   const leave = leaveMap.get(dateStr);
+                  const isToday = dateStr === todayDateStr;
+
+                  let cellClasses = 'text-text-primary hover:bg-cream';
+                  if (leave?.status === 'APPROVED') {
+                    cellClasses = 'bg-sage-deep text-white font-bold';
+                  } else if (leave?.status === 'PENDING') {
+                    cellClasses = 'bg-terracotta text-white font-bold';
+                  } else if (isToday) {
+                    cellClasses = 'bg-slate-brand text-white font-bold shadow-sm ring-2 ring-slate-brand/40';
+                  }
 
                   return (
                     <span
                       key={dayNum}
-                      className={`h-5 w-5 flex items-center justify-center rounded-md font-medium ${
-                        leave?.status === 'APPROVED'
-                          ? 'bg-sage-deep text-white font-bold'
-                          : leave?.status === 'PENDING'
-                          ? 'bg-terracotta text-white font-bold'
-                          : 'text-text-primary hover:bg-cream'
+                      className={`h-5 w-5 flex items-center justify-center rounded-md font-medium transition-all ${cellClasses} ${
+                        isToday && leave ? 'ring-2 ring-slate-brand ring-offset-1' : ''
                       }`}
-                      title={leave ? `${leave.type} (${leave.status})` : undefined}
+                      title={
+                        isToday
+                          ? `Today (${dayNum} ${monthName})${leave ? ` • ${leave.type} (${leave.status})` : ''}`
+                          : leave
+                          ? `${leave.type} (${leave.status})`
+                          : undefined
+                      }
                     >
                       {dayNum}
                     </span>
