@@ -75,13 +75,6 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const isAdmin = user?.role === 'ADMIN' || user?.role === 'HR_OFFICER';
-  const isOwnProfile = Boolean(
-    editable ||
-    (user && (user.id === employeeId || user.loginId === employeeId))
-  );
-  const canViewSalary = Boolean(isAdmin || isOwnProfile);
-  const canViewPrivateInfo = Boolean(isAdmin || isOwnProfile);
-
   const [activeTab, setActiveTab] = useState<Tab>('about');
   const [successMsg, setSuccessMsg] = useState('');
 
@@ -104,6 +97,17 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
       return res.data;
     },
   });
+
+  const isOwnProfile = Boolean(
+    editable ||
+    (user && (
+      user.id === employeeId ||
+      user.loginId === employeeId ||
+      (profile && (user.id === profile.id || user.loginId === profile.loginId))
+    ))
+  );
+  const canViewSalary = Boolean(isAdmin || isOwnProfile);
+  const canViewPrivateInfo = Boolean(isAdmin || isOwnProfile);
 
   const {
     register,

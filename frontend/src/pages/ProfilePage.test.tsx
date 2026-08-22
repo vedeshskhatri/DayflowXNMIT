@@ -135,7 +135,15 @@ describe('Employee Profile Module (Frontend)', () => {
   it('/employees/:otherId does NOT render Salary Info tab when regular employee views another employee', async () => {
     currentAuthUser.role = 'EMPLOYEE';
     currentAuthUser.id = 'emp-123';
-    vi.spyOn(api, 'get').mockResolvedValue({ data: mockProfileData });
+    vi.spyOn(api, 'get').mockResolvedValue({
+      data: {
+        ...mockProfileData,
+        id: 'emp-other-456',
+        loginId: 'DXOT20260099',
+        firstName: 'Other',
+        lastName: 'User',
+      },
+    });
 
     renderWithProviders(<EmployeeProfileView employeeId="emp-other-456" editable={false} />);
 
