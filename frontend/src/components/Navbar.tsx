@@ -68,23 +68,23 @@ export const Navbar: React.FC = () => {
   return (
     <>
     <header
-      className="sticky top-0 z-40 bg-white/80 border-b border-blue-grey/40 shadow-sm backdrop-blur-xl"
-      style={{ boxShadow: '0 1px 0 0 rgba(167,183,198,0.4), inset 0 1px 0 0 rgba(255,255,255,0.9)' }}
+      className="sticky top-0 z-40 bg-white/85 border-b border-blue-grey/30 shadow-sm backdrop-blur-xl transition-all"
+      style={{ boxShadow: '0 1px 2px 0 rgba(167,183,198,0.25), inset 0 1px 0 0 rgba(255,255,255,0.9)' }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-16 gap-4">
           {/* Left: Brand + Nav items */}
-          <div className="flex items-center space-x-8">
+          <div className="flex items-center space-x-6 lg:space-x-8 min-w-0">
             <Link
               to="/"
-              className="flex items-center space-x-3 group hover:bg-slate-brand/5 rounded-xl px-2 py-1 -mx-2 -my-1 transition-all"
+              className="flex items-center space-x-2.5 group hover:bg-slate-brand/5 rounded-xl px-2 py-1 -mx-2 -my-1 transition-all flex-shrink-0"
             >
               <DayflowLogo size="md" />
               <div className="flex flex-col">
-                <span className="font-heading font-bold text-xl tracking-tight text-text-primary">
+                <span className="font-heading font-bold text-lg lg:text-xl tracking-tight text-text-primary">
                   Dayflow
                 </span>
-                <span className="text-[10px] text-text-muted font-medium -mt-1 tracking-wider uppercase">
+                <span className="text-[10px] text-text-muted font-medium -mt-1 tracking-wider uppercase truncate max-w-[120px]">
                   {user?.company?.name || 'HRMS'}
                 </span>
               </div>
@@ -100,16 +100,16 @@ export const Navbar: React.FC = () => {
                     <Link
                       key={item.path}
                       to={item.path}
-                      className={`relative flex items-center space-x-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all ${
+                      className={`relative flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
                         isActive
                           ? 'bg-slate-brand/12 text-slate-brand font-semibold'
                           : 'text-text-muted hover:text-text-primary hover:bg-cream/60'
                       }`}
                     >
-                      <Icon className={`w-4 h-4 ${isActive ? 'text-slate-brand' : 'text-blue-grey'}`} />
+                      <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-slate-brand' : 'text-blue-grey'}`} />
                       <span>{item.name}</span>
                       {isActive && (
-                        <span className="absolute bottom-0 left-3.5 right-3.5 h-0.5 bg-slate-brand rounded-full" />
+                        <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-slate-brand rounded-full" />
                       )}
                     </Link>
                   );
@@ -118,66 +118,68 @@ export const Navbar: React.FC = () => {
             )}
           </div>
 
-          {/* Right: Streak Widget + Attendance Control + Presence + Profile */}
+          {/* Right Toolbar: Streak Widget + Attendance Control + Integrated Profile Avatar */}
           {user ? (
-            <div className="hidden md:flex items-center space-x-4">
+            <div className="hidden md:flex items-center space-x-3 flex-shrink-0">
               {/* Gamification: Streak + Points */}
               <StreakWidget />
 
-              <div className="h-6 w-px bg-blue-grey/25" />
-
-              {/* Check In / Check Out Systray */}
+              {/* Attendance Action (Check In / Out / Completed) */}
               <AttendanceControl />
 
-              <div className="h-6 w-px bg-blue-grey/25" />
-
-              {/* Presence Status Pill */}
-              <div className="flex items-center space-x-2 bg-white/60 backdrop-blur-sm border border-blue-grey/20 rounded-full px-3 py-1 text-xs">
-                <span
-                  className={`w-2.5 h-2.5 rounded-full ${getStatusDotClass(user.status)} ${
-                    user.status === 'PRESENT' ? 'animate-pulse' : ''
-                  }`}
-                />
-                <span className="font-medium text-text-primary">{getStatusLabel(user.status)}</span>
-              </div>
-
-              {/* User Profile Avatar with Interactive Dropdown */}
+              {/* User Profile Avatar with Integrated Live Presence Dot */}
               <div className="relative" ref={dropdownRef}>
                 <button
                   type="button"
                   onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                  className="flex items-center space-x-2.5 pl-2 py-1 pr-2 rounded-xl border border-transparent hover:border-blue-grey/20 hover:bg-cream/60 transition-all group"
-                  title="User Menu"
+                  className="flex items-center space-x-2 pl-1.5 pr-2 py-1 rounded-full border border-blue-grey/25 bg-white/80 hover:bg-white hover:border-slate-brand/30 shadow-sm transition-all group"
+                  title={`Status: ${getStatusLabel(user.status)} • Click for Profile menu`}
                 >
-                  <div className="w-9 h-9 rounded-full bg-slate-brand/15 text-slate-brand font-heading font-bold flex items-center justify-center text-sm border border-slate-brand/30 shadow-sm group-hover:scale-105 transition-transform">
-                    {user.firstName[0]}
-                    {user.lastName[0]}
-                  </div>
-                  <div className="flex flex-col text-left">
-                    <div className="flex items-center space-x-1.5">
-                      <span className="text-sm font-semibold text-text-primary leading-none group-hover:text-slate-brand transition-colors">
-                        {user.firstName} {user.lastName}
-                      </span>
-                      {user.role !== 'EMPLOYEE' && (
-                        <span className="inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-brand/15 text-slate-brand">
-                          <ShieldCheck className="w-3 h-3 mr-0.5" />
-                          {user.role}
-                        </span>
-                      )}
+                  <div className="relative">
+                    <div className="w-8 h-8 rounded-full bg-slate-brand/15 text-slate-brand font-heading font-bold flex items-center justify-center text-xs border border-slate-brand/30">
+                      {user.firstName[0]}
+                      {user.lastName[0]}
                     </div>
-                    <span className="text-xs text-text-muted mt-0.5">{user.loginId}</span>
+                    {/* Live Presence Dot attached cleanly to Avatar */}
+                    <span
+                      className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white ${getStatusDotClass(
+                        user.status
+                      )} ${user.status === 'PRESENT' ? 'animate-pulse' : ''}`}
+                    />
                   </div>
-                  <ChevronDown className={`w-4 h-4 text-blue-grey transition-transform duration-300 ${profileDropdownOpen ? 'rotate-180 text-slate-brand' : ''}`} />
+
+                  <div className="flex items-center space-x-1.5 text-left pr-1">
+                    <span className="text-xs font-semibold text-text-primary group-hover:text-slate-brand transition-colors whitespace-nowrap">
+                      {user.firstName}
+                    </span>
+                    {user.role !== 'EMPLOYEE' && (
+                      <span className="inline-flex items-center text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-slate-brand/15 text-slate-brand">
+                        <ShieldCheck className="w-2.5 h-2.5 mr-0.5" />
+                        {user.role}
+                      </span>
+                    )}
+                  </div>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 text-blue-grey transition-transform duration-300 ${
+                      profileDropdownOpen ? 'rotate-180 text-slate-brand' : ''
+                    }`}
+                  />
                 </button>
 
-                {/* Dropdown Menu (Wireframe: My Profile, Log Out) */}
+                {/* Dropdown Menu */}
                 {profileDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-modal border border-blue-grey/20 py-2 z-50 animate-fadeIn">
                     <div className="px-4 py-2 border-b border-blue-grey/15 mb-1">
-                      <p className="text-xs font-semibold text-text-primary truncate">
-                        {user.firstName} {user.lastName}
-                      </p>
+                      <div className="flex items-center space-x-1.5">
+                        <span className="text-xs font-semibold text-text-primary truncate">
+                          {user.firstName} {user.lastName}
+                        </span>
+                      </div>
                       <p className="text-[11px] text-text-muted font-mono">{user.loginId}</p>
+                      <div className="mt-1 flex items-center space-x-1.5 text-[11px]">
+                        <span className={`w-2 h-2 rounded-full ${getStatusDotClass(user.status)}`} />
+                        <span className="text-text-muted capitalize">{getStatusLabel(user.status)}</span>
+                      </div>
                     </div>
 
                     <Link
@@ -205,7 +207,7 @@ export const Navbar: React.FC = () => {
             </div>
           ) : (
             <div className="hidden md:flex items-center">
-              <Link to="/login" className="btn-primary text-sm py-2 px-4">
+              <Link to="/login" className="btn-primary text-sm py-2 px-4 rounded-full">
                 Sign In
               </Link>
             </div>

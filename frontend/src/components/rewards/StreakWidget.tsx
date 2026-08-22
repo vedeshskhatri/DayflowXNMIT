@@ -20,7 +20,7 @@ export function StreakWidget() {
   return (
     <Link
       to="/rewards"
-      className="flex items-center space-x-2 bg-cream/70 hover:bg-cream border border-blue-grey/25 rounded-full px-3 py-1 text-xs font-semibold text-text-primary transition-all group shadow-sm"
+      className="flex items-center space-x-2 bg-white/80 hover:bg-white border border-blue-grey/25 rounded-full px-3 py-1.5 text-xs font-semibold text-text-primary transition-all group shadow-sm whitespace-nowrap"
       title="View your Rewards, Streak & Company Leaderboard"
     >
       <div className="flex items-center space-x-1">
@@ -30,10 +30,10 @@ export function StreakWidget() {
         </span>
       </div>
 
-      <span className="text-blue-grey/60 font-normal">|</span>
+      <span className="text-blue-grey/40 font-normal">&bull;</span>
 
       <div className="flex items-center space-x-1 text-slate-brand">
-        <span>🪙</span>
+        <span className="text-xs">🪙</span>
         <span className="font-mono font-bold">{total.toLocaleString()}</span>
       </div>
     </Link>

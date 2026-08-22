@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
-import { ArrowRight, CheckCircle2, Clock, Loader2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Loader2 } from 'lucide-react';
 
 interface AttendanceRecord {
   id?: string;
@@ -132,14 +132,14 @@ export const AttendanceControl: React.FC<{ compact?: boolean }> = () => {
   const isCompleted = Boolean(todayAttendance?.checkIn && todayAttendance?.checkOut);
 
   return (
-    <div className="flex items-center space-x-2.5">
-      {/* State 1: Not checked in yet (Wireframe: [ Check IN -> ]) */}
+    <div className="flex items-center space-x-2 whitespace-nowrap">
+      {/* State 1: Not checked in yet */}
       {!isCheckedIn && !isCompleted && (
         <button
           data-testid="checkin-button"
           onClick={() => checkInMutation.mutate()}
           disabled={checkInMutation.isPending}
-          className="btn-primary py-1.5 px-4 text-xs font-semibold flex items-center space-x-1.5 shadow-sm hover:scale-[1.02] transition-transform"
+          className="bg-slate-brand hover:bg-slate-brand/90 active:scale-95 text-white py-1.5 px-3.5 rounded-full text-xs font-semibold flex items-center space-x-1.5 shadow-sm transition-all"
         >
           {checkInMutation.isPending ? (
             <>
@@ -155,18 +155,19 @@ export const AttendanceControl: React.FC<{ compact?: boolean }> = () => {
         </button>
       )}
 
-      {/* State 2: Checked in (Wireframe: Since HH:MM PM [ Check Out -> ]) */}
+      {/* State 2: Checked in */}
       {isCheckedIn && (
-        <div className="flex items-center space-x-2 bg-cream/70 border border-blue-grey/20 rounded-xl px-2.5 py-1">
-          <div className="flex items-center space-x-1 text-xs text-text-muted font-mono">
-            <Clock className="w-3 h-3 text-sage-deep" />
-            <span>Since {formatTime(todayAttendance?.checkIn)}</span>
+        <div className="flex items-center space-x-2 bg-white/80 border border-blue-grey/25 rounded-full pl-3 pr-1 py-1 shadow-sm">
+          <div className="flex items-center space-x-1.5 text-xs text-text-primary font-medium">
+            <span className="w-2 h-2 rounded-full bg-sage-light animate-pulse flex-shrink-0" />
+            <span className="text-text-muted text-[11px]">Since</span>
+            <span className="font-mono text-xs font-semibold">{formatTime(todayAttendance?.checkIn)}</span>
           </div>
           <button
             data-testid="checkout-button"
             onClick={() => checkOutMutation.mutate()}
             disabled={checkOutMutation.isPending}
-            className="bg-terracotta text-white font-semibold py-1 px-3 rounded-lg text-xs transition-all duration-150 hover:opacity-90 active:scale-[0.98] flex items-center space-x-1 shadow-sm"
+            className="bg-terracotta hover:bg-terracotta/90 active:scale-95 text-white font-semibold py-1 px-2.5 rounded-full text-[11px] transition-all flex items-center space-x-1 shadow-sm"
           >
             {checkOutMutation.isPending ? (
               <>
@@ -176,18 +177,21 @@ export const AttendanceControl: React.FC<{ compact?: boolean }> = () => {
             ) : (
               <>
                 <span>Check Out</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <ArrowRight className="w-3 h-3" />
               </>
             )}
           </button>
         </div>
       )}
 
-      {/* State 3: Both checked in and checked out (completed for today) */}
+      {/* State 3: Completed for today */}
       {isCompleted && (
-        <div data-testid="completed-badge" className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-sage-light/30 text-text-primary border border-sage-light text-xs font-medium">
-          <CheckCircle2 className="w-3.5 h-3.5 text-sage-deep" />
-          <span className="font-mono text-[11px]">
+        <div
+          data-testid="completed-badge"
+          className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-white/80 text-text-primary border border-blue-grey/25 text-xs font-medium shadow-sm"
+        >
+          <CheckCircle2 className="w-3.5 h-3.5 text-sage-deep flex-shrink-0" />
+          <span className="text-[11px] text-text-primary">
             Done today &bull; Out at {formatTime(todayAttendance?.checkOut)}
             {todayAttendance?.workHours ? ` (${todayAttendance.workHours}h)` : ''}
           </span>
