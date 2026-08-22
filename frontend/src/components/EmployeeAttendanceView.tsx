@@ -8,6 +8,7 @@ import {
   ChevronRight,
   ChevronDown,
   Sparkles,
+  Clock,
 } from 'lucide-react';
 
 interface AttendanceRecord {
@@ -166,14 +167,19 @@ export const EmployeeAttendanceView: React.FC = () => {
     <div className="space-y-6">
       {/* ── Top Header Row: Attendance Title (Left) + Wireframe Summary Metric Chips (Right) ── */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        {/* Left: Attendance Title */}
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-heading font-bold text-text-primary tracking-tight">
-            Attendance
-          </h2>
-          <p className="text-xs sm:text-sm text-text-muted mt-1 font-sans">
-            Day-wise personal attendance logs &amp; monthly working hours breakdown
-          </p>
+        {/* Left: Attendance Title with Logo Box */}
+        <div className="flex items-center space-x-4">
+          <div className="w-14 h-14 rounded-2xl bg-white border border-blue-grey/25 shadow-card flex items-center justify-center text-3xl hover:scale-105 transition-all group flex-shrink-0">
+            <Clock className="w-7 h-7 text-slate-brand group-hover:scale-110 transition-transform" />
+          </div>
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-heading font-bold text-text-primary tracking-tight">
+              Attendance
+            </h2>
+            <p className="text-xs sm:text-sm text-text-muted mt-1 font-sans">
+              Day-wise personal attendance logs &amp; monthly working hours breakdown
+            </p>
+          </div>
         </div>
 
         {/* Right: Summary Metric Boxes matching Wireframe */}

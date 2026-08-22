@@ -154,16 +154,21 @@ export const EmployeesPage: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 animate-fadeIn">
       {/* Top Header with Title & Add Employee Action */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-6 border-b border-blue-grey/20">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-heading font-bold text-text-primary flex items-center space-x-3 tracking-tight">
-            <span>Employee Directory</span>
-            <span className="text-xs sm:text-sm font-sans font-medium text-text-muted bg-white px-2.5 py-0.5 rounded-full border border-blue-grey/20 shadow-sm">
-              {employees?.length || 0} total
-            </span>
-          </h1>
-          <p className="text-xs sm:text-sm text-text-muted mt-1 font-sans">
-            Real-time team presence, interactive profiles, and attendance tracking.
-          </p>
+        <div className="flex items-center space-x-4">
+          <div className="w-14 h-14 rounded-2xl bg-white border border-blue-grey/25 shadow-card flex items-center justify-center text-3xl hover:scale-105 transition-all group flex-shrink-0">
+            <Users className="w-7 h-7 text-slate-brand group-hover:scale-110 transition-transform" />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-heading font-bold text-text-primary flex items-center space-x-3 tracking-tight">
+              <span>Employee Directory</span>
+              <span className="text-xs sm:text-sm font-sans font-medium text-text-muted bg-white px-2.5 py-0.5 rounded-full border border-blue-grey/20 shadow-sm">
+                {employees?.length || 0} total
+              </span>
+            </h1>
+            <p className="text-xs sm:text-sm text-text-muted mt-1 font-sans">
+              Real-time team presence, interactive profiles, and attendance tracking.
+            </p>
+          </div>
         </div>
 
         {/* Header Action & Add Employee */}
