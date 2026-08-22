@@ -12,6 +12,7 @@ import { AttendancePage } from './pages/AttendancePage';
 import { TimeOffPage } from './pages/TimeOffPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { EmployeeDetailPage } from './pages/EmployeeDetailPage';
+import { SalaryPage } from './pages/SalaryPage';
 
 // Protected layout wrapper
 const ProtectedLayout: React.FC = () => {
@@ -55,6 +56,15 @@ const ResetPasswordGuard: React.FC = () => {
   return <ResetPassword />;
 };
 
+// Admin Salary route guard
+const AdminSalaryGuard: React.FC = () => {
+  const { user } = useAuth();
+  if (user?.role !== 'ADMIN' && user?.role !== 'HR_OFFICER') {
+    return <Navigate to="/salary" replace />;
+  }
+  return <SalaryPage />;
+};
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -73,6 +83,8 @@ export default function App() {
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/attendance" element={<AttendancePage />} />
               <Route path="/timeoff" element={<TimeOffPage />} />
+              <Route path="/salary" element={<SalaryPage />} />
+              <Route path="/salary/:employeeId" element={<AdminSalaryGuard />} />
             </Route>
 
             {/* Fallback */}
