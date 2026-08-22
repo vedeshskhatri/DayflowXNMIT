@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Plane } from 'lucide-react';
 
 export type EmployeeStatus = 'PRESENT' | 'ON_LEAVE' | 'ABSENT';
 
@@ -28,9 +29,9 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
   return (
     <Link
       to={`/employees/${id}`}
-      className="group relative bg-white rounded-xl shadow-card p-6 border border-blue-grey/20 flex flex-col items-center text-center hover:shadow-modal transition-all duration-200"
+      className="group relative bg-white rounded-2xl shadow-card p-6 border border-blue-grey/20 flex flex-col items-center text-center hover:shadow-modal transition-all duration-200"
     >
-      {/* Live Status Dot in top right */}
+      {/* Live Status Indicator in top-right corner */}
       <div className="absolute top-4 right-4 flex items-center space-x-1.5" title={`Status: ${status}`}>
         <StatusDot status={status} />
         <span className="text-[11px] font-medium text-text-muted capitalize">
@@ -77,7 +78,7 @@ export const StatusDot: React.FC<{ status: EmployeeStatus; className?: string }>
         data-status="PRESENT"
         className={`inline-block w-2.5 h-2.5 rounded-full bg-[#BDCFAA] shadow-[0_0_6px_rgba(189,207,170,0.8)] ${className}`}
         style={{ backgroundColor: '#BDCFAA' }}
-        title="Present"
+        title="Present (in office)"
       />
     );
   }
@@ -87,23 +88,22 @@ export const StatusDot: React.FC<{ status: EmployeeStatus; className?: string }>
       <span
         data-testid="status-dot"
         data-status="ON_LEAVE"
-        className={`inline-block w-2.5 h-2.5 rounded-full bg-[#8E9E83] relative overflow-hidden shadow-[0_0_6px_rgba(142,158,131,0.8)] ${className}`}
-        style={{ backgroundColor: '#8E9E83' }}
+        className={`inline-flex items-center justify-center text-sage-deep ${className}`}
         title="On Leave"
       >
-        <span className="absolute top-0 right-0 w-1/2 h-full bg-white opacity-60" />
+        <Plane className="w-3.5 h-3.5 transform -rotate-45" />
       </span>
     );
   }
 
-  // ABSENT
+  // ABSENT (Yellow / Red dot)
   return (
     <span
       data-testid="status-dot"
       data-status="ABSENT"
       className={`inline-block w-2.5 h-2.5 rounded-full bg-[#C97B63] shadow-[0_0_6px_rgba(201,123,99,0.8)] ${className}`}
       style={{ backgroundColor: '#C97B63' }}
-      title="Absent"
+      title="Absent (no time off applied)"
     />
   );
 };

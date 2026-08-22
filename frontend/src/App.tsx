@@ -7,7 +7,6 @@ import { Navbar } from './components/Navbar';
 import { SignIn } from './pages/SignIn';
 import { SignUp } from './pages/SignUp';
 import { ResetPassword } from './pages/ResetPassword';
-import { Dashboard } from './pages/Dashboard';
 import { EmployeesPage } from './pages/EmployeesPage';
 import { AttendancePage } from './pages/AttendancePage';
 import { TimeOffPage } from './pages/TimeOffPage';
@@ -79,7 +78,7 @@ export default function App() {
 
             {/* Protected App Routes */}
             <Route element={<ProtectedLayout />}>
-              <Route path="/" element={<Dashboard />} />
+              <Route path="/" element={<EmployeesPage />} />
               <Route path="/employees" element={<EmployeesPage />} />
               <Route path="/employees/:id" element={<EmployeeDetailPage />} />
               <Route path="/profile" element={<ProfilePage />} />
