@@ -510,7 +510,7 @@ export default function RewardsPage() {
   const myStreak = myStats?.streak ?? 0;
 
   return (
-    <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 animate-fadeIn">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 animate-fadeIn">
       <Confetti active={showConfetti} />
       
       {/* 🧾 Interactive Claim Receipt Modal */}
@@ -524,7 +524,7 @@ export default function RewardsPage() {
       />
 
       {/* ── Top Page Header ─────────────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-2 border-b border-blue-grey/20">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-blue-grey/20">
         <div className="flex items-center space-x-4">
           <button
             onClick={handleTrophyClick}
@@ -539,11 +539,11 @@ export default function RewardsPage() {
               <h1 className="text-2xl sm:text-3xl font-heading font-bold text-text-primary tracking-tight">
                 Rewards & Leaderboard
               </h1>
-              <span className="bg-sage-light/60 text-text-primary border border-sage-deep/30 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider">
+              <span className="bg-sage-light/60 text-text-primary border border-sage-deep/30 px-2.5 py-0.5 rounded-full text-xs font-sans font-bold uppercase tracking-wider">
                 Gamification
               </span>
             </div>
-            <p className="text-sm text-text-muted mt-1">
+            <p className="text-xs sm:text-sm text-text-muted mt-1 font-sans">
               Build daily attendance streaks, earn reward points, and claim your printed voucher passes.
             </p>
           </div>

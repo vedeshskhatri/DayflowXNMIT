@@ -1,5 +1,5 @@
 /* Import Google Fonts — must load before Tailwind base */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Special+Gothic+Expanded+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -32,9 +32,8 @@ h4,
 h5,
 h6,
 .font-heading {
-  font-family: 'Special Gothic Expanded One', sans-serif !important;
-  font-weight: 400 !important;
-  letter-spacing: -0.01em;
+  font-family: 'Space Grotesk', system-ui, sans-serif !important;
+  letter-spacing: -0.015em;
 }
 
 .font-sans {

@@ -95,16 +95,16 @@ export const EmployeeTableView: React.FC<EmployeeTableViewProps> = ({ employees,
                       </div>
 
                       <div className="min-w-0">
-                        <div className="font-heading font-semibold text-text-primary group-hover:text-slate-brand transition-colors flex items-center space-x-1.5 truncate">
+                        <div className="font-heading font-bold text-[13px] text-text-primary group-hover:text-slate-brand transition-colors flex items-center space-x-1.5 truncate tracking-tight">
                           <span>{fullName}</span>
                           {emp.role && emp.role !== 'EMPLOYEE' && (
-                            <span className="inline-flex items-center text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-brand/15 text-slate-brand">
+                            <span className="inline-flex items-center text-[9px] font-sans font-bold px-1.5 py-0.2 rounded bg-slate-brand/15 text-slate-brand">
                               <ShieldCheck className="w-2.5 h-2.5 mr-0.5" />
                               {emp.role}
                             </span>
                           )}
                         </div>
-                        <div className="text-[11px] text-text-muted flex items-center space-x-2">
+                        <div className="text-[11px] text-text-muted font-sans flex items-center space-x-2">
                           <span>{emp.email}</span>
                           {emp.loginId && (
                             <button
@@ -123,8 +123,8 @@ export const EmployeeTableView: React.FC<EmployeeTableViewProps> = ({ employees,
 
                   {/* Dept & Job Title */}
                   <td className="py-3.5 px-4">
-                    <div className="font-medium text-text-primary">{emp.jobTitle || 'Team Member'}</div>
-                    <div className="text-[11px] text-text-muted">{emp.department || 'General'}</div>
+                    <div className="font-sans font-medium text-text-primary text-xs">{emp.jobTitle || 'Team Member'}</div>
+                    <div className="font-sans text-[11px] text-text-muted">{emp.department || 'General'}</div>
                   </td>
 
                   {/* Presence Status */}

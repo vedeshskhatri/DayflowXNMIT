@@ -125,10 +125,10 @@ export const AdminAttendanceView: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         {/* Left: Attendance Title */}
         <div>
-          <h2 className="text-2xl font-heading font-bold text-text-primary tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-heading font-bold text-text-primary tracking-tight">
             Attendance
           </h2>
-          <p className="text-xs text-text-muted mt-0.5">
+          <p className="text-xs sm:text-sm text-text-muted mt-1 font-sans">
             Admin/HR live attendance logs &amp; day-wise presence records
           </p>
         </div>

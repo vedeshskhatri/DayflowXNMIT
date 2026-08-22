@@ -113,22 +113,22 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
       </div>
 
       {/* Info */}
-      <h3 className="font-heading font-semibold text-sm text-text-primary group-hover:text-slate-brand transition-colors flex items-center justify-center space-x-1.5">
+      <h3 className="font-heading font-bold text-[15px] text-text-primary group-hover:text-slate-brand transition-colors flex items-center justify-center space-x-1.5 tracking-tight">
         <span>{fullName}</span>
         {role && role !== 'EMPLOYEE' && (
-          <span className="inline-flex items-center text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-brand/15 text-slate-brand">
+          <span className="inline-flex items-center text-[9px] font-sans font-bold px-1.5 py-0.2 rounded bg-slate-brand/15 text-slate-brand">
             <ShieldCheck className="w-2.5 h-2.5 mr-0.5" />
             {role}
           </span>
         )}
       </h3>
 
-      <p className="text-xs text-text-muted mt-0.5 truncate max-w-[180px]">
+      <p className="font-sans text-xs text-text-muted mt-1 font-normal truncate max-w-[190px]">
         {jobTitle || 'Team Member'}
       </p>
 
       {department && (
-        <span className="mt-1.5 inline-block px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-cream text-text-muted border border-blue-grey/20">
+        <span className="mt-2 inline-block px-2.5 py-0.5 rounded-full text-[10px] font-sans font-semibold bg-slate-brand/10 text-slate-brand border border-slate-brand/20">
           {department}
         </span>
       )}
