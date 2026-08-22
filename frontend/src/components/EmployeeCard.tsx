@@ -28,7 +28,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
   return (
     <Link
       to={`/employees/${id}`}
-      className="group relative bg-white rounded-xl shadow-card p-6 border border-blue-grey/20 flex flex-col items-center text-center hover:shadow-modal transition-all duration-200 block"
+      className="group relative bg-white rounded-xl shadow-card p-6 border border-blue-grey/20 flex flex-col items-center text-center hover:shadow-modal transition-all duration-200"
     >
       {/* Live Status Dot in top right */}
       <div className="absolute top-4 right-4 flex items-center space-x-1.5" title={`Status: ${status}`}>
