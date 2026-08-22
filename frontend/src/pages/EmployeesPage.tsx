@@ -111,25 +111,6 @@ export const EmployeesPage: React.FC = () => {
         )}
       </div>
 
-      {/* Stats Summary Strip */}
-      <div className="flex items-center space-x-3">
-        <div className="flex items-center space-x-2 bg-white border border-blue-grey/20 rounded-xl px-4 py-2.5 shadow-sm">
-          <span className="w-2.5 h-2.5 rounded-full bg-sage-light flex-shrink-0" />
-          <span className="text-xs font-semibold text-text-primary">{presentCount}</span>
-          <span className="text-xs text-text-muted">Present</span>
-        </div>
-        <div className="flex items-center space-x-2 bg-white border border-blue-grey/20 rounded-xl px-4 py-2.5 shadow-sm">
-          <span className="w-2.5 h-2.5 rounded-full bg-sage-deep flex-shrink-0" />
-          <span className="text-xs font-semibold text-text-primary">{onLeaveCount}</span>
-          <span className="text-xs text-text-muted">On Leave</span>
-        </div>
-        <div className="flex items-center space-x-2 bg-white border border-blue-grey/20 rounded-xl px-4 py-2.5 shadow-sm">
-          <span className="w-2.5 h-2.5 rounded-full bg-terracotta flex-shrink-0" />
-          <span className="text-xs font-semibold text-text-primary">{absentCount}</span>
-          <span className="text-xs text-text-muted">Absent</span>
-        </div>
-      </div>
-
       {/* Quick Status Stats & Search Filter Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Status Count Badges */}
