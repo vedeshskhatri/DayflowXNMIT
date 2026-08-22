@@ -4,7 +4,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '../context/AuthContext';
-import { api } from '../lib/api';
+import { DayflowLogo } from '../components/DayflowLogo';
+import { AuthBackground } from '../components/AuthBackground';
 import {
   Building2,
   User,
@@ -157,15 +158,14 @@ export const SignUp: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-cream flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 py-12 relative overflow-hidden">
-      {/* Decorative background ambient shapes */}
-      <div className="absolute -top-24 -left-24 w-96 h-96 bg-sage-light/30 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-blue-grey/20 rounded-full blur-3xl pointer-events-none" />
+      {/* Subtle animated background scenes & ambient shapes */}
+      <AuthBackground />
 
       <div className="w-full max-w-lg space-y-8 relative z-10">
         {/* Brand header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-slate-brand text-white font-heading font-bold text-3xl shadow-lg ring-4 ring-white">
-            D
+          <div className="inline-flex items-center justify-center shadow-lg rounded-2xl ring-4 ring-white">
+            <DayflowLogo size="xl" />
           </div>
           <h1 className="text-3xl font-heading font-bold text-text-primary tracking-tight">
             Dayflow

@@ -51,6 +51,37 @@ const config: Config = {
       maxWidth: {
         content: '80rem', // max-w-7xl equivalent
       },
+
+      animation: {
+        'float-slow': 'float 8s ease-in-out infinite',
+        'float-reverse': 'float-reverse 9s ease-in-out infinite',
+        'float-subtle': 'float-subtle 12s ease-in-out infinite',
+        'pulse-glow': 'pulse-glow 6s ease-in-out infinite',
+        'spin-very-slow': 'spin 45s linear infinite',
+        'spin-reverse-slow': 'spin-reverse 50s linear infinite',
+      },
+      keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-12px)' },
+        },
+        'float-reverse': {
+          '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+          '50%': { transform: 'translateY(10px) rotate(1.2deg)' },
+        },
+        'float-subtle': {
+          '0%, 100%': { transform: 'translate(0px, 0px)' },
+          '50%': { transform: 'translate(-6px, 8px)' },
+        },
+        'pulse-glow': {
+          '0%, 100%': { opacity: '0.45', transform: 'scale(1)' },
+          '50%': { opacity: '0.8', transform: 'scale(1.06)' },
+        },
+        'spin-reverse': {
+          '0%': { transform: 'rotate(360deg)' },
+          '100%': { transform: 'rotate(0deg)' },
+        },
+      },
     },
   },
   plugins: [],
