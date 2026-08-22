@@ -215,7 +215,7 @@ model PointTransaction {
 
 model Reward {
   id          String             @id @default(uuid())
-  name        String
+  name        String             @unique
   description String
   emoji       String             @default("🎁")
   pointCost   Int

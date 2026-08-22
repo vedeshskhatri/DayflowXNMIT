@@ -37,12 +37,16 @@ export async function seedDefaultData() {
     await prisma.badge.upsert({ where: { key: b.key }, update: {}, create: b });
   }
 
-  // Seed rewards only if none exist
-  const count = await prisma.reward.count();
-  if (count === 0) {
-    await prisma.reward.createMany({ data: DEFAULT_REWARDS });
+  // Seed rewards (idempotent)
+  for (const r of DEFAULT_REWARDS) {
+    await prisma.reward.upsert({
+      where: { name: r.name },
+      update: {},
+      create: r,
+    });
   }
 }
+
 
 // ─── Get or create EmployeePoints record ────────────────────────────────────
 
