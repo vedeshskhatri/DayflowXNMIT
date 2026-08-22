@@ -7,7 +7,6 @@ import {
   Search,
   Check,
   X,
-  Calendar as CalendarIcon,
   ShieldCheck,
   FileText,
 } from 'lucide-react';
@@ -121,117 +120,7 @@ function BalanceCardsBar({ balances }: { balances: Balance[] }) {
   );
 }
 
-// ─── Annual Calendar Grid (Wireframe Employee View) ───────────────────────────
-
-function YearCalendarGrid({ requests }: { requests: TimeOffRequest[] }) {
-  const today = new Date();
-  const currentYear = today.getFullYear();
-  const todayDateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-  const months = Array.from({ length: 12 }, (_, i) => i);
-
-  // Set of leave dates in YYYY-MM-DD
-  const leaveMap = useMemo(() => {
-    const map = new Map<string, { status: string; type: string }>();
-    requests.forEach((r) => {
-      const start = new Date(r.startDate);
-      const end = new Date(r.endDate);
-      const cur = new Date(start);
-      while (cur <= end) {
-        map.set(cur.toISOString().split('T')[0], { status: r.status, type: r.type?.name || 'Leave' });
-        cur.setDate(cur.getDate() + 1);
-      }
-    });
-    return map;
-  }, [requests]);
-
-  return (
-    <div className="p-5 rounded-2xl bg-white border border-blue-grey/20 shadow-sm space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-blue-grey/15">
-        <div className="flex items-center space-x-2">
-          <CalendarIcon className="w-4 h-4 text-slate-brand" />
-          <h3 className="font-heading font-semibold text-sm text-text-primary">
-            Leave Calendar Overview ({currentYear})
-          </h3>
-        </div>
-        <div className="flex items-center space-x-3 text-[11px]">
-          <span className="flex items-center space-x-1">
-            <span className="w-2.5 h-2.5 rounded-full bg-slate-brand ring-2 ring-slate-brand/40" />
-            <span className="font-bold text-slate-brand">
-              Today ({today.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })})
-            </span>
-          </span>
-          <span className="flex items-center space-x-1">
-            <span className="w-2.5 h-2.5 rounded-full bg-sage-deep" />
-            <span>Approved</span>
-          </span>
-          <span className="flex items-center space-x-1">
-            <span className="w-2.5 h-2.5 rounded-full bg-terracotta" />
-            <span>Pending</span>
-          </span>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 text-xs">
-        {months.map((m) => {
-          const firstDay = new Date(currentYear, m, 1).getDay(); // 0 is Sun
-          const daysInMonth = new Date(currentYear, m + 1, 0).getDate();
-          const monthName = new Date(currentYear, m, 1).toLocaleDateString('en-US', { month: 'short' });
-
-          return (
-            <div key={m} className="p-2.5 rounded-xl bg-cream/30 border border-blue-grey/15">
-              <span className="font-heading font-bold text-xs text-text-primary block text-center mb-1.5">
-                {monthName}
-              </span>
-              <div className="grid grid-cols-7 gap-0.5 text-[9px] text-center font-mono">
-                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, idx) => (
-                  <span key={idx} className="text-text-muted font-bold">
-                    {d}
-                  </span>
-                ))}
-                {Array.from({ length: firstDay }, (_, i) => (
-                  <span key={`empty-${i}`} />
-                ))}
-                {Array.from({ length: daysInMonth }, (_, i) => {
-                  const dayNum = i + 1;
-                  const dateStr = `${currentYear}-${String(m + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
-                  const leave = leaveMap.get(dateStr);
-                  const isToday = dateStr === todayDateStr;
-
-                  let cellClasses = 'text-text-primary hover:bg-cream';
-                  if (leave?.status === 'APPROVED') {
-                    cellClasses = 'bg-sage-deep text-white font-bold';
-                  } else if (leave?.status === 'PENDING') {
-                    cellClasses = 'bg-terracotta text-white font-bold';
-                  } else if (isToday) {
-                    cellClasses = 'bg-slate-brand text-white font-bold shadow-sm ring-2 ring-slate-brand/40';
-                  }
-
-                  return (
-                    <span
-                      key={dayNum}
-                      className={`h-5 w-5 flex items-center justify-center rounded-md font-medium transition-all ${cellClasses} ${
-                        isToday && leave ? 'ring-2 ring-slate-brand ring-offset-1' : ''
-                      }`}
-                      title={
-                        isToday
-                          ? `Today (${dayNum} ${monthName})${leave ? ` • ${leave.type} (${leave.status})` : ''}`
-                          : leave
-                          ? `${leave.type} (${leave.status})`
-                          : undefined
-                      }
-                    >
-                      {dayNum}
-                    </span>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
+import { TimeOffCalendar } from '../components/timeoff/TimeOffCalendar';
 
 // ─── Employee View ─────────────────────────────────────────────────────────────
 
@@ -291,8 +180,8 @@ function EmployeeView() {
       {/* Balance Cards Bar */}
       <BalanceCardsBar balances={balances} />
 
-      {/* Annual Calendar Grid */}
-      <YearCalendarGrid requests={requests} />
+      {/* Interactive Time-Off Calendar (Year, Month, Week, Day view modes) */}
+      <TimeOffCalendar requests={requests} />
 
       {/* Personal Requests Table */}
       <div className="p-5 rounded-2xl bg-white border border-blue-grey/20 shadow-sm space-y-4">
