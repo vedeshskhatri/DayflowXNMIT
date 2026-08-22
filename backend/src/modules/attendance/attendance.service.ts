@@ -9,6 +9,46 @@ function getTodayDateRange() {
   return { start, end };
 }
 
+function parseDateRange(fromStr?: string, toStr?: string) {
+  if (fromStr && toStr) {
+    const fromDate = new Date(`${fromStr}T00:00:00`);
+    const toDate = new Date(`${toStr}T23:59:59.999`);
+    return { fromDate, toDate };
+  }
+
+  // Default to current week (Monday to Sunday)
+  const now = new Date();
+  const day = now.getDay(); // 0 is Sunday, 1 is Monday ...
+  const diffToMon = day === 0 ? -6 : 1 - day;
+
+  const fromDate = new Date(now);
+  fromDate.setDate(now.getDate() + diffToMon);
+  fromDate.setHours(0, 0, 0, 0);
+
+  const toDate = new Date(fromDate);
+  toDate.setDate(fromDate.getDate() + 6);
+  toDate.setHours(23, 59, 59, 999);
+
+  return { fromDate, toDate };
+}
+
+function countWorkingDays(startDate: Date, endDate: Date): number {
+  let count = 0;
+  const cur = new Date(startDate);
+  cur.setHours(0, 0, 0, 0);
+  const end = new Date(endDate);
+  end.setHours(0, 0, 0, 0);
+
+  while (cur <= end) {
+    const dayOfWeek = cur.getDay();
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+      count++;
+    }
+    cur.setDate(cur.getDate() + 1);
+  }
+  return count;
+}
+
 export async function getTodayAttendance(employeeId: string) {
   const { start, end } = getTodayDateRange();
 
@@ -23,6 +63,114 @@ export async function getTodayAttendance(employeeId: string) {
   });
 
   return record;
+}
+
+export async function getOwnAttendance(employeeId: string, fromStr?: string, toStr?: string) {
+  const { fromDate, toDate } = parseDateRange(fromStr, toStr);
+
+  const [records, approvedTimeOffs] = await Promise.all([
+    prisma.attendance.findMany({
+      where: {
+        employeeId,
+        date: {
+          gte: fromDate,
+          lte: toDate,
+        },
+      },
+      orderBy: { date: 'asc' },
+    }),
+    prisma.timeOffRequest.findMany({
+      where: {
+        employeeId,
+        status: 'APPROVED',
+        startDate: { lte: toDate },
+        endDate: { gte: fromDate },
+      },
+    }),
+  ]);
+
+  const daysPresent = records.filter((r) => r.checkIn !== null).length;
+  const leavesTaken = approvedTimeOffs.reduce((acc, req) => acc + (req.daysCount || 1), 0);
+  const totalWorkingDays = countWorkingDays(fromDate, toDate);
+
+  const formattedRecords = records.map((r) => ({
+    date: r.date.toISOString().split('T')[0],
+    checkIn: r.checkIn ? r.checkIn.toISOString() : null,
+    checkOut: r.checkOut ? r.checkOut.toISOString() : null,
+    workHours: r.workHours,
+    extraHours: r.extraHours,
+  }));
+
+  return {
+    records: formattedRecords,
+    summary: {
+      daysPresent,
+      leavesTaken,
+      totalWorkingDays,
+    },
+  };
+}
+
+export async function getAllAttendance(companyId: string, dateStr?: string, search?: string) {
+  let targetStart: Date;
+  let targetEnd: Date;
+
+  if (dateStr) {
+    targetStart = new Date(`${dateStr}T00:00:00`);
+    targetEnd = new Date(`${dateStr}T23:59:59.999`);
+  } else {
+    const today = getTodayDateRange();
+    targetStart = today.start;
+    targetEnd = today.end;
+  }
+
+  const searchTrim = search?.trim();
+
+  const [employees, attendances] = await Promise.all([
+    prisma.employee.findMany({
+      where: {
+        companyId,
+        ...(searchTrim
+          ? {
+              OR: [
+                { firstName: { contains: searchTrim, mode: 'insensitive' } },
+                { lastName: { contains: searchTrim, mode: 'insensitive' } },
+                { email: { contains: searchTrim, mode: 'insensitive' } },
+              ],
+            }
+          : {}),
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        profilePicUrl: true,
+        jobTitle: true,
+        department: true,
+      },
+      orderBy: [{ firstName: 'asc' }, { lastName: 'asc' }],
+    }),
+    prisma.attendance.findMany({
+      where: {
+        employee: { companyId },
+        date: {
+          gte: targetStart,
+          lte: targetEnd,
+        },
+      },
+    }),
+  ]);
+
+  return employees.map((emp) => {
+    const att = attendances.find((a) => a.employeeId === emp.id);
+    return {
+      employee: emp,
+      checkIn: att?.checkIn ? att.checkIn.toISOString() : null,
+      checkOut: att?.checkOut ? att.checkOut.toISOString() : null,
+      workHours: att?.workHours ?? null,
+      extraHours: att?.extraHours ?? null,
+    };
+  });
 }
 
 export async function checkIn(employeeId: string, companyId: string) {
