@@ -1,14 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Users, Clock, CalendarDays, LogOut, Menu, X, ShieldCheck, User, ChevronDown } from 'lucide-react';
+import { Users, Clock, CalendarDays, LogOut, Menu, X, ShieldCheck, User, ChevronDown, Trophy } from 'lucide-react';
 import { AttendanceControl } from './AttendanceControl';
 import { DayflowLogo } from './DayflowLogo';
+import { StreakWidget } from './rewards/StreakWidget';
+import { PointsToast } from './rewards/PointsToast';
+import { getSocket } from '../lib/socket';
 
 export const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const socket = user ? getSocket() : null;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -34,6 +38,7 @@ export const Navbar: React.FC = () => {
     { name: 'Employees', path: '/employees', icon: Users },
     { name: 'Attendance', path: '/attendance', icon: Clock },
     { name: 'Time Off', path: '/timeoff', icon: CalendarDays },
+    { name: 'Rewards', path: '/rewards', icon: Trophy },
   ];
 
   const getStatusDotClass = (status?: string) => {
@@ -61,6 +66,7 @@ export const Navbar: React.FC = () => {
   };
 
   return (
+    <>
     <header className="sticky top-0 z-40 bg-white border-b border-blue-grey/30 shadow-sm backdrop-blur-md bg-white/95">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
@@ -103,9 +109,14 @@ export const Navbar: React.FC = () => {
             )}
           </div>
 
-          {/* Right: Check In / Check Out Systray + Presence Status & Profile */}
+          {/* Right: Streak Widget + Check In/Out + Presence + Profile */}
           {user ? (
             <div className="hidden md:flex items-center space-x-4">
+              {/* Gamification: Streak + Points */}
+              <StreakWidget />
+
+              <div className="h-6 w-px bg-blue-grey/25" />
+
               {/* Check In / Check Out Systray */}
               <AttendanceControl />
 
@@ -280,5 +291,8 @@ export const Navbar: React.FC = () => {
         </div>
       )}
     </header>
+    {/* Gamification: Floating points toast + streak alerts (global, above everything) */}
+    {user && <PointsToast socket={socket} />}
+    </>
   );
 };

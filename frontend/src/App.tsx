@@ -14,6 +14,7 @@ import { TimeOffPage } from './pages/TimeOffPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { EmployeeDetailPage } from './pages/EmployeeDetailPage';
 import { SalaryPage } from './pages/SalaryPage';
+import RewardsPage from './pages/RewardsPage';
 
 // Protected layout wrapper
 const ProtectedLayout: React.FC = () => {
@@ -89,6 +90,7 @@ export default function App() {
               <Route path="/timeoff" element={<TimeOffPage />} />
               <Route path="/salary" element={<SalaryPage />} />
               <Route path="/salary/:employeeId" element={<AdminSalaryGuard />} />
+              <Route path="/rewards" element={<RewardsPage />} />
             </Route>
 
             {/* Fallback */}

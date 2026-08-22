@@ -51,6 +51,7 @@ model Employee {
   timeOffRequests    TimeOffRequest[]    @relation("RequesterRequests")
   timeOffAllocations TimeOffAllocation[]
   salary             SalaryStructure?
+  gamificationPoints EmployeePoints?
 
   createdAt DateTime @default(now())
 }
@@ -165,3 +166,97 @@ model SalaryComponent {
   value             Float // amount, or % if PERCENTAGE
   computedAmount    Float // resolved amount after calculation, stored for read speed
 }
+
+// ─── Gamification ────────────────────────────────────────────────────────────
+
+enum PointReason {
+  DAILY_CHECKIN
+  EARLY_CHECKIN
+  FULL_DAY_WORK
+  STREAK_7
+  STREAK_30
+  STREAK_90
+  PROFILE_COMPLETE
+  EARLY_LEAVE_REQUEST
+  ADMIN_AWARD
+  ADMIN_DEDUCT
+  EASTER_EGG
+}
+
+enum RedemptionStatus {
+  APPROVED
+  PENDING_HR
+  REJECTED
+}
+
+model EmployeePoints {
+  id              String    @id @default(uuid())
+  employeeId      String    @unique
+  employee        Employee  @relation(fields: [employeeId], references: [id])
+  total           Int       @default(0)
+  streak          Int       @default(0)
+  maxStreak       Int       @default(0)
+  lastCheckInDate DateTime?
+  easterEggUsed   Boolean   @default(false)
+  transactions    PointTransaction[]
+  redemptions     RewardRedemption[]
+  badges          EmployeeBadge[]
+}
+
+model PointTransaction {
+  id             String         @id @default(uuid())
+  pointsId       String
+  points         EmployeePoints @relation(fields: [pointsId], references: [id])
+  reason         PointReason
+  amount         Int
+  description    String?
+  createdAt      DateTime       @default(now())
+}
+
+model Reward {
+  id          String             @id @default(uuid())
+  name        String
+  description String
+  emoji       String             @default("🎁")
+  pointCost   Int
+  category    String             @default("Physical") // Physical | Digital | Leave
+  stockCount  Int                @default(-1) // -1 = unlimited
+  isActive    Boolean            @default(true)
+  redemptions RewardRedemption[]
+  createdAt   DateTime           @default(now())
+}
+
+model RewardRedemption {
+  id            String           @id @default(uuid())
+  pointsId      String
+  points        EmployeePoints   @relation(fields: [pointsId], references: [id])
+  rewardId      String
+  reward        Reward           @relation(fields: [rewardId], references: [id])
+  pointCost     Int
+  status        RedemptionStatus @default(APPROVED)
+  reviewedById  String?
+  reviewNotes   String?
+  createdAt     DateTime         @default(now())
+  reviewedAt    DateTime?
+}
+
+model Badge {
+  id          String          @id @default(uuid())
+  key         String          @unique
+  label       String
+  emoji       String
+  description String
+  earnedBy    EmployeeBadge[]
+}
+
+model EmployeeBadge {
+  id         String         @id @default(uuid())
+  pointsId   String
+  points     EmployeePoints @relation(fields: [pointsId], references: [id])
+  badgeKey   String
+  badge      Badge          @relation(fields: [badgeKey], references: [key])
+  earnedAt   DateTime       @default(now())
+
+  @@unique([pointsId, badgeKey])
+}
+
