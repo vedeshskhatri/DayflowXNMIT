@@ -30,22 +30,24 @@ export const DayflowLogo: React.FC<DayflowLogoProps> = ({
           className="w-full h-full drop-shadow-md transition-transform duration-300 group-hover:scale-105"
         >
           <defs>
-            {/* Background Gradient */}
+            {/* Background Base Squircle Gradient */}
             <linearGradient id="dfLogoBg" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#5E7892" />
-              <stop offset="100%" stopColor="#34485D" />
+              <stop offset="0%" stopColor="#2D3E4E" />
+              <stop offset="50%" stopColor="#3F556B" />
+              <stop offset="100%" stopColor="#5E7892" />
             </linearGradient>
 
-            {/* Flowing Orbital Glow */}
-            <linearGradient id="dfLogoFlow" x1="0%" y1="0%" x2="100%" y2="100%">
+            {/* Rising Sun Radial Gradient */}
+            <linearGradient id="dfLogoSun" x1="0%" y1="100%" x2="0%" y2="0%">
+              <stop offset="0%" stopColor="#8E9E83" />
+              <stop offset="100%" stopColor="#BDCFAA" />
+            </linearGradient>
+
+            {/* Infinity Flow Ribbon Gradient */}
+            <linearGradient id="dfLogoInfinity" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#BDCFAA" />
-              <stop offset="50%" stopColor="#F3EFDF" />
-              <stop offset="100%" stopColor="#C97B63" />
-            </linearGradient>
-
-            {/* Hand Glow */}
-            <linearGradient id="dfLogoHand" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#FFFFFF" />
+              <stop offset="35%" stopColor="#F3EFDF" />
+              <stop offset="70%" stopColor="#A7B7C6" />
               <stop offset="100%" stopColor="#BDCFAA" />
             </linearGradient>
 
@@ -63,47 +65,34 @@ export const DayflowLogo: React.FC<DayflowLogoProps> = ({
             height="60"
             rx="16"
             fill="url(#dfLogoBg)"
-            stroke="#A7B7C6"
+            stroke="#BDCFAA"
             strokeWidth="1.5"
-            strokeOpacity="0.35"
+            strokeOpacity="0.3"
           />
 
-          {/* Flowing Clock Orbital Arc */}
-          <circle
-            cx="32"
-            cy="32"
-            r="22"
-            stroke="url(#dfLogoFlow)"
-            strokeWidth="2.5"
+          {/* Rising Sun Behind Infinity Loop */}
+          <path d="M 23 34 A 9 9 0 0 1 41 34 Z" fill="url(#dfLogoSun)" opacity="0.95" />
+
+          {/* Sun Rays */}
+          <line x1="32" y1="16" x2="32" y2="21" stroke="#BDCFAA" strokeWidth="2.5" strokeLinecap="round" />
+          <line x1="22" y1="20" x2="25" y2="24" stroke="#BDCFAA" strokeWidth="2.5" strokeLinecap="round" />
+          <line x1="42" y1="20" x2="39" y2="24" stroke="#BDCFAA" strokeWidth="2.5" strokeLinecap="round" />
+          <line x1="15" y1="28" x2="19" y2="30.5" stroke="#BDCFAA" strokeWidth="2.5" strokeLinecap="round" opacity="0.8" />
+          <line x1="49" y1="28" x2="45" y2="30.5" stroke="#BDCFAA" strokeWidth="2.5" strokeLinecap="round" opacity="0.8" />
+
+          {/* Infinity Flow Ribbon */}
+          <path
+            d="M 32 39 C 24 28 11 28 11 39 C 11 50 24 50 32 39 C 40 28 53 28 53 39 C 53 50 40 50 32 39 Z"
+            stroke="url(#dfLogoInfinity)"
+            strokeWidth="5.5"
             strokeLinecap="round"
-            strokeDasharray="100 35"
+            strokeLinejoin="round"
+            fill="none"
             filter="url(#dfGlow)"
           />
 
-          {/* Dial Track Dots */}
-          <circle cx="32" cy="13" r="1.5" fill="#BDCFAA" />
-          <circle cx="51" cy="32" r="1.5" fill="#BDCFAA" />
-          <circle cx="32" cy="51" r="1.5" fill="#BDCFAA" />
-          <circle cx="13" cy="32" r="1.5" fill="#BDCFAA" />
-
-          {/* Clock Hands (10:10 Position) */}
-          <path
-            d="M32 32 L22 22"
-            stroke="url(#dfLogoHand)"
-            strokeWidth="3.2"
-            strokeLinecap="round"
-          />
-          <path
-            d="M32 32 L44 20"
-            stroke="#F3EFDF"
-            strokeWidth="2.6"
-            strokeLinecap="round"
-          />
-          <circle cx="44" cy="20" r="2.2" fill="#C97B63" filter="url(#dfGlow)" />
-
-          {/* Center Hub */}
-          <circle cx="32" cy="32" r="4.2" fill="#FFFFFF" />
-          <circle cx="32" cy="32" r="2.2" fill="#5E7892" />
+          {/* Center Core Accent Glow */}
+          <circle cx="32" cy="39" r="1.8" fill="#FFFFFF" />
         </svg>
       </div>
 
