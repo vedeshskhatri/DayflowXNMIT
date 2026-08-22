@@ -113,23 +113,23 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
         )}
       </div>
 
-      {/* Name & Role */}
-      <h3 className="font-heading font-bold text-sm text-navy-dark group-hover:text-navy transition-colors flex items-center justify-center space-x-1.5">
+      {/* Info */}
+      <h3 className="font-heading font-bold text-[15px] text-text-primary group-hover:text-slate-brand transition-colors flex items-center justify-center space-x-1.5 tracking-tight">
         <span>{fullName}</span>
         {role && role !== 'EMPLOYEE' && (
-          <span className="inline-flex items-center text-[9px] font-bold px-1.5 py-0.5 rounded bg-copper-muted text-copper-dark font-mono border border-copper/30">
+          <span className="inline-flex items-center text-[9px] font-sans font-bold px-1.5 py-0.5 rounded bg-copper-muted text-copper-dark border border-copper/30">
             <ShieldCheck className="w-2.5 h-2.5 mr-0.5" />
             {role === 'HR_OFFICER' ? 'HR' : role}
           </span>
         )}
       </h3>
 
-      <p className="text-xs text-text-muted mt-0.5 truncate max-w-[180px] font-medium">
+      <p className="font-sans text-xs text-text-muted mt-1 font-normal truncate max-w-[190px]">
         {jobTitle || 'Team Member'}
       </p>
 
       {department && (
-        <span className="mt-2 inline-block px-3 py-0.5 rounded-full text-[10px] font-bold bg-cream text-navy-dark border border-navy/10 font-mono">
+        <span className="mt-2 inline-block px-2.5 py-0.5 rounded-full text-[10px] font-sans font-semibold bg-cream text-navy-dark border border-navy/10 font-mono">
           {department}
         </span>
       )}

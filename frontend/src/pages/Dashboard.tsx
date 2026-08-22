@@ -103,17 +103,17 @@ export const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fadeIn">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 animate-fadeIn">
       {/* Welcome Banner */}
-      <div className="card bg-gradient-to-r from-white via-white to-cream border border-blue-grey/20 p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-sm">
+      <div className="card bg-gradient-to-r from-white via-white to-cream border border-blue-grey/20 p-6 sm:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6 shadow-sm">
         <div className="space-y-2">
           <div className="flex items-center space-x-3">
-            <h1 className="text-3xl font-heading font-bold text-text-primary">
+            <h1 className="text-2xl sm:text-3xl font-heading font-bold text-text-primary tracking-tight">
               Welcome back, {user?.firstName}!
             </h1>
             {user?.status && getStatusBadge(liveStatus)}
           </div>
-          <p className="text-sm text-text-muted">
+          <p className="text-xs sm:text-sm text-text-muted font-sans">
             {user?.jobTitle || 'Team Member'} &bull; {user?.department || 'Dayflow x NMIT'} &bull; Login ID:{' '}
             <span className="font-mono text-slate-brand font-semibold">{user?.loginId}</span>
           </p>

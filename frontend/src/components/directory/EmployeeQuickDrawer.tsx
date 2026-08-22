@@ -124,20 +124,20 @@ export const EmployeeQuickDrawer: React.FC<EmployeeQuickDrawerProps> = ({ employ
                 </div>
               </div>
 
-              <h2 className="text-xl font-heading font-bold text-text-primary flex items-center space-x-2">
+              <h2 className="text-xl font-heading font-bold text-text-primary flex items-center space-x-2 tracking-tight">
                 <span>{fullName}</span>
                 {employee.role && employee.role !== 'EMPLOYEE' && (
-                  <span className="inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-brand/15 text-slate-brand border border-slate-brand/20">
+                  <span className="inline-flex items-center text-[10px] font-sans font-bold px-2 py-0.5 rounded-full bg-slate-brand/15 text-slate-brand border border-slate-brand/20">
                     <ShieldCheck className="w-3 h-3 mr-1" />
                     {employee.role}
                   </span>
                 )}
               </h2>
 
-              <p className="text-sm text-text-muted mt-0.5">{employee.jobTitle || 'Team Member'}</p>
+              <p className="font-sans text-sm text-text-muted mt-1 font-medium">{employee.jobTitle || 'Team Member'}</p>
 
               {employee.department && (
-                <span className="mt-2 inline-block px-3 py-0.5 rounded-full text-xs font-semibold bg-cream text-text-primary border border-blue-grey/25">
+                <span className="mt-2 inline-block px-3 py-0.5 rounded-full text-xs font-sans font-semibold bg-slate-brand/10 text-slate-brand border border-slate-brand/20">
                   {employee.department}
                 </span>
               )}
