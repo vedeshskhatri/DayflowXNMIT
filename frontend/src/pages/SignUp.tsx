@@ -158,35 +158,35 @@ export const SignUp: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-cream-light flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 py-12 relative overflow-hidden">
-      {/* Animated background scenes & ambient shapes */}
+    <div className="min-h-screen bg-cream flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 py-12 relative overflow-hidden">
+      {/* Subtle animated background scenes & ambient shapes */}
       <AuthBackground />
 
       <div className="w-full max-w-lg space-y-8 relative z-10">
         {/* Brand header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center shadow-elevated rounded-3xl ring-4 ring-white/80 p-1 bg-white">
+          <div className="inline-flex items-center justify-center shadow-lg rounded-2xl ring-4 ring-white">
             <DayflowLogo size="xl" />
           </div>
-          <h1 className="text-3xl sm:text-4xl font-heading font-bold text-navy-dark tracking-tight">
+          <h1 className="text-3xl font-heading font-bold text-text-primary tracking-tight">
             Dayflow
           </h1>
-          <p className="text-sm text-text-muted font-medium">
+          <p className="text-sm text-text-muted">
             Every workday, perfectly aligned.
           </p>
         </div>
 
         {/* Signup / Success Card */}
-        <div className="card shadow-modal border border-navy/15 bg-white rounded-3xl p-8">
+        <div className="card shadow-modal border border-blue-grey/20 bg-white">
           {successData ? (
             /* Success State with Generated Login ID details */
             <div className="space-y-6 animate-fadeIn py-2">
               <div className="text-center space-y-2">
-                <div className="w-14 h-14 rounded-full bg-copper-muted border border-copper/30 flex items-center justify-center mx-auto text-copper">
-                  <CheckCircle2 className="w-8 h-8" />
+                <div className="w-12 h-12 rounded-full bg-sage-light flex items-center justify-center mx-auto text-sage-deep">
+                  <CheckCircle2 className="w-7 h-7" />
                 </div>
-                <h2 className="text-2xl font-heading font-bold text-navy-dark">
-                  Workspace Ready!
+                <h2 className="text-2xl font-heading font-bold text-text-primary">
+                  Company & Admin Registered!
                 </h2>
                 <p className="text-xs text-text-muted">
                   Your organization account is active and your administrator Login ID has been generated.
@@ -194,29 +194,29 @@ export const SignUp: React.FC = () => {
               </div>
 
               {/* Login ID Showcase Box */}
-              <div className="bg-cream/80 border border-navy/15 rounded-2xl p-5 space-y-4">
+              <div className="bg-cream/80 border border-blue-grey/25 rounded-2xl p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-text-muted font-mono">
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-text-muted">
                       Your System-Generated Login ID
                     </span>
-                    <div className="text-2xl font-mono font-bold text-navy-dark mt-0.5 tracking-wide">
+                    <div className="text-2xl font-mono font-bold text-slate-brand mt-0.5 tracking-wide">
                       {successData.loginId}
                     </div>
                   </div>
                   <button
                     onClick={handleCopy}
-                    className="p-2.5 rounded-xl border border-navy/15 bg-white hover:bg-cream text-navy-dark transition-all flex items-center space-x-1.5 text-xs font-bold shadow-sm cursor-pointer"
+                    className="p-2.5 rounded-xl border border-blue-grey/20 bg-white hover:bg-cream text-text-primary transition-colors flex items-center space-x-1.5 text-xs font-semibold shadow-sm"
                     title="Copy Login ID"
                   >
                     {copied ? (
                       <>
-                        <Check className="w-4 h-4 text-copper" />
-                        <span className="text-copper">Copied!</span>
+                        <Check className="w-4 h-4 text-sage-deep" />
+                        <span className="text-sage-deep">Copied!</span>
                       </>
                     ) : (
                       <>
-                        <Copy className="w-4 h-4 text-text-muted" />
+                        <Copy className="w-4 h-4 text-blue-grey" />
                         <span>Copy ID</span>
                       </>
                     )}
@@ -224,16 +224,16 @@ export const SignUp: React.FC = () => {
                 </div>
 
                 {/* Wireframe Format Explanation Box */}
-                <div className="pt-3 border-t border-navy/10 text-xs text-text-muted space-y-1.5">
-                  <p className="font-bold text-navy-dark flex items-center space-x-1">
-                    <Sparkles className="w-3.5 h-3.5 text-copper" />
+                <div className="pt-3 border-t border-blue-grey/20 text-xs text-text-muted space-y-1.5">
+                  <p className="font-semibold text-text-primary flex items-center space-x-1">
+                    <Sparkles className="w-3.5 h-3.5 text-slate-brand" />
                     <span>How your Login ID was structured:</span>
                   </p>
-                  <div className="grid grid-cols-2 gap-2 text-[11px] bg-white p-2.5 rounded-xl border border-navy/10 font-mono">
-                    <div><span className="font-bold text-navy-dark">{successData.companyCode}</span> → Company Code</div>
-                    <div><span className="font-bold text-navy-dark">{successData.loginId.slice(successData.companyCode.length, successData.companyCode.length + 4)}</span> → Name Initials</div>
-                    <div><span className="font-bold text-navy-dark">{new Date().getFullYear()}</span> → Year of Joining</div>
-                    <div><span className="font-bold text-navy-dark">0001</span> → Admin Serial</div>
+                  <div className="grid grid-cols-2 gap-2 text-[11px] bg-white/70 p-2.5 rounded-xl border border-blue-grey/15">
+                    <div><span className="font-mono font-bold text-slate-brand">{successData.companyCode}</span> → Company Code</div>
+                    <div><span className="font-mono font-bold text-slate-brand">{successData.loginId.slice(successData.companyCode.length, successData.companyCode.length + 4)}</span> → Name Initials</div>
+                    <div><span className="font-mono font-bold text-slate-brand">{new Date().getFullYear()}</span> → Year of Joining</div>
+                    <div><span className="font-mono font-bold text-slate-brand">0001</span> → Admin Joining Serial</div>
                   </div>
                 </div>
               </div>
@@ -241,33 +241,28 @@ export const SignUp: React.FC = () => {
               <button
                 type="button"
                 onClick={() => navigate('/employees')}
-                className="btn-navy w-full flex items-center justify-center space-x-2 py-3 text-base font-bold cursor-pointer"
+                className="btn-primary w-full flex items-center justify-center space-x-2 py-3 text-base"
               >
                 <span>Enter Workspace Dashboard</span>
-                <ArrowRight className="w-4 h-4 text-copper-bright" />
+                <ArrowRight className="w-4 h-4" />
               </button>
             </div>
           ) : (
-            /* Sign Up Form */
+            /* Sign Up Form matching Wireframe */
             <div>
-              <div className="flex items-center justify-between mb-6 pb-3 border-b border-navy/10">
-                <div>
-                  <h2 className="text-xl font-heading font-bold text-navy-dark">
-                    Register Organization
-                  </h2>
-                  <p className="text-xs text-text-muted mt-0.5">
-                    Create your company workspace and initial Administrator account.
-                  </p>
-                </div>
-                <span className="text-xs font-bold text-copper-dark bg-copper-muted px-2.5 py-1 rounded-full border border-copper/30 font-mono">
-                  Admin Setup
-                </span>
+              <div className="mb-6">
+                <h2 className="text-xl font-heading font-semibold text-text-primary">
+                  Sign Up Organization
+                </h2>
+                <p className="text-xs text-text-muted mt-1">
+                  Create your company workspace and initial Administrator account.
+                </p>
               </div>
 
               {errorMessage && (
-                <div className="mb-5 p-3.5 rounded-xl bg-terracotta-light border border-terracotta/20 flex items-start space-x-3 text-terracotta text-sm animate-shake">
+                <div className="mb-5 p-3.5 rounded-xl bg-terracotta/10 border border-terracotta/20 flex items-start space-x-3 text-terracotta text-sm animate-shake">
                   <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                  <span className="font-medium">{errorMessage}</span>
+                  <span>{errorMessage}</span>
                 </div>
               )}
 
@@ -288,11 +283,11 @@ export const SignUp: React.FC = () => {
                 {/* Company Name & Upload Logo Row */}
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className="label mb-0">Company Name *</label>
+                    <label className="label mb-0">Company Name :- *</label>
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="text-xs font-bold text-copper hover:text-copper-dark flex items-center space-x-1.5 py-1 px-2.5 rounded-lg bg-copper-muted hover:bg-copper-muted/80 border border-copper/30 transition-all shadow-sm cursor-pointer font-mono"
+                      className="text-xs font-semibold text-slate-brand hover:text-slate-brand/80 flex items-center space-x-1.5 py-1 px-2.5 rounded-lg bg-slate-brand/10 hover:bg-slate-brand/15 border border-slate-brand/20 transition-all shadow-sm"
                       title="Upload Logo File"
                     >
                       <Upload className="w-3.5 h-3.5" />
@@ -300,14 +295,14 @@ export const SignUp: React.FC = () => {
                     </button>
                   </div>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-navy/40">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-blue-grey">
                       <Building2 className="w-4 h-4" />
                     </div>
                     <input
                       type="text"
                       {...register('companyName')}
-                      placeholder="e.g. Acme Corp or Dayflow Tech"
-                      className="input pl-10 text-sm"
+                      placeholder="e.g. Odoo India or Dayflow Tech"
+                      className="input pl-10 text-sm bg-cream/40"
                     />
                   </div>
                   {errors.companyName && (
@@ -319,18 +314,19 @@ export const SignUp: React.FC = () => {
 
                 {/* Company Logo Preview or Dropzone */}
                 {logoPreview ? (
-                  <div className="p-3 rounded-xl bg-cream/80 border border-navy/15 flex items-center justify-between animate-fadeIn">
+                  /* Uploaded Logo Preview Card */
+                  <div className="p-3 rounded-xl bg-cream/80 border border-blue-grey/25 flex items-center justify-between animate-fadeIn">
                     <div className="flex items-center space-x-3">
                       <img
                         src={logoPreview}
                         alt="Company Logo Preview"
-                        className="w-12 h-12 rounded-xl object-contain bg-white border border-navy/10 p-1 shadow-sm"
+                        className="w-12 h-12 rounded-xl object-contain bg-white border border-blue-grey/20 p-1 shadow-sm"
                       />
                       <div>
-                        <span className="text-xs font-bold text-navy-dark block truncate max-w-[200px]">
+                        <span className="text-xs font-bold text-text-primary block truncate max-w-[200px]">
                           {logoFileName || 'Company Logo'}
                         </span>
-                        <span className="text-[11px] text-copper font-medium flex items-center space-x-1">
+                        <span className="text-[11px] text-sage-deep font-medium flex items-center space-x-1">
                           <Check className="w-3 h-3" />
                           <span>Logo attached successfully</span>
                         </span>
@@ -340,7 +336,7 @@ export const SignUp: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="p-1.5 text-xs text-text-muted hover:text-navy rounded-lg hover:bg-cream cursor-pointer"
+                        className="p-1.5 text-xs text-text-muted hover:text-slate-brand rounded-lg hover:bg-cream"
                         title="Change Logo"
                       >
                         Change
@@ -348,7 +344,7 @@ export const SignUp: React.FC = () => {
                       <button
                         type="button"
                         onClick={handleRemoveLogo}
-                        className="p-1.5 text-text-muted hover:text-terracotta rounded-lg hover:bg-terracotta-light transition-colors cursor-pointer"
+                        className="p-1.5 text-text-muted hover:text-terracotta rounded-lg hover:bg-terracotta/10 transition-colors"
                         title="Remove Logo"
                       >
                         <X className="w-4 h-4" />
@@ -356,6 +352,7 @@ export const SignUp: React.FC = () => {
                     </div>
                   </div>
                 ) : (
+                  /* Compact Dropzone Area */
                   <div
                     onClick={() => fileInputRef.current?.click()}
                     onDragOver={(e) => e.preventDefault()}
@@ -365,27 +362,29 @@ export const SignUp: React.FC = () => {
                         handleLogoFile(e.dataTransfer.files[0]);
                       }
                     }}
-                    className="border-2 border-dashed border-navy/15 hover:border-copper/50 rounded-xl p-3 text-center cursor-pointer bg-cream-light hover:bg-cream/50 transition-all group"
+                    className="border-2 border-dashed border-blue-grey/30 hover:border-slate-brand/50 rounded-xl p-3 text-center cursor-pointer bg-cream/20 hover:bg-cream/50 transition-all group"
                   >
-                    <div className="flex items-center justify-center space-x-2 text-xs text-text-muted group-hover:text-copper font-medium">
-                      <ImageIcon className="w-4 h-4 text-navy/40 group-hover:text-copper" />
-                      <span>Click or drag & drop company logo (PNG, JPG, SVG)</span>
+                    <div className="flex items-center justify-center space-x-2 text-xs text-text-muted group-hover:text-slate-brand">
+                      <ImageIcon className="w-4 h-4 text-blue-grey group-hover:text-slate-brand" />
+                      <span className="font-medium">
+                        Click or drag & drop company logo (PNG, JPG, SVG, WebP)
+                      </span>
                     </div>
                   </div>
                 )}
 
                 {/* Name */}
                 <div>
-                  <label className="label">Admin Full Name *</label>
+                  <label className="label">Name :- *</label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-navy/40">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-blue-grey">
                       <User className="w-4 h-4" />
                     </div>
                     <input
                       type="text"
                       {...register('name')}
-                      placeholder="e.g. Mishra Sharma"
-                      className="input pl-10 text-sm"
+                      placeholder="e.g. John Doe"
+                      className="input pl-10 text-sm bg-cream/40"
                     />
                   </div>
                   {errors.name && (
@@ -398,16 +397,16 @@ export const SignUp: React.FC = () => {
                 {/* Email & Phone Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="label">Work Email *</label>
+                    <label className="label">Email :- *</label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-navy/40">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-blue-grey">
                         <Mail className="w-4 h-4" />
                       </div>
                       <input
                         type="email"
                         {...register('email')}
-                        placeholder="admin@company.com"
-                        className="input pl-10 text-sm"
+                        placeholder="john@company.com"
+                        className="input pl-10 text-sm bg-cream/40"
                       />
                     </div>
                     {errors.email && (
@@ -418,16 +417,16 @@ export const SignUp: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="label">Phone (Optional)</label>
+                    <label className="label">Phone :-</label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-navy/40">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-blue-grey">
                         <Phone className="w-4 h-4" />
                       </div>
                       <input
                         type="tel"
                         {...register('phone')}
                         placeholder="9876543210"
-                        className="input pl-10 text-sm"
+                        className="input pl-10 text-sm bg-cream/40"
                       />
                     </div>
                     {errors.phone && (
@@ -441,21 +440,21 @@ export const SignUp: React.FC = () => {
                 {/* Password & Confirm Password Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="label">Password *</label>
+                    <label className="label">Password :- *</label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-navy/40">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-blue-grey">
                         <Lock className="w-4 h-4" />
                       </div>
                       <input
                         type={showPassword ? 'text' : 'password'}
                         {...register('password')}
                         placeholder="••••••••"
-                        className="input pl-10 pr-9 text-sm"
+                        className="input pl-10 pr-9 text-sm bg-cream/40"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-navy/40 hover:text-navy cursor-pointer"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-blue-grey hover:text-text-primary"
                       >
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
@@ -468,21 +467,21 @@ export const SignUp: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="label">Confirm Password *</label>
+                    <label className="label">Confirm Password :- *</label>
                     <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-navy/40">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-blue-grey">
                         <Lock className="w-4 h-4" />
                       </div>
                       <input
                         type={showConfirmPassword ? 'text' : 'password'}
                         {...register('confirmPassword')}
                         placeholder="••••••••"
-                        className="input pl-10 pr-9 text-sm"
+                        className="input pl-10 pr-9 text-sm bg-cream/40"
                       />
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-navy/40 hover:text-navy cursor-pointer"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-blue-grey hover:text-text-primary"
                       >
                         {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
@@ -500,24 +499,25 @@ export const SignUp: React.FC = () => {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="btn-navy w-full flex items-center justify-center space-x-2 py-3 text-base font-bold cursor-pointer"
+                    className="btn-primary w-full flex items-center justify-center space-x-2 py-3 text-base"
                   >
                     {isSubmitting ? (
                       <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     ) : (
                       <>
-                        <span>Create Workspace</span>
-                        <ArrowRight className="w-4 h-4 text-copper-bright" />
+                        <span>Sign Up</span>
+                        <ArrowRight className="w-4 h-4" />
                       </>
                     )}
                   </button>
                 </div>
               </form>
 
+              {/* Wireframe link: Already have an account ? Sign In */}
               <div className="mt-5 text-center">
                 <p className="text-xs text-text-muted">
-                  Already have an account?{' '}
-                  <Link to="/login" className="font-bold text-copper hover:underline">
+                  Already have an account ?{' '}
+                  <Link to="/login" className="font-semibold text-slate-brand hover:underline">
                     Sign In
                   </Link>
                 </p>
@@ -525,6 +525,13 @@ export const SignUp: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* Footer info matching wireframe note */}
+        <p className="text-center text-xs text-text-muted">
+          Company admin credentials generate a unique <span className="font-semibold text-text-primary">Login ID</span> (e.g. OIJODO20260001).
+          <br />
+          Subsequent employee accounts are created securely from the HR dashboard.
+        </p>
       </div>
     </div>
   );

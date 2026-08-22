@@ -49,14 +49,16 @@ export const EmployeeAttendanceView: React.FC = () => {
 
   const now = new Date();
   const [selectedYear, setSelectedYear] = useState<number>(now.getFullYear());
-  const [selectedMonth, setSelectedMonth] = useState<number>(now.getMonth());
+  const [selectedMonth, setSelectedMonth] = useState<number>(now.getMonth()); // 0-indexed
 
+  // Compute start and end date for the selected month
   const startOfMonth = new Date(selectedYear, selectedMonth, 1);
   const endOfMonth = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59, 999);
 
   const fromStr = startOfMonth.toISOString().split('T')[0];
   const toStr = endOfMonth.toISOString().split('T')[0];
 
+  // Fetch own attendance records for the month
   const { data, isLoading, isError } = useQuery<AttendanceResponse>({
     queryKey: ['attendance', 'mine', fromStr, toStr],
     queryFn: async () => {
@@ -66,6 +68,7 @@ export const EmployeeAttendanceView: React.FC = () => {
     staleTime: 1000 * 30,
   });
 
+  // Socket listener for live attendance events
   useEffect(() => {
     const socket = getSocket();
 
@@ -96,6 +99,7 @@ export const EmployeeAttendanceView: React.FC = () => {
     setSelectedMonth(newDate.getMonth());
   };
 
+  // Generate day-wise rows for the full month
   const totalDaysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
   const monthDays = Array.from({ length: totalDaysInMonth }, (_, i) => {
     const d = new Date(selectedYear, selectedMonth, i + 1);
@@ -135,75 +139,75 @@ export const EmployeeAttendanceView: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* ── Summary Metrics Bar ────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+      {/* ── Summary Metrics Bar (Wireframe: Count of days present | Leaves count | Total working days) ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Days Present */}
-        <div className="card p-6 border border-navy/10 bg-white flex items-center justify-between shadow-sm">
+        <div className="card p-5 border border-sage-light bg-sage-light/20 flex items-center justify-between shadow-sm">
           <div>
-            <p className="text-xs font-bold text-navy-dark uppercase tracking-wider font-mono">
-              Count of Days Present
+            <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">
+              Count of days present
             </p>
-            <p data-testid="summary-days-present" className="text-3xl font-heading font-bold text-navy-dark mt-1">
+            <p data-testid="summary-days-present" className="text-2xl font-heading font-bold text-text-primary mt-1">
               {data?.summary.daysPresent ?? 0}
             </p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-sage-light/40 text-sage-deep flex items-center justify-center border border-sage-deep/20 shadow-sm">
+          <div className="w-11 h-11 rounded-2xl bg-sage-light/50 text-sage-deep flex items-center justify-center border border-sage-deep/20">
             <CheckCircle2 className="w-6 h-6" />
           </div>
         </div>
 
         {/* Leaves Taken */}
-        <div className="card p-6 border border-navy/10 bg-white flex items-center justify-between shadow-sm">
+        <div className="card p-5 border border-terracotta/30 bg-terracotta/10 flex items-center justify-between shadow-sm">
           <div>
-            <p className="text-xs font-bold text-copper uppercase tracking-wider font-mono">
-              Leaves Taken
+            <p className="text-xs font-semibold text-terracotta uppercase tracking-wider">
+              Leaves count
             </p>
-            <p data-testid="summary-leaves-taken" className="text-3xl font-heading font-bold text-copper mt-1">
+            <p data-testid="summary-leaves-taken" className="text-2xl font-heading font-bold text-terracotta mt-1">
               {data?.summary.leavesTaken ?? 0}
             </p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-copper-muted text-copper-dark flex items-center justify-center border border-copper/30 shadow-sm">
+          <div className="w-11 h-11 rounded-2xl bg-terracotta/20 text-terracotta flex items-center justify-center border border-terracotta/30">
             <AlertCircle className="w-6 h-6" />
           </div>
         </div>
 
         {/* Total Working Days */}
-        <div className="card p-6 border border-navy/10 bg-white flex items-center justify-between shadow-sm">
+        <div className="card p-5 border border-blue-grey/30 bg-white flex items-center justify-between shadow-sm">
           <div>
-            <p className="text-xs font-bold text-text-muted uppercase tracking-wider font-mono">
-              Total Working Days
+            <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">
+              Total working days
             </p>
-            <p data-testid="summary-total-working-days" className="text-3xl font-heading font-bold text-navy-dark mt-1">
+            <p data-testid="summary-total-working-days" className="text-2xl font-heading font-bold text-text-primary mt-1">
               {data?.summary.totalWorkingDays ?? totalDaysInMonth}
             </p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-navy text-white flex items-center justify-center shadow-sm">
-            <Briefcase className="w-6 h-6 text-copper-bright" />
+          <div className="w-11 h-11 rounded-2xl bg-cream text-slate-brand flex items-center justify-center border border-blue-grey/20">
+            <Briefcase className="w-6 h-6" />
           </div>
         </div>
       </div>
 
-      {/* ── Month Navigation Controls ──────────────────────────────────── */}
-      <div className="card border border-navy/10 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white shadow-sm">
+      {/* ── Month Navigation Controls (Wireframe: [ < ] [ > ] [ Oct v ]) ── */}
+      <div className="card border border-blue-grey/20 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white shadow-sm">
         <div className="flex items-center space-x-3">
-          <div className="flex items-center space-x-1.5 bg-cream/70 px-2 py-1 rounded-xl border border-navy/10">
+          <div className="flex items-center space-x-1.5 bg-cream px-2 py-1 rounded-xl border border-blue-grey/20">
             <button
               data-testid="btn-prev-week"
               onClick={() => changeMonth(-1)}
-              className="p-1.5 rounded-lg hover:bg-white transition-colors text-navy-dark cursor-pointer"
+              className="p-1.5 rounded-lg hover:bg-white transition-colors text-text-primary"
               title="Previous Month"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
 
-            <span className="font-heading font-bold text-sm px-2 text-navy-dark min-w-[130px] text-center">
+            <span className="font-heading font-semibold text-sm px-2 text-text-primary min-w-[130px] text-center">
               {activeMonthLabel}
             </span>
 
             <button
               data-testid="btn-next-week"
               onClick={() => changeMonth(1)}
-              className="p-1.5 rounded-lg hover:bg-white transition-colors text-navy-dark cursor-pointer"
+              className="p-1.5 rounded-lg hover:bg-white transition-colors text-text-primary"
               title="Next Month"
             >
               <ChevronRight className="w-4 h-4" />
@@ -214,7 +218,7 @@ export const EmployeeAttendanceView: React.FC = () => {
           <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(Number(e.target.value))}
-            className="input py-1.5 px-3 text-xs bg-white w-36 font-bold font-mono"
+            className="input py-1.5 px-3 text-xs bg-white w-36 font-semibold"
           >
             {MONTH_NAMES.map((name, idx) => (
               <option key={idx} value={idx}>
@@ -223,35 +227,36 @@ export const EmployeeAttendanceView: React.FC = () => {
             ))}
           </select>
 
-          <span className="text-xs text-text-muted hidden md:inline font-mono">
-            Today: <span className="font-bold text-navy-dark">{todayFormattedHeading}</span>
+          {/* Today Indicator */}
+          <span className="text-xs text-text-muted hidden md:inline">
+            Today: <span className="font-semibold text-text-primary">{todayFormattedHeading}</span>
           </span>
         </div>
 
         <span className="text-xs font-mono text-text-muted">
-          Showing <span className="font-bold text-navy">{monthDays.length}</span> day-wise logs
+          Showing <span className="font-bold text-slate-brand">{monthDays.length}</span> day-wise logs
         </span>
       </div>
 
-      {/* ── Desktop Attendance Table ───────────────────────────────────── */}
-      <div data-testid="desktop-attendance-table" className="hidden md:block card border border-navy/10 overflow-hidden p-0 bg-white shadow-elevated rounded-3xl">
+      {/* ── Desktop Attendance Table (Wireframe Columns: Date | Check In | Check Out | Work Hours | Extra hours) ── */}
+      <div data-testid="desktop-attendance-table" className="hidden md:block card border border-blue-grey/20 overflow-hidden p-0 bg-white shadow-sm">
         <table className="w-full text-left text-sm">
-          <thead className="bg-cream/80 border-b border-navy/10 text-xs font-bold text-navy-dark uppercase tracking-wider font-mono">
+          <thead className="bg-cream/80 border-b border-blue-grey/20 text-xs font-bold text-text-muted uppercase tracking-wider">
             <tr>
-              <th className="py-4 px-6">Date</th>
-              <th className="py-4 px-6">Day</th>
-              <th className="py-4 px-6">Check In</th>
-              <th className="py-4 px-6">Check Out</th>
-              <th className="py-4 px-6">Work Hours</th>
-              <th className="py-4 px-6">Extra Hours</th>
-              <th className="py-4 px-6">Status</th>
+              <th className="py-3.5 px-6">Date</th>
+              <th className="py-3.5 px-6">Day</th>
+              <th className="py-3.5 px-6">Check In</th>
+              <th className="py-3.5 px-6">Check Out</th>
+              <th className="py-3.5 px-6">Work Hours</th>
+              <th className="py-3.5 px-6">Extra hours</th>
+              <th className="py-3.5 px-6">Status</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-navy/10">
+          <tbody className="divide-y divide-blue-grey/15">
             {isLoading ? (
               <tr>
                 <td colSpan={7} className="py-12 text-center text-text-muted">
-                  <div className="inline-block w-5 h-5 border-2 border-navy border-t-transparent rounded-full animate-spin mr-2" />
+                  <div className="inline-block w-5 h-5 border-2 border-slate-brand border-t-transparent rounded-full animate-spin mr-2" />
                   Loading monthly attendance records...
                 </td>
               </tr>
@@ -276,8 +281,8 @@ export const EmployeeAttendanceView: React.FC = () => {
                         : ''
                     }`}
                   >
-                    {/* Date */}
-                    <td className="py-3.5 px-6 font-mono text-xs font-bold text-navy-dark">
+                    {/* Date (DD/MM/YYYY) */}
+                    <td className="py-3.5 px-6 font-mono text-xs font-bold text-text-primary">
                       {item.formattedDate}
                     </td>
 
@@ -285,7 +290,7 @@ export const EmployeeAttendanceView: React.FC = () => {
                     <td className="py-3.5 px-6 text-xs text-text-muted font-medium">
                       {item.dayName}
                       {item.isToday && (
-                        <span className="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-navy text-white font-bold font-mono">
+                        <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded bg-slate-brand text-white font-bold">
                           Today
                         </span>
                       )}
@@ -304,7 +309,7 @@ export const EmployeeAttendanceView: React.FC = () => {
                     {/* Work Hours */}
                     <td className="py-3.5 px-6 font-mono text-xs">
                       {item.record?.workHours ? (
-                        <span className="font-bold text-navy">
+                        <span className="font-bold text-slate-brand">
                           {item.record.workHours.toFixed(1)} hrs
                         </span>
                       ) : (
@@ -315,7 +320,7 @@ export const EmployeeAttendanceView: React.FC = () => {
                     {/* Extra Hours */}
                     <td className="py-3.5 px-6 font-mono text-xs">
                       {item.record?.extraHours && item.record.extraHours > 0 ? (
-                        <span className="font-bold text-copper">
+                        <span className="font-bold text-sage-deep">
                           +{item.record.extraHours.toFixed(1)} hrs
                         </span>
                       ) : (
@@ -326,13 +331,13 @@ export const EmployeeAttendanceView: React.FC = () => {
                     {/* Status */}
                     <td className="py-3.5 px-6 text-xs">
                       {item.isWeekend ? (
-                        <span className="text-text-muted font-mono">Weekend</span>
+                        <span className="text-text-muted">Weekend</span>
                       ) : isPresent ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sage-light text-navy-dark border border-sage-deep/30 font-mono">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-sage-light text-text-primary">
                           Present
                         </span>
                       ) : item.isPastOrToday ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-terracotta-light text-terracotta border border-terracotta/30 font-mono">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-terracotta/20 text-terracotta">
                           Absent
                         </span>
                       ) : (
@@ -347,7 +352,7 @@ export const EmployeeAttendanceView: React.FC = () => {
         </table>
       </div>
 
-      {/* ── Mobile Attendance Cards ────────────────────────────────────── */}
+      {/* ── Mobile Attendance Cards (< md) ── */}
       <div data-testid="mobile-attendance-cards" className="block md:hidden space-y-3">
         {monthDays
           .filter((d) => d.isPastOrToday || d.isToday)
@@ -355,20 +360,20 @@ export const EmployeeAttendanceView: React.FC = () => {
           .map((item, idx) => (
             <div
               key={idx}
-              className={`card p-4 border border-navy/10 ${
+              className={`card p-4 border border-blue-grey/20 ${
                 item.isToday ? 'bg-sage-light/20 border-sage-deep/30' : 'bg-white'
               }`}
             >
-              <div className="flex items-center justify-between pb-2 border-b border-navy/10">
-                <span className="font-mono font-bold text-xs text-navy-dark">
+              <div className="flex items-center justify-between pb-2 border-b border-blue-grey/15">
+                <span className="font-mono font-bold text-xs text-text-primary">
                   {item.formattedDate} ({item.dayName})
                 </span>
                 {item.record?.checkIn ? (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sage-light text-navy-dark font-mono">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sage-light text-text-primary">
                     Present
                   </span>
                 ) : (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-terracotta-light text-terracotta font-mono">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-terracotta/20 text-terracotta">
                     Absent
                   </span>
                 )}
@@ -376,11 +381,11 @@ export const EmployeeAttendanceView: React.FC = () => {
               <div className="grid grid-cols-2 gap-2 text-xs pt-2 font-mono">
                 <div>
                   <span className="text-text-muted text-[11px] block">Check In:</span>
-                  <span className="text-navy-dark font-bold">{formatTime(item.record?.checkIn)}</span>
+                  <span>{formatTime(item.record?.checkIn)}</span>
                 </div>
                 <div>
                   <span className="text-text-muted text-[11px] block">Check Out:</span>
-                  <span className="text-navy-dark font-bold">{formatTime(item.record?.checkOut)}</span>
+                  <span>{formatTime(item.record?.checkOut)}</span>
                 </div>
               </div>
             </div>

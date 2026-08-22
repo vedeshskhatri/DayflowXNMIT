@@ -44,12 +44,12 @@ export const Navbar: React.FC = () => {
   const getStatusDotClass = (status?: string) => {
     switch (status) {
       case 'PRESENT':
-        return 'bg-sage-light shadow-[0_0_8px_rgba(200,214,175,0.9)]';
+        return 'bg-sage-light shadow-[0_0_8px_rgba(189,207,170,0.8)]';
       case 'ON_LEAVE':
-        return 'bg-copper-light shadow-[0_0_8px_rgba(217,148,82,0.9)]';
+        return 'bg-sage-deep shadow-[0_0_8px_rgba(142,158,131,0.8)]';
       case 'ABSENT':
       default:
-        return 'bg-terracotta shadow-[0_0_8px_rgba(200,100,70,0.9)]';
+        return 'bg-terracotta shadow-[0_0_8px_rgba(201,123,99,0.8)]';
     }
   };
 
@@ -67,212 +67,238 @@ export const Navbar: React.FC = () => {
 
   return (
     <>
-      <header
-        className="sticky top-0 z-40 bg-white/95 border-b border-navy/10 shadow-sm backdrop-blur-xl transition-all"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 gap-4">
-            {/* Left: Brand + Nav items */}
-            <div className="flex items-center space-x-6 lg:space-x-8 min-w-0">
-              <Link
-                to="/"
-                className="flex items-center space-x-2.5 group hover:bg-navy/5 rounded-2xl px-2 py-1 -mx-2 -my-1 transition-all flex-shrink-0"
-              >
-                <DayflowLogo size="md" />
-                <div className="flex flex-col">
-                  <span className="font-heading font-bold text-lg lg:text-xl tracking-tight text-navy-dark">
-                    Dayflow
-                  </span>
-                  <span className="text-[10px] text-text-muted font-bold font-mono -mt-1 tracking-wider uppercase truncate max-w-[120px]">
-                    {user?.company?.name || 'HRMS'}
-                  </span>
-                </div>
-              </Link>
+    <header
+      className="sticky top-0 z-40 bg-white/80 border-b border-blue-grey/40 shadow-sm backdrop-blur-xl"
+      style={{ boxShadow: '0 1px 0 0 rgba(167,183,198,0.4), inset 0 1px 0 0 rgba(255,255,255,0.9)' }}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          {/* Left: Brand + Nav items */}
+          <div className="flex items-center space-x-8">
+            <Link
+              to="/"
+              className="flex items-center space-x-3 group hover:bg-slate-brand/5 rounded-xl px-2 py-1 -mx-2 -my-1 transition-all"
+            >
+              <DayflowLogo size="md" />
+              <div className="flex flex-col">
+                <span className="font-heading font-bold text-xl tracking-tight text-text-primary">
+                  Dayflow
+                </span>
+                <span className="text-[10px] text-text-muted font-medium -mt-1 tracking-wider uppercase">
+                  {user?.company?.name || 'HRMS'}
+                </span>
+              </div>
+            </Link>
 
-              {/* Desktop Navigation */}
-              {user && (
-                <nav className="hidden md:flex items-center space-x-1.5">
-                  {navItems.map((item) => {
-                    const isActive = location.pathname.startsWith(item.path);
-                    const Icon = item.icon;
-                    return (
-                      <Link
-                        key={item.path}
-                        to={item.path}
-                        className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-heading font-bold transition-all ${
-                          isActive
-                            ? 'bg-navy text-white shadow-sm'
-                            : 'text-text-muted hover:text-navy-dark hover:bg-cream'
-                        }`}
-                      >
-                        <Icon className={`w-4 h-4 ${isActive ? 'text-copper-bright' : 'text-navy/50'}`} />
-                        <span>{item.name}</span>
-                      </Link>
-                    );
-                  })}
-                </nav>
-              )}
-            </div>
-
-            {/* Right: Actions, Streak & User Profile */}
-            {user ? (
-              <div className="flex items-center space-x-3 sm:space-x-4">
-                {/* Attendance Quick Punch Widget */}
-                <div className="hidden sm:block">
-                  <AttendanceControl compact />
-                </div>
-
-                {/* Gamification Streak & Points Counter in Navbar */}
-                <StreakWidget />
-
-                {/* Profile Pill & Dropdown */}
-                <div className="relative" ref={dropdownRef}>
-                  <button
-                    onClick={() => setProfileDropdownOpen((prev) => !prev)}
-                    className="flex items-center space-x-2.5 p-1.5 pr-3 rounded-2xl border border-navy/10 bg-cream-light hover:bg-cream hover:border-navy/20 transition-all cursor-pointer shadow-sm"
-                  >
-                    {/* Avatar / Initials */}
-                    {user.profilePicUrl ? (
-                      <img
-                        src={user.profilePicUrl}
-                        alt={`${user.firstName} ${user.lastName}`}
-                        className="w-8 h-8 rounded-xl object-cover ring-1 ring-navy/20"
-                      />
-                    ) : (
-                      <div className="w-8 h-8 rounded-xl bg-navy text-white font-heading font-bold text-xs flex items-center justify-center ring-1 ring-navy/20">
-                        {user.firstName?.[0] || 'U'}
-                      </div>
-                    )}
-
-                    {/* Name & Role */}
-                    <div className="hidden lg:flex flex-col text-left">
-                      <span className="text-xs font-heading font-bold text-navy-dark leading-tight">
-                        {user.firstName} {user.lastName}
-                      </span>
-                      <span className="text-[10px] text-text-muted font-bold font-mono">
-                        {user.role === 'ADMIN' ? 'Admin' : user.role === 'HR_OFFICER' ? 'HR Officer' : 'Employee'}
-                      </span>
-                    </div>
-
-                    <ChevronDown className="w-3.5 h-3.5 text-navy/40" />
-                  </button>
-
-                  {/* Profile Dropdown Menu */}
-                  {profileDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-64 rounded-3xl bg-white border border-navy/10 shadow-modal p-2 animate-scaleUp z-50">
-                      {/* User Bio Header */}
-                      <div className="p-3 border-b border-navy/10 bg-cream-light rounded-2xl mb-1">
-                        <p className="font-heading font-bold text-sm text-navy-dark">
-                          {user.firstName} {user.lastName}
-                        </p>
-                        <p className="text-xs text-text-muted font-mono">{user.email}</p>
-                        <div className="mt-2 flex items-center space-x-1.5">
-                          <span className={`w-2 h-2 rounded-full ${getStatusDotClass(user.status)}`} />
-                          <span className="text-[10px] font-bold text-navy-dark uppercase font-mono">
-                            {getStatusLabel(user.status)}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Menu Links */}
-                      <Link
-                        to="/profile"
-                        onClick={() => setProfileDropdownOpen(false)}
-                        className="flex items-center space-x-2.5 px-3 py-2 text-xs font-bold text-navy-dark hover:bg-cream rounded-xl transition-colors"
-                      >
-                        <User className="w-4 h-4 text-copper" />
-                        <span>My Profile</span>
-                      </Link>
-
-                      {user.role === 'ADMIN' && (
-                        <div className="px-3 py-1.5 text-[10px] text-copper-dark font-bold font-mono bg-copper-muted rounded-xl my-1 flex items-center space-x-1 border border-copper/30">
-                          <ShieldCheck className="w-3 h-3 text-copper" />
-                          <span>Admin Access Enabled</span>
-                        </div>
+            {/* Desktop Navigation */}
+            {user && (
+              <nav className="hidden md:flex items-center space-x-1">
+                {navItems.map((item) => {
+                  const isActive = location.pathname.startsWith(item.path);
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      className={`relative flex items-center space-x-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all ${
+                        isActive
+                          ? 'bg-slate-brand/12 text-slate-brand font-semibold'
+                          : 'text-text-muted hover:text-text-primary hover:bg-cream/60'
+                      }`}
+                    >
+                      <Icon className={`w-4 h-4 ${isActive ? 'text-slate-brand' : 'text-blue-grey'}`} />
+                      <span>{item.name}</span>
+                      {isActive && (
+                        <span className="absolute bottom-0 left-3.5 right-3.5 h-0.5 bg-slate-brand rounded-full" />
                       )}
-
-                      <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center space-x-2.5 px-3 py-2 text-xs font-bold text-terracotta hover:bg-terracotta-light rounded-xl transition-colors cursor-pointer text-left"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        <span>Sign Out</span>
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Mobile Hamburger Button */}
-                <button
-                  onClick={() => setMobileMenuOpen((prev) => !prev)}
-                  className="md:hidden p-2 rounded-xl text-navy-dark hover:bg-cream"
-                >
-                  {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-                </button>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-3">
-                <Link
-                  to="/login"
-                  className="text-xs font-heading font-bold text-navy-dark hover:text-navy px-3 py-2"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  to="/signup"
-                  className="btn-navy py-2 px-4 text-xs font-bold shadow-sm"
-                >
-                  Register Company
-                </Link>
-              </div>
+                    </Link>
+                  );
+                })}
+              </nav>
             )}
           </div>
-        </div>
 
-        {/* Mobile Dropdown Menu */}
-        {mobileMenuOpen && user && (
-          <div className="md:hidden border-t border-navy/10 bg-white px-4 pt-3 pb-5 space-y-3 shadow-modal animate-fadeIn">
-            <div className="mb-3">
-              <AttendanceControl />
+          {/* Right: Streak Widget + Presence + Profile */}
+          {user ? (
+            <div className="hidden md:flex items-center space-x-4">
+              {/* Gamification: Streak + Points */}
+              <StreakWidget />
+
+              {/* Presence Status Pill */}
+              <div className="flex items-center space-x-2 bg-white/60 backdrop-blur-sm border border-blue-grey/20 rounded-full px-3 py-1 text-xs">
+                <span
+                  className={`w-2.5 h-2.5 rounded-full ${getStatusDotClass(user.status)} ${
+                    user.status === 'PRESENT' ? 'animate-pulse' : ''
+                  }`}
+                />
+                <span className="font-medium text-text-primary">{getStatusLabel(user.status)}</span>
+              </div>
+
+              {/* User Profile Avatar with Interactive Dropdown */}
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                  className="flex items-center space-x-2.5 pl-2 py-1 pr-2 rounded-xl border border-transparent hover:border-blue-grey/20 hover:bg-cream/60 transition-all group"
+                  title="User Menu"
+                >
+                  <div className="w-9 h-9 rounded-full bg-slate-brand/15 text-slate-brand font-heading font-bold flex items-center justify-center text-sm border border-slate-brand/30 shadow-sm group-hover:scale-105 transition-transform">
+                    {user.firstName[0]}
+                    {user.lastName[0]}
+                  </div>
+                  <div className="flex flex-col text-left">
+                    <div className="flex items-center space-x-1.5">
+                      <span className="text-sm font-semibold text-text-primary leading-none group-hover:text-slate-brand transition-colors">
+                        {user.firstName} {user.lastName}
+                      </span>
+                      {user.role !== 'EMPLOYEE' && (
+                        <span className="inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-brand/15 text-slate-brand">
+                          <ShieldCheck className="w-3 h-3 mr-0.5" />
+                          {user.role}
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-xs text-text-muted mt-0.5">{user.loginId}</span>
+                  </div>
+                  <ChevronDown className={`w-4 h-4 text-blue-grey transition-transform duration-300 ${profileDropdownOpen ? 'rotate-180 text-slate-brand' : ''}`} />
+                </button>
+
+                {/* Dropdown Menu (Wireframe: My Profile, Log Out) */}
+                {profileDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-modal border border-blue-grey/20 py-2 z-50 animate-fadeIn">
+                    <div className="px-4 py-2 border-b border-blue-grey/15 mb-1">
+                      <p className="text-xs font-semibold text-text-primary truncate">
+                        {user.firstName} {user.lastName}
+                      </p>
+                      <p className="text-[11px] text-text-muted font-mono">{user.loginId}</p>
+                    </div>
+
+                    <Link
+                      to="/profile"
+                      onClick={() => setProfileDropdownOpen(false)}
+                      className="flex items-center space-x-2.5 px-4 py-2.5 text-sm text-text-primary hover:bg-cream hover:text-slate-brand transition-colors"
+                    >
+                      <User className="w-4 h-4 text-slate-brand" />
+                      <span className="font-medium">My Profile</span>
+                    </Link>
+
+                    <div className="border-t border-blue-grey/15 my-1" />
+
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="w-full flex items-center space-x-2.5 px-4 py-2.5 text-sm text-terracotta hover:bg-terracotta/10 transition-colors text-left"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span className="font-medium">Log Out</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
-
-            <nav className="space-y-1">
-              {navItems.map((item) => {
-                const isActive = location.pathname.startsWith(item.path);
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-heading font-bold ${
-                      isActive
-                        ? 'bg-navy text-white'
-                        : 'text-text-muted hover:text-navy-dark hover:bg-cream'
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span>{item.name}</span>
-                  </Link>
-                );
-              })}
-            </nav>
-
-            <div className="pt-3 border-t border-navy/10">
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center space-x-2 px-4 py-2 text-xs font-bold text-terracotta hover:bg-terracotta-light rounded-xl"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Sign Out</span>
-              </button>
+          ) : (
+            <div className="hidden md:flex items-center">
+              <Link to="/login" className="btn-primary text-sm py-2 px-4">
+                Sign In
+              </Link>
             </div>
+          )}
+
+          {/* Mobile hamburger button */}
+          <div className="md:hidden flex items-center">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-xl text-text-primary hover:bg-cream"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6 text-slate-brand" />}
+            </button>
           </div>
-        )}
-      </header>
+        </div>
+      </div>
 
-      {/* Real-time points award sound & toast notifications */}
-      {socket && <PointsToast socket={socket} />}
+      {/* Mobile dropdown menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden bg-white border-b border-blue-grey/30 px-4 pt-2 pb-4 space-y-3 shadow-lg animate-fadeIn">
+          {user ? (
+            <>
+              <div className="flex items-center justify-between pb-3 border-b border-blue-grey/20">
+                <Link
+                  to="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center space-x-3"
+                >
+                  <div className="w-10 h-10 rounded-full bg-slate-brand/15 text-slate-brand font-bold flex items-center justify-center">
+                    {user.firstName[0]}
+                    {user.lastName[0]}
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold text-text-primary hover:text-slate-brand">
+                      {user.firstName} {user.lastName}
+                    </div>
+                    <div className="text-xs text-text-muted">{user.loginId}</div>
+                  </div>
+                </Link>
+                <div className="flex items-center space-x-1.5 bg-cream px-2.5 py-1 rounded-full text-xs">
+                  <span className={`w-2 h-2 rounded-full ${getStatusDotClass(user.status)}`} />
+                  <span className="font-medium">{getStatusLabel(user.status)}</span>
+                </div>
+              </div>
+
+              {/* Mobile Check In / Check Out Systray */}
+              <div className="py-2 border-b border-blue-grey/15 flex justify-center">
+                <AttendanceControl />
+              </div>
+
+              <div className="space-y-1">
+                {navItems.map((item) => {
+                  const isActive = location.pathname.startsWith(item.path);
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium ${
+                        isActive
+                          ? 'bg-slate-brand/10 text-slate-brand font-semibold'
+                          : 'text-text-primary hover:bg-cream'
+                      }`}
+                    >
+                      <Icon className="w-5 h-5 text-slate-brand" />
+                      <span>{item.name}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+
+              <div className="pt-2">
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    handleLogout();
+                  }}
+                  className="w-full flex items-center justify-center space-x-2 py-2.5 rounded-xl text-sm font-medium text-terracotta bg-terracotta/10 hover:bg-terracotta/20 transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Log out</span>
+                </button>
+              </div>
+            </>
+          ) : (
+            <Link
+              to="/login"
+              onClick={() => setMobileMenuOpen(false)}
+              className="btn-primary w-full text-center block"
+            >
+              Sign In
+            </Link>
+          )}
+        </div>
+      )}
+    </header>
+    {/* Gamification: Floating points toast + streak alerts (global, above everything) */}
+    {user && <PointsToast socket={socket} />}
     </>
   );
 };

@@ -19,7 +19,7 @@ type Tab = 'about' | 'private' | 'salary' | 'security';
 
 interface EmployeeProfileViewProps {
   employeeId: string;
-  editable?: boolean;
+  editable?: boolean; // false for read-only view in directory
 }
 
 interface Tag {
@@ -127,6 +127,7 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
   const watchedCertifications = watch('certifications') || [];
   const watchedProfilePicUrl = watch('profilePicUrl');
 
+  // Handle local device image file upload to Base64
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPhotoError(null);
     const file = e.target.files?.[0];
@@ -158,6 +159,7 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
     if (photoInputRef.current) photoInputRef.current.value = '';
   };
 
+  // Populate form with current values
   useEffect(() => {
     if (profile) {
       reset({
@@ -229,8 +231,8 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
   if (isLoading) {
     return (
       <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
-        <div className="card h-40 animate-pulse bg-white border border-navy/10" />
-        <div className="card h-64 animate-pulse bg-white border border-navy/10" />
+        <div className="card h-40 animate-pulse bg-white/60 border border-blue-grey/10" />
+        <div className="card h-64 animate-pulse bg-white/60 border border-blue-grey/10" />
       </div>
     );
   }
@@ -239,7 +241,7 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
     return (
       <div className="max-w-5xl mx-auto px-4 py-8">
         <div className="card p-12 text-center text-terracotta bg-white border border-terracotta/20">
-          <p className="font-heading font-bold text-lg">Failed to load profile</p>
+          <p className="font-heading font-semibold text-lg">Failed to load profile</p>
           <p className="text-xs text-text-muted mt-1">Please ensure the employee ID is valid.</p>
         </div>
       </div>
@@ -273,91 +275,91 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fadeIn">
-      {/* ── HEADER PROFILE SUMMARY ────────────────────────────────────── */}
-      <div className="p-8 rounded-3xl bg-white border border-navy/10 shadow-elevated flex flex-col md:flex-row items-center md:items-start gap-8">
+      {/* ── HEADER PROFILE SUMMARY (Master Wireframe Alignment) ───────── */}
+      <div className="p-6 rounded-3xl bg-white border border-blue-grey/20 shadow-sm flex flex-col md:flex-row items-center md:items-start gap-6">
         {/* Avatar with Edit Camera Overlay */}
         <div
           className={`relative group flex-shrink-0 ${editable ? 'cursor-pointer' : ''}`}
           onClick={() => {
             if (editable) photoInputRef.current?.click();
           }}
-          title={editable ? 'Click to upload profile photo' : undefined}
+          title={editable ? 'Click to upload profile photo from device' : undefined}
         >
           {(watchedProfilePicUrl || profile.profilePicUrl) ? (
             <img
               src={watchedProfilePicUrl || profile.profilePicUrl || ''}
               alt={fullName}
-              className="w-28 h-28 rounded-3xl object-cover ring-4 ring-navy/10 shadow-md group-hover:scale-105 transition-transform"
+              className="w-24 h-24 rounded-full object-cover ring-4 ring-blue-grey/20 shadow-sm"
             />
           ) : (
-            <div className="w-28 h-28 rounded-3xl bg-navy text-white font-heading font-bold text-3xl flex items-center justify-center ring-4 ring-navy/10 shadow-md border border-copper/30 group-hover:scale-105 transition-transform">
+            <div className="w-24 h-24 rounded-full bg-slate-brand/15 text-slate-brand font-heading font-bold text-2xl flex items-center justify-center ring-4 ring-blue-grey/20 shadow-sm">
               {initials}
             </div>
           )}
 
           {editable && (
             <div
-              className="absolute -bottom-1 -right-1 p-2 rounded-2xl bg-navy text-white shadow-md border-2 border-white hover:bg-navy-dark transition-colors cursor-pointer"
-              title="Upload profile photo"
+              className="absolute bottom-0 right-0 p-1.5 rounded-full bg-slate-brand text-white shadow-md border-2 border-white group-hover:bg-slate-brand/90 transition-colors"
+              title="Upload profile photo from device"
             >
-              <Camera className="w-4 h-4 text-copper-bright" />
+              <Camera className="w-3.5 h-3.5" />
             </div>
           )}
         </div>
 
-        {/* Header Details */}
+        {/* Header Details (Left & Right 2-Column Columns) */}
         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
           {/* Left Column: Name, Job Position, Email, Mobile */}
-          <div className="space-y-3">
-            <div className="flex items-center space-x-2.5">
-              <h1 className="text-2xl font-heading font-bold text-navy-dark" data-testid="profile-name">
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <h1 className="text-2xl font-heading font-bold text-text-primary" data-testid="profile-name">
                 {fullName}
               </h1>
-              <span className="inline-block px-3 py-0.5 rounded-full text-[10px] font-bold bg-copper-muted text-copper-dark border border-copper/30 uppercase tracking-wider font-mono">
+              <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sage-light/40 text-sage-deep border border-sage-deep/20 uppercase tracking-wide">
                 {profile.role.replace('_', ' ')}
               </span>
             </div>
 
-            <div className="space-y-2 text-xs text-text-muted pt-1">
-              <div className="flex items-center justify-between border-b border-navy/10 pb-1.5">
-                <span className="font-bold text-navy-dark font-mono uppercase text-[11px]">Job Position</span>
-                <span className="font-semibold text-text-primary">{profile.jobTitle || 'Team Member'}</span>
+            <div className="space-y-1.5 text-xs text-text-muted pt-1">
+              <div className="flex items-center justify-between border-b border-blue-grey/20 pb-1">
+                <span className="font-semibold text-text-primary">Job Position</span>
+                <span className="font-medium text-text-primary">{profile.jobTitle || 'Product Designer'}</span>
               </div>
-              <div className="flex items-center justify-between border-b border-navy/10 pb-1.5">
-                <span className="font-bold text-navy-dark font-mono uppercase text-[11px]">Work Email</span>
+              <div className="flex items-center justify-between border-b border-blue-grey/20 pb-1">
+                <span className="font-semibold text-text-primary">Email</span>
                 <span className="font-mono text-text-primary">{profile.email}</span>
               </div>
-              <div className="flex items-center justify-between border-b border-navy/10 pb-1.5">
-                <span className="font-bold text-navy-dark font-mono uppercase text-[11px]">Mobile</span>
+              <div className="flex items-center justify-between border-b border-blue-grey/20 pb-1">
+                <span className="font-semibold text-text-primary">Mobile</span>
                 <span className="font-mono text-text-primary">{profile.phone || '9876543210'}</span>
               </div>
             </div>
           </div>
 
           {/* Right Column: Company, Department, Manager, Location */}
-          <div className="space-y-2 text-xs text-text-muted md:border-l md:border-navy/10 md:pl-6 pt-1 md:pt-8">
-            <div className="flex items-center justify-between border-b border-navy/10 pb-1.5">
-              <span className="font-bold text-navy-dark font-mono uppercase text-[11px]">Company</span>
-              <span className="font-semibold text-text-primary">{user?.company?.name || 'Dayflow HRMS'}</span>
+          <div className="space-y-1.5 text-xs text-text-muted md:border-l md:border-blue-grey/20 md:pl-6 pt-1 md:pt-8">
+            <div className="flex items-center justify-between border-b border-blue-grey/20 pb-1">
+              <span className="font-semibold text-text-primary">Company</span>
+              <span className="font-medium text-text-primary">Dayflow HRMS</span>
             </div>
-            <div className="flex items-center justify-between border-b border-navy/10 pb-1.5">
-              <span className="font-bold text-navy-dark font-mono uppercase text-[11px]">Department</span>
-              <span className="font-semibold text-text-primary">{profile.department || 'Engineering'}</span>
+            <div className="flex items-center justify-between border-b border-blue-grey/20 pb-1">
+              <span className="font-semibold text-text-primary">Department</span>
+              <span className="font-medium text-text-primary">{profile.department || 'Design'}</span>
             </div>
-            <div className="flex items-center justify-between border-b border-navy/10 pb-1.5">
-              <span className="font-bold text-navy-dark font-mono uppercase text-[11px]">Login ID</span>
-              <span className="font-mono font-bold text-navy">{profile.loginId}</span>
+            <div className="flex items-center justify-between border-b border-blue-grey/20 pb-1">
+              <span className="font-semibold text-text-primary">Manager</span>
+              <span className="font-medium text-text-primary">Alok Verma</span>
             </div>
-            <div className="flex items-center justify-between border-b border-navy/10 pb-1.5">
-              <span className="font-bold text-navy-dark font-mono uppercase text-[11px]">Location</span>
-              <span className="font-semibold text-text-primary">India (HQ)</span>
+            <div className="flex items-center justify-between border-b border-blue-grey/20 pb-1">
+              <span className="font-semibold text-text-primary">Location</span>
+              <span className="font-medium text-text-primary">India (HQ)</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── TABS NAVIGATION ────────────────────────────────────────────── */}
-      <div className="flex space-x-2 p-1.5 bg-white rounded-2xl border border-navy/10 shadow-sm">
+      {/* ── TABS NAVIGATION (Resume, Private Info, Salary Info, Security) ─ */}
+      <div className="flex space-x-2 p-1.5 bg-white rounded-2xl border border-blue-grey/20 shadow-sm">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
@@ -365,10 +367,10 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               data-testid={`tab-button-${tab.id}`}
-              className={`flex-1 py-2.5 text-xs font-heading font-bold rounded-xl transition-all cursor-pointer ${
+              className={`flex-1 py-2.5 text-xs font-heading font-bold rounded-xl transition-all ${
                 isActive
-                  ? 'bg-navy text-white shadow-sm'
-                  : 'text-text-muted hover:text-navy-dark hover:bg-cream'
+                  ? 'bg-slate-brand text-white shadow-sm'
+                  : 'text-text-muted hover:text-text-primary hover:bg-cream'
               }`}
             >
               {tab.label}
@@ -378,7 +380,7 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
       </div>
 
       {/* ── TAB CONTENT ────────────────────────────────────────────── */}
-      <div className="p-8 rounded-3xl bg-white border border-navy/10 shadow-elevated">
+      <div className="p-6 rounded-3xl bg-white border border-blue-grey/20 shadow-sm">
         {editable ? (
           <form
             onSubmit={handleSubmit(onSubmit)}
@@ -387,7 +389,7 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
           >
             {/* ── RESUME / ABOUT TAB ──────────────────────────────────── */}
             {activeTab === 'about' && (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <div className="lg:col-span-7 space-y-4">
                   <div>
                     <label className="label text-[11px] mb-1">About :-</label>
@@ -396,7 +398,7 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
                       data-testid="input-bio"
                       rows={3}
                       className="input resize-none text-xs"
-                      placeholder="Share a brief introduction about yourself..."
+                      placeholder="Share a brief introduction about yourself and your professional journey..."
                     />
                     {errors.bio && <p className="error-text">{errors.bio.message}</p>}
                   </div>
@@ -420,13 +422,13 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
                       data-testid="input-interests"
                       rows={2}
                       className="input resize-none text-xs"
-                      placeholder="Books, hiking, music, coding..."
+                      placeholder="Books, hiking, music, coding, design..."
                     />
                     {errors.interests && <p className="error-text">{errors.interests.message}</p>}
                   </div>
                 </div>
 
-                <div className="lg:col-span-5 space-y-5 lg:border-l lg:border-navy/10 lg:pl-8">
+                <div className="lg:col-span-5 space-y-5 lg:border-l lg:border-blue-grey/20 lg:pl-6">
                   <div>
                     <TagInput
                       label="Skills & Expertise :-"
@@ -434,7 +436,7 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
                       onChange={(newSkills) =>
                         setValue('skills', newSkills, { shouldDirty: true, shouldValidate: true })
                       }
-                      placeholder="e.g. Figma, React, TypeScript..."
+                      placeholder="e.g. Figma, React, Design Systems..."
                     />
                   </div>
 
@@ -445,89 +447,99 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
                       onChange={(newCerts) =>
                         setValue('certifications', newCerts, { shouldDirty: true, shouldValidate: true })
                       }
-                      placeholder="e.g. AWS Solutions Architect, PMP..."
+                      placeholder="e.g. AWS Certified, PMP..."
                     />
                   </div>
                 </div>
               </div>
             )}
 
-            {/* ── PRIVATE INFO TAB ────────────────────────────────────── */}
+            {/* ── PRIVATE INFO TAB (Exact Wireframe 2-Column Layout) ──── */}
             {activeTab === 'private' && (
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                {/* Left Column: Personal & Contact Wireframe Fields */}
                 <div className="lg:col-span-6 space-y-4 text-xs">
-                  <div className="flex items-center justify-between border-b border-navy/10 pb-2">
-                    <span className="font-bold text-navy-dark font-mono uppercase text-[11px]">Date of Birth</span>
+                  {/* 1. Date of Birth */}
+                  <div className="flex items-center justify-between border-b border-blue-grey/20 pb-2">
+                    <span className="font-semibold text-text-primary">Date of Birth</span>
                     <span className="font-mono text-text-primary">{formattedDob}</span>
                   </div>
 
-                  <div className="border-b border-navy/10 pb-2 space-y-1">
-                    <label className="font-bold text-navy-dark block font-mono uppercase text-[11px]">Residing Address</label>
+                  {/* 2. Residing Address */}
+                  <div className="border-b border-blue-grey/20 pb-2 space-y-1">
+                    <label className="font-semibold text-text-primary block">Residing Address</label>
                     <input
                       {...register('address')}
                       data-testid="input-address"
                       type="text"
-                      className="w-full text-xs font-medium text-text-primary bg-transparent outline-none border-b border-navy/30 pb-0.5"
+                      className="w-full text-xs font-medium text-text-primary bg-transparent outline-none border-b border-slate-brand/40 pb-0.5"
                       placeholder="Enter residing address..."
                     />
                     {errors.address && <p className="error-text">{errors.address.message}</p>}
                   </div>
 
-                  <div className="flex items-center justify-between border-b border-navy/10 pb-2">
-                    <span className="font-bold text-navy-dark font-mono uppercase text-[11px]">Nationality</span>
+                  {/* 3. Nationality */}
+                  <div className="flex items-center justify-between border-b border-blue-grey/20 pb-2">
+                    <span className="font-semibold text-text-primary">Nationality</span>
                     <span className="font-medium text-text-primary">Indian</span>
                   </div>
 
-                  <div className="flex items-center justify-between border-b border-navy/10 pb-2">
-                    <span className="font-bold text-navy-dark font-mono uppercase text-[11px]">Personal Email</span>
+                  {/* 4. Personal Email */}
+                  <div className="flex items-center justify-between border-b border-blue-grey/20 pb-2">
+                    <span className="font-semibold text-text-primary">Personal Email</span>
                     <span className="font-mono text-text-primary">
                       {`${profile.firstName.toLowerCase()}.personal@dayflow.internal`}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between border-b border-navy/10 pb-2">
-                    <span className="font-bold text-navy-dark font-mono uppercase text-[11px]">Gender</span>
+                  {/* 5. Gender */}
+                  <div className="flex items-center justify-between border-b border-blue-grey/20 pb-2">
+                    <span className="font-semibold text-text-primary">Gender</span>
                     <span className="font-medium text-text-primary">{profile.gender || 'Female'}</span>
                   </div>
 
-                  <div className="flex items-center justify-between border-b border-navy/10 pb-2">
-                    <span className="font-bold text-navy-dark font-mono uppercase text-[11px]">Marital Status</span>
+                  {/* 6. Marital Status */}
+                  <div className="flex items-center justify-between border-b border-blue-grey/20 pb-2">
+                    <span className="font-semibold text-text-primary">Marital Status</span>
                     <span className="font-medium text-text-primary">{profile.maritalStatus || 'Single'}</span>
                   </div>
 
-                  <div className="flex items-center justify-between border-b border-navy/10 pb-2">
-                    <span className="font-bold text-navy-dark font-mono uppercase text-[11px]">Date of Joining</span>
+                  {/* 7. Date of Joining */}
+                  <div className="flex items-center justify-between border-b border-blue-grey/20 pb-2">
+                    <span className="font-semibold text-text-primary">Date of Joining</span>
                     <span className="font-mono text-text-primary">{formattedDoj}</span>
                   </div>
 
-                  <div className="border-b border-navy/10 pb-2 space-y-1">
-                    <label className="font-bold text-navy-dark block font-mono uppercase text-[11px]">Phone Number</label>
+                  {/* Phone Number Input */}
+                  <div className="border-b border-blue-grey/20 pb-2 space-y-1">
+                    <label className="font-semibold text-text-primary block">Phone Number (10 digits)</label>
                     <input
                       {...register('phone')}
                       data-testid="input-phone"
                       type="tel"
-                      className="w-full text-xs font-mono font-medium text-text-primary bg-transparent outline-none border-b border-navy/30 pb-0.5"
+                      className="w-full text-xs font-mono font-medium text-text-primary bg-transparent outline-none border-b border-slate-brand/40 pb-0.5"
                       placeholder="9876543210"
                     />
                     {errors.phone && <p data-testid="error-phone" className="error-text">{errors.phone.message}</p>}
                   </div>
 
+                  {/* Profile Photo Upload */}
                   <div className="pt-2 space-y-2">
-                    <label className="font-bold text-navy-dark block font-mono uppercase text-[11px]">Profile Photo</label>
+                    <label className="font-semibold text-text-primary block">Profile Photo</label>
                     <div className="flex items-center space-x-3">
                       <button
                         type="button"
                         onClick={() => photoInputRef.current?.click()}
-                        className="btn-secondary text-xs flex items-center space-x-2 py-1.5 px-3"
+                        className="btn-secondary text-xs flex items-center space-x-2 py-1.5 px-3 shadow-xs hover:border-slate-brand transition-all"
                       >
-                        <Upload className="w-3.5 h-3.5 text-navy" />
+                        <Upload className="w-3.5 h-3.5 text-slate-brand" />
                         <span>Upload Photo from Device</span>
                       </button>
                       {(watchedProfilePicUrl || profile.profilePicUrl) && (
                         <button
                           type="button"
                           onClick={handleRemovePhoto}
-                          className="text-xs text-terracotta hover:underline font-semibold cursor-pointer"
+                          className="text-xs text-terracotta hover:underline font-semibold"
                         >
                           Remove Photo
                         </button>
@@ -546,43 +558,49 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
                   </div>
                 </div>
 
-                {/* Right Column: Bank Details */}
-                <div className="lg:col-span-6 space-y-4 lg:border-l lg:border-navy/10 lg:pl-8">
-                  <div className="pb-2 border-b-2 border-navy/15">
-                    <h4 className="font-heading font-bold text-sm text-navy-dark">
+                {/* Right Column: Bank Details Header with Underline */}
+                <div className="lg:col-span-6 space-y-4 lg:border-l lg:border-blue-grey/20 lg:pl-8">
+                  <div className="pb-2 border-b-2 border-blue-grey/20">
+                    <h4 className="font-heading font-bold text-sm text-text-primary">
                       Bank Details
                     </h4>
                   </div>
 
-                  <div className="space-y-4 text-xs font-mono">
-                    <div className="flex items-center justify-between border-b border-navy/10 pb-2">
-                      <span className="font-sans font-bold text-navy-dark uppercase text-[11px]">Account Number</span>
-                      <span className="font-bold text-navy-dark">**** **** 4892</span>
+                  <div className="space-y-4 text-xs">
+                    {/* Account Number */}
+                    <div className="flex items-center justify-between border-b border-blue-grey/20 pb-2">
+                      <span className="font-semibold text-text-primary">Account Number</span>
+                      <span className="font-mono font-bold text-text-primary">**** **** 4892</span>
                     </div>
 
-                    <div className="flex items-center justify-between border-b border-navy/10 pb-2">
-                      <span className="font-sans font-bold text-navy-dark uppercase text-[11px]">Bank Name</span>
-                      <span className="font-sans font-medium text-text-primary">HDFC Bank Ltd.</span>
+                    {/* Bank Name */}
+                    <div className="flex items-center justify-between border-b border-blue-grey/20 pb-2">
+                      <span className="font-semibold text-text-primary">Bank Name</span>
+                      <span className="font-medium text-text-primary">HDFC Bank Ltd.</span>
                     </div>
 
-                    <div className="flex items-center justify-between border-b border-navy/10 pb-2">
-                      <span className="font-sans font-bold text-navy-dark uppercase text-[11px]">IFSC Code</span>
-                      <span className="font-bold text-copper">HDFC0001234</span>
+                    {/* IFSC Code */}
+                    <div className="flex items-center justify-between border-b border-blue-grey/20 pb-2">
+                      <span className="font-semibold text-text-primary">IFSC Code</span>
+                      <span className="font-mono font-bold text-slate-brand">HDFC0001234</span>
                     </div>
 
-                    <div className="flex items-center justify-between border-b border-navy/10 pb-2">
-                      <span className="font-sans font-bold text-navy-dark uppercase text-[11px]">PAN No</span>
-                      <span className="font-bold text-navy-dark">ABCDE1234F</span>
+                    {/* PAN No */}
+                    <div className="flex items-center justify-between border-b border-blue-grey/20 pb-2">
+                      <span className="font-semibold text-text-primary">PAN No</span>
+                      <span className="font-mono font-bold text-text-primary">ABCDE1234F</span>
                     </div>
 
-                    <div className="flex items-center justify-between border-b border-navy/10 pb-2">
-                      <span className="font-sans font-bold text-navy-dark uppercase text-[11px]">UAN NO</span>
-                      <span className="font-bold text-navy-dark">100987654321</span>
+                    {/* UAN NO */}
+                    <div className="flex items-center justify-between border-b border-blue-grey/20 pb-2">
+                      <span className="font-semibold text-text-primary">UAN NO</span>
+                      <span className="font-mono font-bold text-text-primary">100987654321</span>
                     </div>
 
-                    <div className="flex items-center justify-between border-b border-navy/10 pb-2">
-                      <span className="font-sans font-bold text-navy-dark uppercase text-[11px]">Emp Code</span>
-                      <span className="font-bold text-copper">{profile.loginId}</span>
+                    {/* Emp Code */}
+                    <div className="flex items-center justify-between border-b border-blue-grey/20 pb-2">
+                      <span className="font-semibold text-text-primary">Emp Code</span>
+                      <span className="font-mono font-bold text-slate-brand">{profile.loginId}</span>
                     </div>
                   </div>
                 </div>
@@ -594,11 +612,11 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
               <SalaryInfoTab employeeId={employeeId} />
             )}
 
-            {/* ── SECURITY TAB ───────────────────────────────────────── */}
+            {/* ── SECURITY TAB (Password Rules & Change Password) ──── */}
             {activeTab === 'security' && (
               <div className="max-w-lg space-y-6">
                 <div>
-                  <h4 className="font-heading font-bold text-base text-navy-dark">
+                  <h4 className="font-heading font-bold text-sm text-text-primary">
                     Security & Password
                   </h4>
                   <p className="text-xs text-text-muted mt-1">
@@ -607,14 +625,14 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
                 </div>
 
                 {pwdMsg && (
-                  <div className="p-3.5 rounded-xl bg-sage-light/30 border border-sage-deep/30 flex items-center space-x-2 text-xs text-navy-dark font-bold animate-fadeIn">
-                    <CheckCircle2 className="w-4 h-4 flex-shrink-0 text-sage-deep" />
+                  <div className="p-3.5 rounded-xl bg-sage-light/30 border border-sage-deep/30 flex items-center space-x-2 text-xs text-sage-deep font-semibold animate-fadeIn">
+                    <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
                     <span>{pwdMsg}</span>
                   </div>
                 )}
 
                 {pwdError && (
-                  <div className="p-3.5 rounded-xl bg-terracotta-light border border-terracotta/20 flex items-center space-x-2 text-xs text-terracotta animate-fadeIn">
+                  <div className="p-3.5 rounded-xl bg-terracotta/10 border border-terracotta/20 flex items-center space-x-2 text-xs text-terracotta animate-fadeIn">
                     <AlertCircle className="w-4 h-4 flex-shrink-0" />
                     <span>{pwdError}</span>
                   </div>
@@ -628,7 +646,7 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Enter new password"
-                      className="input py-2 text-xs w-full font-mono"
+                      className="input py-2 text-xs w-full font-mono bg-cream/30"
                     />
                   </div>
 
@@ -639,7 +657,7 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Confirm new password"
-                      className={`input py-2 text-xs w-full font-mono ${
+                      className={`input py-2 text-xs w-full font-mono bg-cream/30 ${
                         confirmPassword && newPassword !== confirmPassword ? 'input-error' : ''
                       }`}
                     />
@@ -648,52 +666,52 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
                     )}
                   </div>
 
-                  {/* Password Rules Checklist */}
-                  <div className="p-4 bg-cream/70 rounded-2xl border border-navy/10 space-y-2.5">
-                    <span className="text-xs font-bold text-navy-dark block font-mono uppercase tracking-wider">
+                  {/* ── Live Password Rules Checklist ── */}
+                  <div className="p-4 bg-cream/60 rounded-2xl border border-blue-grey/20 space-y-2.5">
+                    <span className="text-xs font-bold text-text-primary block">
                       Password Requirements:
                     </span>
 
                     <div className="flex items-center space-x-2">
                       {newPassword.length >= 8 ? (
-                        <CheckCircle2 className="w-4 h-4 text-copper flex-shrink-0" />
+                        <CheckCircle2 className="w-4 h-4 text-sage-deep flex-shrink-0" />
                       ) : (
-                        <div className="w-4 h-4 rounded-full border-2 border-navy/30 flex-shrink-0" />
+                        <div className="w-4 h-4 rounded-full border-2 border-blue-grey/40 flex-shrink-0" />
                       )}
-                      <span className={newPassword.length >= 8 ? 'text-navy-dark font-bold' : 'text-text-muted'}>
+                      <span className={newPassword.length >= 8 ? 'text-text-primary font-semibold' : 'text-text-muted'}>
                         At least 8 characters
                       </span>
                     </div>
 
                     <div className="flex items-center space-x-2">
                       {/[A-Z]/.test(newPassword) ? (
-                        <CheckCircle2 className="w-4 h-4 text-copper flex-shrink-0" />
+                        <CheckCircle2 className="w-4 h-4 text-sage-deep flex-shrink-0" />
                       ) : (
-                        <div className="w-4 h-4 rounded-full border-2 border-navy/30 flex-shrink-0" />
+                        <div className="w-4 h-4 rounded-full border-2 border-blue-grey/40 flex-shrink-0" />
                       )}
-                      <span className={/[A-Z]/.test(newPassword) ? 'text-navy-dark font-bold' : 'text-text-muted'}>
+                      <span className={/[A-Z]/.test(newPassword) ? 'text-text-primary font-semibold' : 'text-text-muted'}>
                         At least 1 uppercase letter (A-Z)
                       </span>
                     </div>
 
                     <div className="flex items-center space-x-2">
                       {/[0-9]/.test(newPassword) ? (
-                        <CheckCircle2 className="w-4 h-4 text-copper flex-shrink-0" />
+                        <CheckCircle2 className="w-4 h-4 text-sage-deep flex-shrink-0" />
                       ) : (
-                        <div className="w-4 h-4 rounded-full border-2 border-navy/30 flex-shrink-0" />
+                        <div className="w-4 h-4 rounded-full border-2 border-blue-grey/40 flex-shrink-0" />
                       )}
-                      <span className={/[0-9]/.test(newPassword) ? 'text-navy-dark font-bold' : 'text-text-muted'}>
+                      <span className={/[0-9]/.test(newPassword) ? 'text-text-primary font-semibold' : 'text-text-muted'}>
                         At least 1 number (0-9)
                       </span>
                     </div>
 
                     <div className="flex items-center space-x-2">
                       {newPassword.length > 0 && newPassword === confirmPassword ? (
-                        <CheckCircle2 className="w-4 h-4 text-copper flex-shrink-0" />
+                        <CheckCircle2 className="w-4 h-4 text-sage-deep flex-shrink-0" />
                       ) : (
-                        <div className="w-4 h-4 rounded-full border-2 border-navy/30 flex-shrink-0" />
+                        <div className="w-4 h-4 rounded-full border-2 border-blue-grey/40 flex-shrink-0" />
                       )}
-                      <span className={newPassword.length > 0 && newPassword === confirmPassword ? 'text-navy-dark font-bold' : 'text-text-muted'}>
+                      <span className={newPassword.length > 0 && newPassword === confirmPassword ? 'text-text-primary font-semibold' : 'text-text-muted'}>
                         Passwords match
                       </span>
                     </div>
@@ -709,9 +727,9 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
                       !/[0-9]/.test(newPassword) ||
                       newPassword !== confirmPassword
                     }
-                    className="btn-navy py-2.5 px-5 text-xs font-bold flex items-center space-x-2 shadow-sm cursor-pointer"
+                    className="btn-primary py-2.5 px-5 text-xs font-semibold flex items-center space-x-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <KeyRound className="w-3.5 h-3.5 text-copper-bright" />
+                    <KeyRound className="w-3.5 h-3.5" />
                     <span>{pwdLoading ? 'Updating Password...' : 'Update Password'}</span>
                   </button>
                 </div>
@@ -720,14 +738,14 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
 
             {/* Save Bar */}
             {activeTab !== 'salary' && activeTab !== 'security' && (
-              <div className="flex items-center justify-between mt-8 pt-6 border-t border-navy/10">
+              <div className="flex items-center justify-between mt-8 pt-6 border-t border-blue-grey/20">
                 {successMsg ? (
-                  <span className="text-xs text-navy-dark font-bold flex items-center space-x-1">
-                    <CheckCircle2 className="w-4 h-4 text-copper" />
+                  <span className="text-xs text-sage-deep font-semibold flex items-center space-x-1">
+                    <CheckCircle2 className="w-4 h-4" />
                     <span>{successMsg}</span>
                   </span>
                 ) : (
-                  <span className="text-xs text-text-muted font-medium">
+                  <span className="text-xs text-text-muted">
                     {isDirty ? 'Unsaved modifications pending' : 'All changes saved'}
                   </span>
                 )}
@@ -736,7 +754,7 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
                   type="submit"
                   disabled={!isDirty || isSubmitting}
                   data-testid="save-profile-button"
-                  className="btn-navy text-xs py-2.5 px-6 shadow-sm cursor-pointer"
+                  className="btn-primary text-xs py-2 px-6 shadow-sm"
                 >
                   {isSubmitting ? 'Saving...' : 'Save Profile Changes'}
                 </button>
@@ -744,42 +762,42 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
             )}
           </form>
         ) : (
-          /* ── READ-ONLY VIEW ─────────────────────────────────────── */
+          /* ── READ-ONLY VIEW (When accessed via employee cards) ─────── */
           <div data-testid="profile-readonly-view" className="space-y-6">
             {activeTab === 'about' && (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <div className="lg:col-span-7 space-y-4">
                   <div>
-                    <span className="text-xs font-bold text-navy-dark font-mono uppercase tracking-wider block mb-1">
+                    <span className="text-xs font-bold text-text-muted uppercase tracking-wider block mb-1">
                       About :-
                     </span>
-                    <p className="text-xs text-text-primary leading-relaxed bg-cream-light p-4 rounded-2xl border border-navy/10">
+                    <p className="text-xs text-text-primary leading-relaxed bg-cream/40 p-4 rounded-xl border border-blue-grey/15">
                       {profile.bio || <span className="text-text-muted italic">No bio provided.</span>}
                     </p>
                   </div>
 
                   <div>
-                    <span className="text-xs font-bold text-navy-dark font-mono uppercase tracking-wider block mb-1">
+                    <span className="text-xs font-bold text-text-muted uppercase tracking-wider block mb-1">
                       What I Love About My Job :-
                     </span>
-                    <p className="text-xs text-text-primary leading-relaxed bg-cream-light p-4 rounded-2xl border border-navy/10">
+                    <p className="text-xs text-text-primary leading-relaxed bg-cream/40 p-4 rounded-xl border border-blue-grey/15">
                       {profile.jobLove || <span className="text-text-muted italic">Not specified.</span>}
                     </p>
                   </div>
 
                   <div>
-                    <span className="text-xs font-bold text-navy-dark font-mono uppercase tracking-wider block mb-1">
+                    <span className="text-xs font-bold text-text-muted uppercase tracking-wider block mb-1">
                       My Interests and Hobbies :-
                     </span>
-                    <p className="text-xs text-text-primary leading-relaxed bg-cream-light p-4 rounded-2xl border border-navy/10">
+                    <p className="text-xs text-text-primary leading-relaxed bg-cream/40 p-4 rounded-xl border border-blue-grey/15">
                       {profile.interests || <span className="text-text-muted italic">None listed.</span>}
                     </p>
                   </div>
                 </div>
 
-                <div className="lg:col-span-5 space-y-4 lg:border-l lg:border-navy/10 lg:pl-8">
-                  <div className="p-4 rounded-2xl bg-cream-light border border-navy/10 space-y-2">
-                    <span className="text-xs font-bold text-navy-dark font-mono uppercase block">
+                <div className="lg:col-span-5 space-y-4 lg:border-l lg:border-blue-grey/20 lg:pl-6">
+                  <div className="p-4 rounded-2xl bg-cream/40 border border-blue-grey/20 space-y-2">
+                    <span className="text-xs font-bold text-text-primary block">
                       Skills & Expertise
                     </span>
                     <div className="flex flex-wrap gap-1.5 pt-1">
@@ -787,7 +805,7 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
                         profile.skills.map((s, i) => (
                           <span
                             key={i}
-                            className="px-3 py-1 rounded-full text-xs font-bold bg-copper-muted text-copper-dark border border-copper/30 font-mono shadow-sm"
+                            className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-sage-light/40 text-text-primary border border-sage-light"
                           >
                             {s.name}
                           </span>
@@ -798,8 +816,8 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-2xl bg-cream-light border border-navy/10 space-y-2">
-                    <span className="text-xs font-bold text-navy-dark font-mono uppercase block">
+                  <div className="p-4 rounded-2xl bg-cream/40 border border-blue-grey/20 space-y-2">
+                    <span className="text-xs font-bold text-text-primary block">
                       Certifications
                     </span>
                     <div className="flex flex-wrap gap-1.5 pt-1">
@@ -807,7 +825,7 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
                         profile.certifications.map((c, i) => (
                           <span
                             key={i}
-                            className="px-3 py-1 rounded-full text-xs font-bold bg-navy/10 text-navy-dark border border-navy/20 font-mono shadow-sm"
+                            className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-grey/20 text-slate-brand border border-blue-grey/30"
                           >
                             {c.name}
                           </span>
@@ -823,70 +841,72 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
 
             {activeTab === 'private' && (
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <div className="lg:col-span-6 space-y-3 text-xs font-mono">
-                  <div className="flex items-center justify-between border-b border-navy/10 pb-2">
-                    <span className="font-sans font-bold text-navy-dark uppercase text-[11px]">Date of Birth</span>
-                    <span className="text-text-primary">{formattedDob}</span>
+                {/* Left Column: Personal Wireframe Fields */}
+                <div className="lg:col-span-6 space-y-3 text-xs">
+                  <div className="flex items-center justify-between border-b border-blue-grey/20 pb-2">
+                    <span className="font-semibold text-text-primary">Date of Birth</span>
+                    <span className="font-mono text-text-primary">{formattedDob}</span>
                   </div>
-                  <div className="flex items-center justify-between border-b border-navy/10 pb-2">
-                    <span className="font-sans font-bold text-navy-dark uppercase text-[11px]">Residing Address</span>
-                    <span className="font-sans font-medium text-text-primary">{profile.address || 'Bengaluru, India'}</span>
+                  <div className="flex items-center justify-between border-b border-blue-grey/20 pb-2">
+                    <span className="font-semibold text-text-primary">Residing Address</span>
+                    <span className="font-medium text-text-primary">{profile.address || 'Bengaluru, India'}</span>
                   </div>
-                  <div className="flex items-center justify-between border-b border-navy/10 pb-2">
-                    <span className="font-sans font-bold text-navy-dark uppercase text-[11px]">Nationality</span>
-                    <span className="font-sans font-medium text-text-primary">Indian</span>
+                  <div className="flex items-center justify-between border-b border-blue-grey/20 pb-2">
+                    <span className="font-semibold text-text-primary">Nationality</span>
+                    <span className="font-medium text-text-primary">Indian</span>
                   </div>
-                  <div className="flex items-center justify-between border-b border-navy/10 pb-2">
-                    <span className="font-sans font-bold text-navy-dark uppercase text-[11px]">Personal Email</span>
-                    <span className="text-text-primary">
+                  <div className="flex items-center justify-between border-b border-blue-grey/20 pb-2">
+                    <span className="font-semibold text-text-primary">Personal Email</span>
+                    <span className="font-mono text-text-primary">
                       {`${profile.firstName.toLowerCase()}.personal@dayflow.internal`}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between border-b border-navy/10 pb-2">
-                    <span className="font-sans font-bold text-navy-dark uppercase text-[11px]">Gender</span>
-                    <span className="font-sans font-medium text-text-primary">{profile.gender || 'Female'}</span>
+                  <div className="flex items-center justify-between border-b border-blue-grey/20 pb-2">
+                    <span className="font-semibold text-text-primary">Gender</span>
+                    <span className="font-medium text-text-primary">{profile.gender || 'Female'}</span>
                   </div>
-                  <div className="flex items-center justify-between border-b border-navy/10 pb-2">
-                    <span className="font-sans font-bold text-navy-dark uppercase text-[11px]">Marital Status</span>
-                    <span className="font-sans font-medium text-text-primary">{profile.maritalStatus || 'Single'}</span>
+                  <div className="flex items-center justify-between border-b border-blue-grey/20 pb-2">
+                    <span className="font-semibold text-text-primary">Marital Status</span>
+                    <span className="font-medium text-text-primary">{profile.maritalStatus || 'Single'}</span>
                   </div>
-                  <div className="flex items-center justify-between border-b border-navy/10 pb-2">
-                    <span className="font-sans font-bold text-navy-dark uppercase text-[11px]">Date of Joining</span>
-                    <span className="text-text-primary">{formattedDoj}</span>
+                  <div className="flex items-center justify-between border-b border-blue-grey/20 pb-2">
+                    <span className="font-semibold text-text-primary">Date of Joining</span>
+                    <span className="font-mono text-text-primary">{formattedDoj}</span>
                   </div>
                 </div>
 
-                <div className="lg:col-span-6 space-y-4 lg:border-l lg:border-navy/10 lg:pl-8">
-                  <div className="pb-2 border-b-2 border-navy/15">
-                    <h4 className="font-heading font-bold text-sm text-navy-dark">
+                {/* Right Column: Bank Details */}
+                <div className="lg:col-span-6 space-y-4 lg:border-l lg:border-blue-grey/20 lg:pl-8">
+                  <div className="pb-2 border-b-2 border-blue-grey/20">
+                    <h4 className="font-heading font-bold text-sm text-text-primary">
                       Bank Details
                     </h4>
                   </div>
 
-                  <div className="space-y-3 text-xs font-mono">
-                    <div className="flex items-center justify-between border-b border-navy/10 pb-2">
-                      <span className="font-sans font-bold text-navy-dark uppercase text-[11px]">Account Number</span>
-                      <span className="font-bold text-navy-dark">**** **** 4892</span>
+                  <div className="space-y-3 text-xs">
+                    <div className="flex items-center justify-between border-b border-blue-grey/20 pb-2">
+                      <span className="font-semibold text-text-primary">Account Number</span>
+                      <span className="font-mono font-bold text-text-primary">**** **** 4892</span>
                     </div>
-                    <div className="flex items-center justify-between border-b border-navy/10 pb-2">
-                      <span className="font-sans font-bold text-navy-dark uppercase text-[11px]">Bank Name</span>
-                      <span className="font-sans font-medium text-text-primary">HDFC Bank Ltd.</span>
+                    <div className="flex items-center justify-between border-b border-blue-grey/20 pb-2">
+                      <span className="font-semibold text-text-primary">Bank Name</span>
+                      <span className="font-medium text-text-primary">HDFC Bank Ltd.</span>
                     </div>
-                    <div className="flex items-center justify-between border-b border-navy/10 pb-2">
-                      <span className="font-sans font-bold text-navy-dark uppercase text-[11px]">IFSC Code</span>
-                      <span className="font-bold text-copper">HDFC0001234</span>
+                    <div className="flex items-center justify-between border-b border-blue-grey/20 pb-2">
+                      <span className="font-semibold text-text-primary">IFSC Code</span>
+                      <span className="font-mono font-bold text-slate-brand">HDFC0001234</span>
                     </div>
-                    <div className="flex items-center justify-between border-b border-navy/10 pb-2">
-                      <span className="font-sans font-bold text-navy-dark uppercase text-[11px]">PAN No</span>
-                      <span className="font-bold text-navy-dark">ABCDE1234F</span>
+                    <div className="flex items-center justify-between border-b border-blue-grey/20 pb-2">
+                      <span className="font-semibold text-text-primary">PAN No</span>
+                      <span className="font-mono font-bold text-text-primary">ABCDE1234F</span>
                     </div>
-                    <div className="flex items-center justify-between border-b border-navy/10 pb-2">
-                      <span className="font-sans font-bold text-navy-dark uppercase text-[11px]">UAN NO</span>
-                      <span className="font-bold text-navy-dark">100987654321</span>
+                    <div className="flex items-center justify-between border-b border-blue-grey/20 pb-2">
+                      <span className="font-semibold text-text-primary">UAN NO</span>
+                      <span className="font-mono font-bold text-text-primary">100987654321</span>
                     </div>
-                    <div className="flex items-center justify-between border-b border-navy/10 pb-2">
-                      <span className="font-sans font-bold text-navy-dark uppercase text-[11px]">Emp Code</span>
-                      <span className="font-bold text-copper">{profile.loginId}</span>
+                    <div className="flex items-center justify-between border-b border-blue-grey/20 pb-2">
+                      <span className="font-semibold text-text-primary">Emp Code</span>
+                      <span className="font-mono font-bold text-slate-brand">{profile.loginId}</span>
                     </div>
                   </div>
                 </div>

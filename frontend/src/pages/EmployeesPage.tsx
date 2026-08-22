@@ -4,7 +4,6 @@ import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { getSocket } from '../lib/socket';
 import { EmployeeCard, EmployeeStatus } from '../components/EmployeeCard';
-import { AttendanceControl } from '../components/AttendanceControl';
 import { AddEmployeeModal } from '../components/AddEmployeeModal';
 import { Users, Search, UserPlus } from 'lucide-react';
 
@@ -39,10 +38,12 @@ export const EmployeesPage: React.FC = () => {
   // Socket subscription for live presence updates
   const handlePresenceUpdate = useCallback(
     (data: { employeeId: string; status: EmployeeStatus; name?: string }) => {
+      // RULE: Skip any event where employeeId matches own id to avoid race with optimistic update
       if (data.employeeId === user?.id) {
         return;
       }
 
+      console.log('⚡ EmployeesPage: updating presence dot for', data.employeeId, data.status);
       queryClient.setQueryData<EmployeeItem[]>(['employees'], (prev) => {
         if (!prev) return prev;
         return prev.map((emp) =>
@@ -81,88 +82,87 @@ export const EmployeesPage: React.FC = () => {
   const absentCount = (employees || []).filter((e) => e.status === 'ABSENT').length;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fadeIn">
-      {/* Top Header with Title & Action Controls */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 pb-6 border-b border-navy/10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 animate-fadeIn">
+      {/* Top Header with Title & Add Employee Action */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 pb-6 border-b border-blue-grey/20">
         <div>
-          <h1 className="text-3xl font-heading font-bold text-navy-dark flex items-center space-x-3">
+          <h1 className="text-3xl font-heading font-bold text-text-primary flex items-center space-x-3">
             <span>Employee Directory</span>
-            <span className="text-xs font-bold text-copper-dark bg-copper-muted px-3 py-1 rounded-full border border-copper/30 font-mono">
-              {employees?.length || 0} Members
+            <span className="text-sm font-normal text-text-muted bg-white px-2.5 py-0.5 rounded-full border border-blue-grey/20 shadow-sm">
+              {employees?.length || 0} total
             </span>
           </h1>
-          <p className="text-sm text-text-muted mt-1 font-medium">
+          <p className="text-sm text-text-muted mt-1">
             Real-time team presence, profiles, and attendance tracking.
           </p>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center space-x-3 flex-shrink-0">
-          {(user?.role === 'ADMIN' || user?.role === 'HR_OFFICER') && (
+        {/* Add Employee Action (Admin/HR Only) */}
+        {(user?.role === 'ADMIN' || user?.role === 'HR_OFFICER') && (
+          <div className="flex items-center space-x-3 flex-shrink-0">
             <button
               onClick={() => setAddModalOpen(true)}
-              className="btn-navy py-2.5 px-4 text-xs font-bold flex items-center space-x-2 shadow-sm cursor-pointer"
+              className="btn-secondary py-2.5 px-4 text-sm font-semibold flex items-center space-x-2 shadow-sm border border-slate-brand/30 text-slate-brand hover:bg-slate-brand/10 transition-colors"
             >
-              <UserPlus className="w-4 h-4 text-copper-bright" />
+              <UserPlus className="w-4 h-4" />
               <span>Add Employee</span>
             </button>
-          )}
-          <AttendanceControl />
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Quick Status Stats & Search Filter Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Status Count Badges */}
-        <div className="flex items-center space-x-2 text-xs font-mono">
+        <div className="flex items-center space-x-2 text-xs">
           <button
             onClick={() => setStatusFilter('ALL')}
-            className={`px-3.5 py-1.5 rounded-xl border transition-all cursor-pointer font-bold ${
+            className={`px-3 py-1.5 rounded-xl border transition-all ${
               statusFilter === 'ALL'
-                ? 'bg-navy text-white border-navy shadow-sm'
-                : 'bg-white text-text-muted border-navy/15 hover:bg-cream'
+                ? 'bg-slate-brand text-white border-slate-brand font-semibold shadow-sm'
+                : 'bg-white text-text-muted border-blue-grey/20 hover:bg-cream'
             }`}
           >
             All ({employees?.length || 0})
           </button>
           <button
             onClick={() => setStatusFilter('PRESENT')}
-            className={`px-3.5 py-1.5 rounded-xl border transition-all flex items-center space-x-1.5 cursor-pointer font-bold ${
+            className={`px-3 py-1.5 rounded-xl border transition-all flex items-center space-x-1.5 ${
               statusFilter === 'PRESENT'
-                ? 'bg-sage-light text-navy-dark border-sage-deep/40 shadow-sm'
-                : 'bg-white text-text-muted border-navy/15 hover:bg-cream'
+                ? 'bg-sage-light text-text-primary border-sage-deep/40 font-semibold shadow-sm'
+                : 'bg-white text-text-muted border-blue-grey/20 hover:bg-cream'
             }`}
           >
-            <span className="w-2 h-2 rounded-full bg-sage-light shadow-[0_0_6px_rgba(200,214,175,0.9)]" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#BDCFAA]" />
             <span>Present ({presentCount})</span>
           </button>
           <button
             onClick={() => setStatusFilter('ON_LEAVE')}
-            className={`px-3.5 py-1.5 rounded-xl border transition-all flex items-center space-x-1.5 cursor-pointer font-bold ${
+            className={`px-3 py-1.5 rounded-xl border transition-all flex items-center space-x-1.5 ${
               statusFilter === 'ON_LEAVE'
-                ? 'bg-copper-muted text-copper-dark border-copper/40 shadow-sm'
-                : 'bg-white text-text-muted border-navy/15 hover:bg-cream'
+                ? 'bg-sage-deep/30 text-sage-deep border-sage-deep font-semibold shadow-sm'
+                : 'bg-white text-text-muted border-blue-grey/20 hover:bg-cream'
             }`}
           >
-            <span className="w-2 h-2 rounded-full bg-copper shadow-[0_0_6px_rgba(184,115,51,0.8)]" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#8E9E83]" />
             <span>On Leave ({onLeaveCount})</span>
           </button>
           <button
             onClick={() => setStatusFilter('ABSENT')}
-            className={`px-3.5 py-1.5 rounded-xl border transition-all flex items-center space-x-1.5 cursor-pointer font-bold ${
+            className={`px-3 py-1.5 rounded-xl border transition-all flex items-center space-x-1.5 ${
               statusFilter === 'ABSENT'
-                ? 'bg-terracotta-light text-terracotta border-terracotta/40 shadow-sm'
-                : 'bg-white text-text-muted border-navy/15 hover:bg-cream'
+                ? 'bg-terracotta/20 text-terracotta border-terracotta font-semibold shadow-sm'
+                : 'bg-white text-text-muted border-blue-grey/20 hover:bg-cream'
             }`}
           >
-            <span className="w-2 h-2 rounded-full bg-[#EAB308] shadow-[0_0_6px_rgba(234,179,8,0.8)]" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#C97B63]" />
             <span>Absent ({absentCount})</span>
           </button>
         </div>
 
         {/* Search Input */}
-        <div className="relative w-full md:w-80">
-          <Search className="w-4 h-4 text-navy/40 absolute left-3.5 top-1/2 -translate-y-1/2" />
+        <div className="relative w-full md:w-72">
+          <Search className="w-4 h-4 text-blue-grey absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchTerm}
@@ -173,22 +173,22 @@ export const EmployeesPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Responsive Employee Card Grid */}
+      {/* Responsive Employee Card Grid (1 col mobile, 2 col md, 3 col lg, gap-4) */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="card h-52 animate-pulse bg-white border border-navy/10" />
+            <div key={i} className="card h-52 animate-pulse bg-white/60 border border-blue-grey/10" />
           ))}
         </div>
       ) : isError ? (
         <div className="card p-12 text-center text-terracotta bg-white border border-terracotta/20">
-          <p className="font-heading font-bold text-base">Failed to load employee directory</p>
+          <p className="font-heading font-semibold text-base">Failed to load employee directory</p>
           <p className="text-xs text-text-muted mt-1">Please make sure the server is reachable.</p>
         </div>
       ) : filteredEmployees.length === 0 ? (
-        <div className="card p-12 text-center text-text-muted bg-white border border-navy/10 space-y-2">
-          <Users className="w-10 h-10 mx-auto text-navy/30" />
-          <p className="font-heading font-bold text-base text-navy-dark">No employees found</p>
+        <div className="card p-12 text-center text-text-muted bg-white border border-blue-grey/20 space-y-2">
+          <Users className="w-10 h-10 mx-auto text-blue-grey" />
+          <p className="font-heading font-semibold text-base text-text-primary">No employees found</p>
           <p className="text-xs text-text-muted">
             {searchTerm ? 'Try adjusting your search criteria.' : 'No employee records are available.'}
           </p>

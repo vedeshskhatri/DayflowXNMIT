@@ -1,109 +1,85 @@
 import type { Config } from 'tailwindcss';
 
 /**
- * Dayflow Design System — Classic Navy, Warm Cream, Copper Gold, and Crisp White.
- * - Maximum surface: White (#FFFFFF) & Warm Cream (#FFF5E1)
- * - Primary brand: Classic Navy (#2D4263)
- * - Luxury Accent: Copper Accent (#B87333 / #D49A55)
- * - Headline Font: Special Gothic Expanded One / Syne / Space Grotesk
- * - Body Font: Inter
+ * Full Tailwind design system — exact token values from docs/DESIGN-SYSTEM.md.
+ * No ad-hoc hex values are allowed in component files — use these tokens only.
  */
 const config: Config = {
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
-        // ── Maximum Surface & Backgrounds ─────────────────────────────────────
-        white: '#FFFFFF',
-        cream: {
-          DEFAULT: '#FFF5E1', // Warm Cream background
-          light: '#FFFAF0',   // Ultra-light surface
-          subtle: '#F7EED9',  // Subtle border / card fill
-        },
+        // ── Core palette ─────────────────────────────────────────────────────
+        cream: '#F3EFDF',      // Primary background — page background, card fills
+        white: '#FFFFFF',      // Elevated surfaces — cards, modals, inputs
 
-        // ── Primary Brand Navy ────────────────────────────────────────────────
-        navy: {
-          DEFAULT: '#2D4263', // Classic Navy brand
-          dark: '#1D2D44',    // Deep high-contrast navy
-          light: '#3D5A80',   // Soft navy hover / interactive
-          subtle: '#EEF2F6',  // Light navy tint for tags / chips
-        },
-
-        // Backward-compatible slate token pointing to Classic Navy
         slate: {
-          brand: '#2D4263',
-          dark: '#1D2D44',
-          light: '#3D5A80',
+          brand: '#5E7892',    // Primary brand — buttons, active nav, links, focus borders
         },
+        'blue-grey': '#A7B7C6', // Secondary UI — borders, dividers, inactive icons
 
-        // ── Luxury Copper Accent / Gold ───────────────────────────────────────
-        copper: {
-          DEFAULT: '#B87333', // Copper Accent
-          light: '#D49A55',   // Warm metallic gold highlight
-          bright: '#E5A863',  // Bright glow / active indicator
-          dark: '#8F531E',    // Deep copper text
-          muted: '#F7E8D3',   // Subtle copper pill / badge fill
-        },
-
-        // Backward-compatible blue-grey token
-        'blue-grey': '#B5C4D3',
-
-        // ── Status Accents ────────────────────────────────────────────────────
         sage: {
-          light: '#C8D6AF',   // Present status / positive indicator
-          deep: '#8E9E83',    // Approved badge text / tag chip
+          light: '#BDCFAA',   // Success/Present status, Approved badges
+          deep: '#8E9E83',    // Hover states, On Leave badges, tag chips
         },
 
-        terracotta: {
-          DEFAULT: '#C86446', // Absent / Destructive actions / Errors
-          light: '#F8EAE6',
-        },
+        terracotta: '#C97B63', // Absent status, Reject button, error text/border — use sparingly
 
-        // ── Typography Colors ─────────────────────────────────────────────────
+        // ── Text ─────────────────────────────────────────────────────────────
         text: {
-          primary: '#1A2536', // Deep charcoal-navy text (crisp on white and cream)
-          muted: '#637083',   // Secondary helper text
-          light: '#8E9BAC',   // Subtle timestamp / captions
+          primary: '#2E3B33',  // Main body text — dark desaturated, comfortable on cream
+          muted: '#6B7A72',    // Secondary/helper text
         },
       },
 
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        heading: ['"Space Grotesk"', '"Syne"', '"Unbounded"', '"Special Gothic Expanded One"', 'sans-serif'],
-        display: ['"Special Gothic Expanded One"', '"Syne"', '"Space Grotesk"', 'sans-serif'],
+        heading: ['"Space Grotesk"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
 
       borderRadius: {
-        xl: '0.75rem',    // 12px
-        '2xl': '1rem',    // 16px
-        '3xl': '1.5rem',  // 24px
-        full: '9999px',
+        xl: '0.75rem',   // Cards, buttons — 12px
+        '2xl': '1rem',   // Larger modals
+        full: '9999px',  // Avatars, status dots
       },
 
       boxShadow: {
-        card: '0 2px 8px -2px rgba(45, 66, 99, 0.06), 0 1px 3px -1px rgba(45, 66, 99, 0.04)',
-        elevated: '0 10px 30px -5px rgba(45, 66, 99, 0.1), 0 4px 10px -3px rgba(45, 66, 99, 0.05)',
-        modal: '0 20px 40px -10px rgba(29, 45, 68, 0.2), 0 6px 12px -4px rgba(29, 45, 68, 0.1)',
-        copper: '0 4px 14px 0 rgba(184, 115, 51, 0.25)',
-        navy: '0 4px 14px 0 rgba(45, 66, 99, 0.25)',
+        card: '0 1px 3px 0 rgba(46, 59, 51, 0.08), 0 1px 2px -1px rgba(46, 59, 51, 0.06)',
+        modal: '0 10px 25px -3px rgba(46, 59, 51, 0.12), 0 4px 6px -4px rgba(46, 59, 51, 0.08)',
       },
 
       maxWidth: {
-        content: '80rem',
+        content: '80rem', // max-w-7xl equivalent
       },
 
       animation: {
         'float-slow': 'float 8s ease-in-out infinite',
-        'pulse-glow': 'pulse-glow 4s ease-in-out infinite',
+        'float-reverse': 'float-reverse 9s ease-in-out infinite',
+        'float-subtle': 'float-subtle 12s ease-in-out infinite',
+        'pulse-glow': 'pulse-glow 6s ease-in-out infinite',
+        'spin-very-slow': 'spin 45s linear infinite',
+        'spin-reverse-slow': 'spin-reverse 50s linear infinite',
       },
       keyframes: {
         float: {
           '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-8px)' },
+          '50%': { transform: 'translateY(-12px)' },
+        },
+        'float-reverse': {
+          '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+          '50%': { transform: 'translateY(10px) rotate(1.2deg)' },
+        },
+        'float-subtle': {
+          '0%, 100%': { transform: 'translate(0px, 0px)' },
+          '50%': { transform: 'translate(-6px, 8px)' },
         },
         'pulse-glow': {
-          '0%, 100%': { opacity: '0.4', transform: 'scale(1)' },
-          '50%': { opacity: '0.75', transform: 'scale(1.05)' },
+          '0%, 100%': { opacity: '0.45', transform: 'scale(1)' },
+          '50%': { opacity: '0.8', transform: 'scale(1.06)' },
+        },
+        'spin-reverse': {
+          '0%': { transform: 'rotate(360deg)' },
+          '100%': { transform: 'rotate(0deg)' },
         },
       },
     },

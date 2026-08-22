@@ -41,6 +41,7 @@ export const AdminAttendanceView: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
+  // Fetch all attendance for selected date & search term
   const { data: logs, isLoading, isError } = useQuery<AdminAttendanceItem[]>({
     queryKey: ['attendance', 'all', selectedDate, debouncedSearch],
     queryFn: async () => {
@@ -57,11 +58,13 @@ export const AdminAttendanceView: React.FC = () => {
   useEffect(() => {
     const socket = getSocket();
 
-    const handleCheckin = () => {
+    const handleCheckin = (payload: { employeeId: string; checkInTime?: string }) => {
+      console.log('⚡ AdminAttendanceView: received attendance:checkin', payload);
       queryClient.invalidateQueries({ queryKey: ['attendance', 'all'] });
     };
 
-    const handleCheckout = () => {
+    const handleCheckout = (payload: { employeeId: string; checkOutTime?: string; workHours?: number }) => {
+      console.log('⚡ AdminAttendanceView: received attendance:checkout', payload);
       queryClient.invalidateQueries({ queryKey: ['attendance', 'all'] });
     };
 
@@ -107,27 +110,27 @@ export const AdminAttendanceView: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Date Navigation & Search Header */}
-      <div className="card border border-navy/10 p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 bg-white shadow-sm">
+      <div className="card border border-blue-grey/20 p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         {/* Left: Date Navigation & Picker */}
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center space-x-1.5 bg-cream/70 px-2 py-1 rounded-xl border border-navy/10">
+          <div className="flex items-center space-x-1.5 bg-cream px-2 py-1 rounded-xl border border-blue-grey/20">
             <button
               data-testid="btn-prev-day"
               onClick={() => changeDateByDays(-1)}
-              className="p-1.5 rounded-lg hover:bg-white transition-colors text-navy-dark cursor-pointer"
+              className="p-1.5 rounded-lg hover:bg-white transition-colors text-text-primary"
               title="Previous Day"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
 
-            <span data-testid="admin-date-display" className="font-heading font-bold text-sm px-2 text-navy-dark min-w-[130px] text-center">
+            <span data-testid="admin-date-display" className="font-heading font-semibold text-sm px-2 text-text-primary min-w-[130px] text-center">
               {formatDisplayDate(selectedDate)}
             </span>
 
             <button
               data-testid="btn-next-day"
               onClick={() => changeDateByDays(1)}
-              className="p-1.5 rounded-lg hover:bg-white transition-colors text-navy-dark cursor-pointer"
+              className="p-1.5 rounded-lg hover:bg-white transition-colors text-text-primary"
               title="Next Day"
             >
               <ChevronRight className="w-4 h-4" />
@@ -140,16 +143,16 @@ export const AdminAttendanceView: React.FC = () => {
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="input py-1.5 px-3 text-xs bg-white w-36 font-mono font-bold"
+              className="input py-1.5 px-3 text-xs bg-white w-36 font-mono"
             />
           </div>
 
           {!isSelectedToday && (
             <button
               onClick={() => setSelectedDate(new Date().toISOString().split('T')[0])}
-              className="btn-secondary py-1.5 px-3 text-xs flex items-center space-x-1 font-bold cursor-pointer"
+              className="btn-secondary py-1.5 px-3 text-xs flex items-center space-x-1"
             >
-              <Sparkles className="w-3.5 h-3.5 text-copper" />
+              <Sparkles className="w-3.5 h-3.5 text-slate-brand" />
               <span>Jump to Today</span>
             </button>
           )}
@@ -157,7 +160,7 @@ export const AdminAttendanceView: React.FC = () => {
 
         {/* Right: Debounced Search Input */}
         <div className="relative w-full lg:w-72">
-          <Search className="w-4 h-4 text-navy/40 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-blue-grey absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             data-testid="admin-search-input"
             type="text"
@@ -170,45 +173,45 @@ export const AdminAttendanceView: React.FC = () => {
       </div>
 
       {/* Overview Stats for Selected Date */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-5">
-        <div className="card p-5 border border-navy/10 bg-white shadow-sm">
-          <span className="text-xs font-bold text-text-muted uppercase font-mono">Total Headcount</span>
-          <p className="text-2xl font-heading font-bold text-navy-dark mt-1">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <div className="card p-4 border border-blue-grey/20 bg-white">
+          <span className="text-xs text-text-muted">Total Filtered</span>
+          <p className="text-xl font-heading font-bold text-text-primary mt-0.5">
             {logs?.length ?? 0}
           </p>
         </div>
-        <div className="card p-5 border border-navy/10 bg-white shadow-sm">
-          <span className="text-xs font-bold text-navy-dark uppercase font-mono">Present / Checked In</span>
-          <p className="text-2xl font-heading font-bold text-navy mt-1">
+        <div className="card p-4 border border-sage-light bg-sage-light/20">
+          <span className="text-xs text-text-muted">Present / Checked In</span>
+          <p className="text-xl font-heading font-bold text-text-primary mt-0.5">
             {checkedInCount}
           </p>
         </div>
-        <div className="card p-5 border border-navy/10 bg-white col-span-2 sm:col-span-1 shadow-sm">
-          <span className="text-xs font-bold text-copper uppercase font-mono">Completed Shifts</span>
-          <p className="text-2xl font-heading font-bold text-copper mt-1">
+        <div className="card p-4 border border-blue-grey/20 bg-cream/70 col-span-2 sm:col-span-1">
+          <span className="text-xs text-text-muted">Completed Shifts</span>
+          <p className="text-xl font-heading font-bold text-slate-brand mt-0.5">
             {completedCount}
           </p>
         </div>
       </div>
 
-      {/* Table for Desktop */}
-      <div data-testid="desktop-admin-table" className="hidden md:block card border border-navy/10 overflow-hidden p-0 bg-white shadow-elevated rounded-3xl">
+      {/* Table for Desktop (>= md) */}
+      <div data-testid="desktop-admin-table" className="hidden md:block card border border-blue-grey/20 overflow-hidden p-0">
         <table className="w-full text-left text-sm">
-          <thead className="bg-cream/80 border-b border-navy/10 text-xs font-bold text-navy-dark uppercase tracking-wider font-mono">
+          <thead className="bg-cream/80 border-b border-blue-grey/20 text-xs font-semibold text-text-muted uppercase tracking-wider">
             <tr>
-              <th className="py-4 px-6">Employee</th>
-              <th className="py-4 px-6">Check In</th>
-              <th className="py-4 px-6">Check Out</th>
-              <th className="py-4 px-6">Work Hours</th>
-              <th className="py-4 px-6">Extra Hours</th>
-              <th className="py-4 px-6">Status</th>
+              <th className="py-3.5 px-6">Employee</th>
+              <th className="py-3.5 px-6">Check In</th>
+              <th className="py-3.5 px-6">Check Out</th>
+              <th className="py-3.5 px-6">Work Hours</th>
+              <th className="py-3.5 px-6">Extra Hours</th>
+              <th className="py-3.5 px-6">Status</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-navy/10">
+          <tbody className="divide-y divide-blue-grey/15">
             {isLoading ? (
               <tr>
                 <td colSpan={6} className="py-12 text-center text-text-muted">
-                  <div className="inline-block w-5 h-5 border-2 border-navy border-t-transparent rounded-full animate-spin mr-2" />
+                  <div className="inline-block w-5 h-5 border-2 border-slate-brand border-t-transparent rounded-full animate-spin mr-2" />
                   Loading company attendance logs...
                 </td>
               </tr>
@@ -221,8 +224,8 @@ export const AdminAttendanceView: React.FC = () => {
             ) : (logs || []).length === 0 ? (
               <tr>
                 <td colSpan={6} className="py-12 text-center text-text-muted space-y-1">
-                  <Users className="w-8 h-8 mx-auto text-navy/30 mb-2" />
-                  <p className="font-heading font-bold text-navy-dark">No employee logs found</p>
+                  <Users className="w-8 h-8 mx-auto text-blue-grey mb-2" />
+                  <p className="font-semibold text-text-primary">No employee logs found</p>
                   <p className="text-xs">No records match the current filter and date.</p>
                 </td>
               </tr>
@@ -241,18 +244,18 @@ export const AdminAttendanceView: React.FC = () => {
                           <img
                             src={item.employee.profilePicUrl}
                             alt={fullName}
-                            className="w-10 h-10 rounded-2xl object-cover ring-2 ring-navy/10 shadow-sm"
+                            className="w-9 h-9 rounded-full object-cover ring-1 ring-blue-grey/30"
                           />
                         ) : (
-                          <div className="w-10 h-10 rounded-2xl bg-navy text-white font-heading font-bold text-xs flex items-center justify-center ring-2 ring-navy/10 shadow-sm">
+                          <div className="w-9 h-9 rounded-full bg-slate-brand/10 text-slate-brand font-heading font-bold text-xs flex items-center justify-center ring-1 ring-blue-grey/20">
                             {initials}
                           </div>
                         )}
                         <div>
-                          <p className="font-heading font-bold text-sm text-navy-dark">
+                          <p className="font-heading font-semibold text-sm text-text-primary">
                             {fullName}
                           </p>
-                          <p className="text-xs text-text-muted font-medium">
+                          <p className="text-xs text-text-muted">
                             {item.employee.jobTitle || item.employee.department || 'Team Member'}
                           </p>
                         </div>
@@ -270,14 +273,14 @@ export const AdminAttendanceView: React.FC = () => {
                     </td>
 
                     {/* Work Hours */}
-                    <td className="py-3.5 px-6 font-mono text-xs font-bold text-navy">
+                    <td className="py-3.5 px-6 font-mono text-xs font-semibold text-text-primary">
                       {item.workHours !== null ? `${item.workHours} hrs` : '—'}
                     </td>
 
                     {/* Extra Hours */}
                     <td className="py-3.5 px-6 font-mono text-xs">
                       {item.extraHours && item.extraHours > 0 ? (
-                        <span className="text-copper font-bold">
+                        <span className="text-sage-deep font-semibold">
                           +{item.extraHours} hrs
                         </span>
                       ) : (
@@ -288,13 +291,13 @@ export const AdminAttendanceView: React.FC = () => {
                     {/* Status Badge */}
                     <td className="py-3.5 px-6">
                       {isPresent ? (
-                        <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold bg-sage-light text-navy-dark border border-sage-deep/30 font-mono">
-                          <span className="w-1.5 h-1.5 rounded-full bg-sage-deep" />
+                        <span className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sage-light/40 text-text-primary border border-sage-light">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#BDCFAA]" />
                           <span>{item.checkOut ? 'Completed' : 'Present'}</span>
                         </span>
                       ) : (
-                        <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-bold bg-terracotta-light text-terracotta border border-terracotta/30 font-mono">
-                          <span className="w-1.5 h-1.5 rounded-full bg-terracotta" />
+                        <span className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-terracotta/15 text-terracotta border border-terracotta/30">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#C97B63]" />
                           <span>Not Logged</span>
                         </span>
                       )}
@@ -307,7 +310,7 @@ export const AdminAttendanceView: React.FC = () => {
         </table>
       </div>
 
-      {/* Stacked Cards for Mobile */}
+      {/* Stacked Cards for Mobile (< md) — No horizontal scroll */}
       <div data-testid="mobile-admin-cards" className="block md:hidden space-y-3">
         {isLoading ? (
           <div className="card p-8 text-center text-xs text-text-muted">Loading logs...</div>
@@ -320,55 +323,55 @@ export const AdminAttendanceView: React.FC = () => {
             const initials = `${item.employee.firstName[0]}${item.employee.lastName[0]}`.toUpperCase();
 
             return (
-              <div key={item.employee.id} className="card p-4 border border-navy/10 space-y-3">
+              <div key={item.employee.id} className="card p-4 border border-blue-grey/20 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2.5">
                     {item.employee.profilePicUrl ? (
                       <img
                         src={item.employee.profilePicUrl}
                         alt={fullName}
-                        className="w-9 h-9 rounded-xl object-cover"
+                        className="w-8 h-8 rounded-full object-cover"
                       />
                     ) : (
-                      <div className="w-9 h-9 rounded-xl bg-navy text-white font-heading font-bold text-xs flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-full bg-slate-brand/10 text-slate-brand font-heading font-bold text-xs flex items-center justify-center">
                         {initials}
                       </div>
                     )}
                     <div>
-                      <p className="font-heading font-bold text-sm text-navy-dark">{fullName}</p>
+                      <p className="font-heading font-semibold text-sm text-text-primary">{fullName}</p>
                       <p className="text-[11px] text-text-muted">{item.employee.jobTitle || 'Team Member'}</p>
                     </div>
                   </div>
 
                   {isPresent ? (
-                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sage-light text-navy-dark font-mono">
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sage-light/40 text-text-primary border border-sage-light">
                       {item.checkOut ? 'Done' : 'Present'}
                     </span>
                   ) : (
-                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-terracotta-light text-terracotta font-mono">
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-terracotta/15 text-terracotta border border-terracotta/30">
                       Off
                     </span>
                   )}
                 </div>
 
-                <div className="grid grid-cols-4 gap-2 pt-2 border-t border-navy/10 text-xs font-mono">
+                <div className="grid grid-cols-4 gap-2 pt-2 border-t border-blue-grey/15 text-xs">
                   <div>
                     <span className="text-[10px] text-text-muted block">In</span>
-                    <span className="font-bold text-navy-dark">{formatTime(item.checkIn)}</span>
+                    <span className="font-mono font-medium">{formatTime(item.checkIn)}</span>
                   </div>
                   <div>
                     <span className="text-[10px] text-text-muted block">Out</span>
-                    <span className="font-bold text-navy-dark">{formatTime(item.checkOut)}</span>
+                    <span className="font-mono font-medium">{formatTime(item.checkOut)}</span>
                   </div>
                   <div>
                     <span className="text-[10px] text-text-muted block">Hours</span>
-                    <span className="font-bold text-navy">
+                    <span className="font-mono font-medium">
                       {item.workHours !== null ? `${item.workHours}h` : '—'}
                     </span>
                   </div>
                   <div>
                     <span className="text-[10px] text-text-muted block">OT</span>
-                    <span className="font-bold text-copper">
+                    <span className="font-mono font-medium text-sage-deep">
                       {item.extraHours && item.extraHours > 0 ? `+${item.extraHours}h` : '0h'}
                     </span>
                   </div>

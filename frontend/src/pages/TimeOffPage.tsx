@@ -15,7 +15,8 @@ import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { getSocket } from '../lib/socket';
 import { NewRequestModal } from '../components/timeoff/NewRequestModal';
-import { TimeOffCalendar } from '../components/timeoff/TimeOffCalendar';
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Balance {
   typeId: string;
@@ -41,23 +42,25 @@ interface TimeOffRequest {
   employeeId?: string;
 }
 
+// ─── Shared helpers ────────────────────────────────────────────────────────────
+
 function StatusBadge({ status }: { status: TimeOffRequest['status'] }) {
   if (status === 'APPROVED') {
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-sage-light text-navy-dark border border-sage-deep/30 font-mono">
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-sage-light text-text-primary border border-sage-deep/20">
         Approved
       </span>
     );
   }
   if (status === 'REJECTED') {
     return (
-      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-terracotta-light text-terracotta border border-terracotta/30 font-mono">
+      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-terracotta/15 text-terracotta border border-terracotta/20">
         Rejected
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-copper-muted text-copper-dark border border-copper/30 font-mono">
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-cream text-slate-brand border border-blue-grey/25">
       Pending
     </span>
   );
@@ -68,52 +71,58 @@ function fmtDate(iso: string) {
   return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
 }
 
+// ─── Balance Cards Bar (Wireframe: Paid time Off 24 Days | Sick time off 07 Days) ──
+
 function BalanceCardsBar({ balances }: { balances: Balance[] }) {
   const paid = balances.find((b) => b.name.toLowerCase().includes('paid')) || {
-    name: 'Paid Time Off',
+    name: 'Paid time Off',
     remaining: 24,
     daysAllocated: 24,
   };
   const sick = balances.find((b) => b.name.toLowerCase().includes('sick')) || {
-    name: 'Sick Leave',
+    name: 'Sick time off',
     remaining: 7,
     daysAllocated: 7,
   };
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       {/* Paid Time Off Card */}
-      <div className="p-6 rounded-3xl bg-white border border-navy/10 shadow-sm flex items-center justify-between">
+      <div className="p-5 rounded-2xl bg-white border border-blue-grey/20 shadow-sm flex items-center justify-between">
         <div>
-          <span className="text-xs font-bold text-navy-dark uppercase tracking-wider font-mono">
+          <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">
             {paid.name}
           </span>
-          <p className="text-3xl font-heading font-bold text-navy mt-1 font-mono">
-            {String(paid.remaining).padStart(2, '0')} <span className="text-xs font-bold text-text-muted font-sans uppercase">Days Available</span>
+          <p className="text-2xl font-heading font-bold text-slate-brand mt-1 font-mono">
+            {String(paid.remaining).padStart(2, '0')} <span className="text-sm font-normal text-text-muted">Days Available</span>
           </p>
         </div>
-        <div className="w-12 h-12 rounded-2xl bg-navy text-white flex items-center justify-center shadow-sm">
-          <CalendarDays className="w-6 h-6 text-copper-bright" />
+        <div className="w-11 h-11 rounded-2xl bg-slate-brand/10 text-slate-brand flex items-center justify-center border border-slate-brand/20">
+          <CalendarDays className="w-6 h-6" />
         </div>
       </div>
 
       {/* Sick Time Off Card */}
-      <div className="p-6 rounded-3xl bg-white border border-navy/10 shadow-sm flex items-center justify-between">
+      <div className="p-5 rounded-2xl bg-white border border-blue-grey/20 shadow-sm flex items-center justify-between">
         <div>
-          <span className="text-xs font-bold text-copper uppercase tracking-wider font-mono">
+          <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">
             {sick.name}
           </span>
-          <p className="text-3xl font-heading font-bold text-copper mt-1 font-mono">
-            {String(sick.remaining).padStart(2, '0')} <span className="text-xs font-bold text-text-muted font-sans uppercase">Days Available</span>
+          <p className="text-2xl font-heading font-bold text-terracotta mt-1 font-mono">
+            {String(sick.remaining).padStart(2, '0')} <span className="text-sm font-normal text-text-muted">Days Available</span>
           </p>
         </div>
-        <div className="w-12 h-12 rounded-2xl bg-copper-muted text-copper-dark flex items-center justify-center border border-copper/30 shadow-sm">
+        <div className="w-11 h-11 rounded-2xl bg-terracotta/15 text-terracotta flex items-center justify-center border border-terracotta/20">
           <Clock className="w-6 h-6" />
         </div>
       </div>
     </div>
   );
 }
+
+import { TimeOffCalendar } from '../components/timeoff/TimeOffCalendar';
+
+// ─── Employee View (Wireframe: For Employees View Image 1) ─────────────────────
 
 function EmployeeView() {
   const qc = useQueryClient();
@@ -130,6 +139,7 @@ function EmployeeView() {
     queryFn: async () => (await api.get('/timeoff/requests/mine')).data,
   });
 
+  // Socket listener for approval updates
   useEffect(() => {
     const socket = getSocket();
     const handler = (data: { requestId: string; status: string }) => {
@@ -152,27 +162,33 @@ function EmployeeView() {
 
   return (
     <div className="space-y-6 animate-fadeIn">
-      {/* Subheader & Action Bar */}
-      <div className="flex items-center justify-between">
-        <div className="inline-block px-4 py-1.5 rounded-xl bg-navy text-white font-heading font-bold text-xs tracking-wide shadow-sm font-mono uppercase">
-          Time Off Matrix
+      {/* ── Subheader & NEW Action Bar (Exact Wireframe Image 1) ── */}
+      <div className="space-y-3">
+        {/* Tab box: Time Off */}
+        <div className="inline-block px-5 py-2 rounded-xl bg-[#523330] border border-[#784641] text-white font-heading font-bold text-sm tracking-wide shadow-sm">
+          Time Off
         </div>
 
-        <button
-          type="button"
-          onClick={() => {
-            setSelectedDate(undefined);
-            setModalOpen(true);
-          }}
-          className="btn-navy flex items-center space-x-2 py-2.5 px-6 text-xs font-bold shadow-sm cursor-pointer"
-        >
-          <Plus className="w-4 h-4 text-copper-bright" />
-          <span>Apply Time Off</span>
-        </button>
+        {/* Action button: NEW [Purple] */}
+        <div>
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedDate(undefined);
+              setModalOpen(true);
+            }}
+            className="px-6 py-2 rounded-xl bg-[#a855f7] hover:bg-[#9333ea] text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 flex items-center space-x-2"
+          >
+            <Plus className="w-4 h-4" />
+            <span>NEW</span>
+          </button>
+        </div>
       </div>
 
+      {/* ── Quota Cards (Wireframe: Paid time Off 24 Days | Sick time off 07 Days) ── */}
       <BalanceCardsBar balances={balances} />
 
+      {/* ── Yearly Matrix Calendar with Legend & Public Holidays ── */}
       <TimeOffCalendar
         requests={requests}
         onDateClick={(dateStr) => {
@@ -181,9 +197,9 @@ function EmployeeView() {
         }}
       />
 
-      {/* Leave History Table */}
-      <div className="p-8 rounded-3xl bg-white border border-navy/10 shadow-elevated space-y-4">
-        <h3 className="font-heading font-bold text-base text-navy-dark">
+      {/* ── Leave History Table ── */}
+      <div className="p-6 rounded-3xl bg-white border border-blue-grey/20 shadow-sm space-y-4">
+        <h3 className="font-heading font-bold text-sm text-text-primary">
           My Leave History
         </h3>
 
@@ -191,34 +207,34 @@ function EmployeeView() {
           <div className="py-8 text-center text-xs text-text-muted">Loading leave history…</div>
         ) : requests.length === 0 ? (
           <div className="py-8 text-center text-xs text-text-muted italic">
-            No time off requests filed yet. Click Apply Time Off to submit.
+            No time off requests filed yet. Click NEW to apply.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-cream/80 border-b border-navy/10 uppercase font-bold text-navy-dark font-mono">
+              <thead className="bg-cream/70 border-b border-blue-grey/15 uppercase font-bold text-text-muted">
                 <tr>
-                  <th className="py-3.5 px-5">Type</th>
-                  <th className="py-3.5 px-5">Start Date</th>
-                  <th className="py-3.5 px-5">End Date</th>
-                  <th className="py-3.5 px-5">Days</th>
-                  <th className="py-3.5 px-5">Status</th>
-                  <th className="py-3.5 px-5">Applied On</th>
+                  <th className="py-3 px-4">Type</th>
+                  <th className="py-3 px-4">Start Date</th>
+                  <th className="py-3 px-4">End Date</th>
+                  <th className="py-3 px-4">Days</th>
+                  <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4">Applied On</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-navy/10 font-mono">
+              <tbody className="divide-y divide-blue-grey/10 font-mono">
                 {requests.map((r) => (
                   <tr key={r.id} className="hover:bg-cream/40 transition-colors">
-                    <td className="py-3.5 px-5 font-sans font-bold text-navy-dark">
+                    <td className="py-3 px-4 font-sans font-semibold text-text-primary">
                       {r.type.name}
                     </td>
-                    <td className="py-3.5 px-5 text-text-primary">{fmtDate(r.startDate)}</td>
-                    <td className="py-3.5 px-5 text-text-primary">{fmtDate(r.endDate)}</td>
-                    <td className="py-3.5 px-5 font-bold text-navy">{r.daysCount}</td>
-                    <td className="py-3.5 px-5 font-sans">
+                    <td className="py-3 px-4">{fmtDate(r.startDate)}</td>
+                    <td className="py-3 px-4">{fmtDate(r.endDate)}</td>
+                    <td className="py-3 px-4 font-bold text-slate-brand">{r.daysCount}</td>
+                    <td className="py-3 px-4 font-sans">
                       <StatusBadge status={r.status} />
                     </td>
-                    <td className="py-3.5 px-5 text-text-muted">{fmtDate(r.createdAt)}</td>
+                    <td className="py-3 px-4 text-text-muted">{fmtDate(r.createdAt)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -227,6 +243,7 @@ function EmployeeView() {
         )}
       </div>
 
+      {/* Modal with Wireframe Design */}
       <NewRequestModal
         isOpen={modalOpen}
         defaultStartDate={selectedDate}
@@ -235,6 +252,8 @@ function EmployeeView() {
     </div>
   );
 }
+
+// ─── Admin View (Wireframe: For Admin & HR Officer) ────────────────────────────
 
 function AdminView() {
   const qc = useQueryClient();
@@ -252,6 +271,7 @@ function AdminView() {
     queryFn: async () => (await api.get('/timeoff/requests')).data,
   });
 
+  // Socket listener for new incoming requests
   useEffect(() => {
     const socket = getSocket();
     const handleRequested = () => {
@@ -278,6 +298,7 @@ function AdminView() {
     },
   });
 
+  // Filter requests by search query
   const filteredRequests = useMemo(() => {
     if (!searchQuery.trim()) return requests;
     const q = searchQuery.toLowerCase();
@@ -291,53 +312,53 @@ function AdminView() {
 
   return (
     <div className="space-y-6">
-      {/* Sub-navigation Tabs */}
-      <div className="flex items-center space-x-1.5 bg-white p-1.5 rounded-2xl w-fit border border-navy/10 shadow-sm">
+      {/* ── Sub-navigation Tabs (Wireframe: [Time Off] [Calendar View] [Allocation]) ──── */}
+      <div className="flex items-center space-x-1.5 bg-cream p-1 rounded-xl w-fit border border-blue-grey/20">
         <button
           onClick={() => setActiveTab('timeoff')}
-          className={`px-4 py-2 rounded-xl text-xs font-heading font-bold transition-all cursor-pointer ${
+          className={`px-4 py-2 rounded-lg text-xs font-heading font-semibold transition-all ${
             activeTab === 'timeoff'
-              ? 'bg-navy text-white shadow-sm'
-              : 'text-text-muted hover:text-navy-dark hover:bg-cream'
+              ? 'bg-slate-brand text-white shadow-sm'
+              : 'text-text-muted hover:text-text-primary hover:bg-white'
           }`}
         >
           Time Off Requests
         </button>
         <button
           onClick={() => setActiveTab('calendar')}
-          className={`px-4 py-2 rounded-xl text-xs font-heading font-bold transition-all cursor-pointer ${
+          className={`px-4 py-2 rounded-lg text-xs font-heading font-semibold transition-all ${
             activeTab === 'calendar'
-              ? 'bg-navy text-white shadow-sm'
-              : 'text-text-muted hover:text-navy-dark hover:bg-cream'
+              ? 'bg-slate-brand text-white shadow-sm'
+              : 'text-text-muted hover:text-text-primary hover:bg-white'
           }`}
         >
           Calendar Overview
         </button>
         <button
           onClick={() => setActiveTab('allocation')}
-          className={`px-4 py-2 rounded-xl text-xs font-heading font-bold transition-all cursor-pointer ${
+          className={`px-4 py-2 rounded-lg text-xs font-heading font-semibold transition-all ${
             activeTab === 'allocation'
-              ? 'bg-navy text-white shadow-sm'
-              : 'text-text-muted hover:text-navy-dark hover:bg-cream'
+              ? 'bg-slate-brand text-white shadow-sm'
+              : 'text-text-muted hover:text-text-primary hover:bg-white'
           }`}
         >
-          Allocations
+          Allocation
         </button>
       </div>
 
-      {/* Action & Search Row */}
+      {/* ── Action & Search Row (Wireframe: [NEW]  [Searchbar]) ─────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <button
           type="button"
           onClick={() => setModalOpen(true)}
-          className="btn-navy flex items-center space-x-2 text-xs font-bold py-2.5 px-6 shadow-sm self-start sm:self-auto cursor-pointer"
+          className="btn-primary flex items-center space-x-2 text-xs font-semibold py-2.5 px-6 shadow-sm self-start sm:self-auto"
         >
-          <Plus className="w-4 h-4 text-copper-bright" />
-          <span>New Time Off</span>
+          <Plus className="w-4 h-4" />
+          <span>NEW</span>
         </button>
 
         <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-navy/40 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-blue-grey absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
@@ -348,128 +369,139 @@ function AdminView() {
         </div>
       </div>
 
+      {/* ── Balance Cards Bar (Wireframe: Paid time Off 24 Days | Sick time off 07 Days) ── */}
       <BalanceCardsBar balances={balances} />
 
-      {/* Tab Content */}
+      {/* ── Tab Content ───────────────────────────────────────────────── */}
       {activeTab === 'calendar' ? (
         <TimeOffCalendar requests={requests} />
       ) : activeTab === 'timeoff' ? (
         <div className="space-y-6">
-          <div className="card border border-navy/10 overflow-hidden p-0 bg-white shadow-elevated rounded-3xl">
+          {/* Requests Table matching Wireframe Columns */}
+          <div className="card border border-blue-grey/20 overflow-hidden p-0 bg-white shadow-sm">
             <table className="w-full text-left text-xs">
-              <thead className="bg-cream/80 border-b border-navy/10 uppercase font-bold text-navy-dark font-mono">
+            <thead className="bg-cream/80 border-b border-blue-grey/20 uppercase font-bold text-text-muted">
+              <tr>
+                <th className="py-3.5 px-6">Name</th>
+                <th className="py-3.5 px-6">Start Date</th>
+                <th className="py-3.5 px-6">End Date</th>
+                <th className="py-3.5 px-6">Time off Type</th>
+                <th className="py-3.5 px-6">Status</th>
+                <th className="py-3.5 px-6 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-blue-grey/15">
+              {isLoading ? (
                 <tr>
-                  <th className="py-4 px-6">Name</th>
-                  <th className="py-4 px-6">Start Date</th>
-                  <th className="py-4 px-6">End Date</th>
-                  <th className="py-4 px-6">Leave Type</th>
-                  <th className="py-4 px-6">Status</th>
-                  <th className="py-4 px-6 text-center">Actions</th>
+                  <td colSpan={6} className="py-12 text-center text-text-muted">
+                    <Loader2 className="w-5 h-5 animate-spin mx-auto text-slate-brand mb-1" />
+                    Loading time-off queue…
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-navy/10">
-                {isLoading ? (
-                  <tr>
-                    <td colSpan={6} className="py-12 text-center text-text-muted">
-                      <Loader2 className="w-5 h-5 animate-spin mx-auto text-navy mb-1" />
-                      Loading time-off queue…
-                    </td>
-                  </tr>
-                ) : filteredRequests.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="py-12 text-center text-text-muted italic">
-                      No time off requests found.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredRequests.map((req) => {
-                    const empName = req.employee
-                      ? `${req.employee.firstName} ${req.employee.lastName}`
-                      : 'Employee';
-                    const isPending = req.status === 'PENDING';
+              ) : filteredRequests.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="py-12 text-center text-text-muted italic">
+                    No time off requests found.
+                  </td>
+                </tr>
+              ) : (
+                filteredRequests.map((req) => {
+                  const empName = req.employee
+                    ? `${req.employee.firstName} ${req.employee.lastName}`
+                    : 'Employee';
+                  const isPending = req.status === 'PENDING';
 
-                    return (
-                      <tr key={req.id} className="hover:bg-cream/40 transition-colors">
-                        <td className="py-4 px-6 font-bold text-navy-dark">
-                          {empName}
-                        </td>
+                  return (
+                    <tr key={req.id} className="hover:bg-cream/40 transition-colors">
+                      {/* Name */}
+                      <td className="py-4 px-6 font-semibold text-text-primary">
+                        {empName}
+                      </td>
 
-                        <td className="py-4 px-6 font-mono text-text-muted">
-                          {fmtDate(req.startDate)}
-                        </td>
+                      {/* Start Date */}
+                      <td className="py-4 px-6 font-mono text-text-muted">
+                        {fmtDate(req.startDate)}
+                      </td>
 
-                        <td className="py-4 px-6 font-mono text-text-muted">
-                          {fmtDate(req.endDate)}
-                        </td>
+                      {/* End Date */}
+                      <td className="py-4 px-6 font-mono text-text-muted">
+                        {fmtDate(req.endDate)}
+                      </td>
 
-                        <td className="py-4 px-6 font-bold text-navy">
-                          {req.type.name}
-                          {req.attachmentUrl && (
-                            <a
-                              href={req.attachmentUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="ml-2 text-xs text-copper hover:underline inline-flex items-center"
-                              title="View Attachment"
+                      {/* Time off Type */}
+                      <td className="py-4 px-6 font-semibold text-slate-brand">
+                        {req.type.name}
+                        {req.attachmentUrl && (
+                          <a
+                            href={req.attachmentUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="ml-2 text-xs text-slate-brand hover:underline inline-flex items-center"
+                            title="View Attachment"
+                          >
+                            <FileText className="w-3.5 h-3.5 inline mr-0.5" />
+                          </a>
+                        )}
+                      </td>
+
+                      {/* Status */}
+                      <td className="py-4 px-6">
+                        <StatusBadge status={req.status} />
+                      </td>
+
+                      {/* Actions: Reject (Red) & Approve (Green) Buttons */}
+                      <td className="py-4 px-6 text-center">
+                        {isPending ? (
+                          <div className="flex items-center justify-center space-x-2">
+                            {/* Reject Button (Red) */}
+                            <button
+                              type="button"
+                              onClick={() => reviewMutation.mutate({ id: req.id, action: 'REJECT' })}
+                              disabled={reviewMutation.isPending}
+                              className="p-1.5 rounded-lg bg-terracotta text-white hover:bg-terracotta/90 transition-colors shadow-sm"
+                              title="Reject Request"
                             >
-                              <FileText className="w-3.5 h-3.5 inline mr-0.5" />
-                            </a>
-                          )}
-                        </td>
+                              <X className="w-4 h-4" />
+                            </button>
 
-                        <td className="py-4 px-6">
-                          <StatusBadge status={req.status} />
-                        </td>
-
-                        <td className="py-4 px-6 text-center">
-                          {isPending ? (
-                            <div className="flex items-center justify-center space-x-2">
-                              <button
-                                type="button"
-                                onClick={() => reviewMutation.mutate({ id: req.id, action: 'REJECT' })}
-                                disabled={reviewMutation.isPending}
-                                className="p-1.5 rounded-xl bg-terracotta text-white hover:bg-terracotta/90 transition-colors shadow-sm cursor-pointer"
-                                title="Reject Request"
-                              >
-                                <X className="w-4 h-4" />
-                              </button>
-
-                              <button
-                                type="button"
-                                onClick={() => reviewMutation.mutate({ id: req.id, action: 'APPROVE' })}
-                                disabled={reviewMutation.isPending}
-                                className="p-1.5 rounded-xl bg-sage-deep text-white hover:bg-sage-deep/90 transition-colors shadow-sm cursor-pointer"
-                                title="Approve Request"
-                              >
-                                <Check className="w-4 h-4" />
-                              </button>
-                            </div>
-                          ) : (
-                            <span className="text-[11px] text-text-muted font-mono">—</span>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
+                            {/* Approve Button (Green) */}
+                            <button
+                              type="button"
+                              onClick={() => reviewMutation.mutate({ id: req.id, action: 'APPROVE' })}
+                              disabled={reviewMutation.isPending}
+                              className="p-1.5 rounded-lg bg-sage-deep text-white hover:bg-sage-deep/90 transition-colors shadow-sm"
+                              title="Approve Request"
+                            >
+                              <Check className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-[11px] text-text-muted font-mono">—</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
         </div>
+      </div>
       ) : (
-        <div className="card p-8 border border-navy/10 bg-white shadow-elevated rounded-3xl space-y-4">
-          <h3 className="font-heading font-bold text-base text-navy-dark">
+        /* Allocation Overview Tab */
+        <div className="card p-6 border border-blue-grey/20 bg-white shadow-sm space-y-4">
+          <h3 className="font-heading font-semibold text-sm text-text-primary">
             Company Leave Allocations Overview
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {balances.map((b) => (
-              <div key={b.typeId} className="p-5 rounded-2xl bg-cream-light border border-navy/10 space-y-2">
-                <span className="text-xs font-bold text-navy-dark uppercase tracking-wider font-mono block">
+              <div key={b.typeId} className="p-4 rounded-xl bg-cream/40 border border-blue-grey/20 space-y-2">
+                <span className="text-xs font-bold text-text-primary uppercase tracking-wide">
                   {b.name}
                 </span>
                 <div className="flex justify-between items-center text-xs font-mono">
                   <span className="text-text-muted">Quota: {b.daysAllocated}d</span>
-                  <span className="text-copper font-bold">Available: {b.remaining}d</span>
+                  <span className="text-slate-brand font-bold">Remaining: {b.remaining}d</span>
                 </div>
               </div>
             ))}
@@ -482,6 +514,8 @@ function AdminView() {
   );
 }
 
+// ─── Main Page ─────────────────────────────────────────────────────────────────
+
 export const TimeOffPage: React.FC = () => {
   const { user } = useAuth();
   const isAdmin = user?.role === 'ADMIN' || user?.role === 'HR_OFFICER';
@@ -489,20 +523,20 @@ export const TimeOffPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fadeIn">
       {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-navy/10">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-blue-grey/20">
         <div>
           <div className="flex items-center space-x-3">
-            <h1 className="text-3xl font-heading font-bold text-navy-dark">
+            <h1 className="text-3xl font-heading font-bold text-text-primary">
               Time Off Management
             </h1>
             {isAdmin && (
-              <span className="inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-bold bg-copper-muted text-copper-dark border border-copper/30 font-mono">
+              <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-brand/10 text-slate-brand border border-slate-brand/20">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                <span>Admin / Approver</span>
+                <span>Admin / Approver View</span>
               </span>
             )}
           </div>
-          <p className="text-sm text-text-muted mt-1 font-medium">
+          <p className="text-sm text-text-muted mt-1">
             Leave balance tracking, requests submission, and multi-user live approvals.
           </p>
         </div>

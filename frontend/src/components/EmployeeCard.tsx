@@ -29,43 +29,40 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
   return (
     <Link
       to={`/employees/${id}`}
-      className="group relative bg-white rounded-3xl shadow-card p-6 border border-navy/10 flex flex-col items-center text-center hover:shadow-elevated hover:border-copper/30 transition-all duration-300 overflow-hidden"
+      className="group relative bg-white rounded-2xl shadow-card p-6 border border-blue-grey/20 flex flex-col items-center text-center hover:shadow-modal transition-all duration-200"
     >
-      {/* Subtle top copper accent bar on hover */}
-      <div className="absolute top-0 inset-x-0 h-1 bg-transparent group-hover:bg-copper transition-colors duration-300" />
-
       {/* Live Status Indicator in top-right corner */}
-      <div className="absolute top-3 right-3 flex items-center space-x-1.5" title={`Status: ${status}`}>
+      <div className="absolute top-4 right-4 flex items-center space-x-1.5" title={`Status: ${status}`}>
         <StatusDot status={status} />
-        <span className="text-[11px] font-bold text-text-muted capitalize font-mono">
+        <span className="text-[11px] font-medium text-text-muted capitalize">
           {status === 'PRESENT' ? 'Present' : status === 'ON_LEAVE' ? 'On Leave' : 'Absent'}
         </span>
       </div>
 
-      {/* Avatar with luxury border */}
+      {/* Avatar */}
       <div className="relative mb-4 mt-2">
         {profilePicUrl ? (
           <img
             src={profilePicUrl}
             alt={fullName}
-            className="w-20 h-20 rounded-2xl object-cover ring-2 ring-navy/10 shadow-sm group-hover:scale-105 transition-transform duration-300"
+            className="w-20 h-20 rounded-full object-cover ring-2 ring-blue-grey/20 shadow-sm"
           />
         ) : (
-          <div className="w-20 h-20 rounded-2xl bg-navy text-white flex items-center justify-center ring-2 ring-navy/10 font-heading font-bold text-xl shadow-sm group-hover:scale-105 transition-transform duration-300">
+          <div className="w-20 h-20 rounded-full bg-slate-brand/10 text-slate-brand flex items-center justify-center ring-2 ring-blue-grey/20 font-heading font-bold text-xl shadow-sm">
             {initials || 'EM'}
           </div>
         )}
       </div>
 
       {/* Info */}
-      <h3 className="font-heading font-bold text-base text-navy-dark group-hover:text-navy transition-colors">
+      <h3 className="font-heading font-semibold text-base text-text-primary group-hover:text-slate-brand transition-colors">
         {fullName}
       </h3>
-      <p className="text-xs text-text-muted mt-0.5 font-medium">
+      <p className="text-xs text-text-muted mt-0.5">
         {jobTitle || 'Team Member'}
       </p>
       {department && (
-        <span className="mt-3 inline-block px-3 py-1 rounded-full text-[11px] font-bold bg-cream text-navy-dark border border-navy/10 font-mono">
+        <span className="mt-2 inline-block px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-cream text-text-muted border border-blue-grey/20">
           {department}
         </span>
       )}
@@ -79,7 +76,7 @@ export const StatusDot: React.FC<{ status: EmployeeStatus; className?: string }>
       <span
         data-testid="status-dot"
         data-status="PRESENT"
-        className={`inline-block w-2.5 h-2.5 rounded-full bg-sage-light shadow-[0_0_6px_rgba(200,214,175,0.9)] ${className}`}
+        className={`inline-block w-2.5 h-2.5 rounded-full bg-[#BDCFAA] shadow-[0_0_6px_rgba(189,207,170,0.8)] ${className}`}
         style={{ backgroundColor: '#BDCFAA' }}
         title="Present (in office)"
       />
@@ -91,7 +88,7 @@ export const StatusDot: React.FC<{ status: EmployeeStatus; className?: string }>
       <span
         data-testid="status-dot"
         data-status="ON_LEAVE"
-        className={`inline-flex items-center justify-center text-white rounded-full p-0.5 shadow-[0_0_6px_rgba(184,115,51,0.8)] ${className}`}
+        className={`inline-flex items-center justify-center text-white rounded-full p-0.5 shadow-[0_0_6px_rgba(142,158,131,0.8)] ${className}`}
         style={{ backgroundColor: '#8E9E83' }}
         title="On Leave"
       >
@@ -100,14 +97,14 @@ export const StatusDot: React.FC<{ status: EmployeeStatus; className?: string }>
     );
   }
 
-  // ABSENT
+  // ABSENT: 🟡 Yellow dot: Employee is absent. (Employee has not applied time off and is absent.)
   return (
     <span
       data-testid="status-dot"
       data-status="ABSENT"
-      className={`inline-block w-2.5 h-2.5 rounded-full bg-[#C97B63] shadow-[0_0_6px_rgba(201,123,99,0.8)] ${className}`}
-      style={{ backgroundColor: '#C97B63' }}
-      title="Absent (not checked in)"
+      className={`inline-block w-2.5 h-2.5 rounded-full bg-[#EAB308] shadow-[0_0_6px_rgba(234,179,8,0.8)] ${className}`}
+      style={{ backgroundColor: '#EAB308' }}
+      title="Absent (no time off applied)"
     />
   );
 };
