@@ -104,7 +104,7 @@ describe('Employees Dashboard & Cards', () => {
     expect(grid).toHaveClass('grid-cols-1');
     expect(grid).toHaveClass('md:grid-cols-2');
     expect(grid).toHaveClass('lg:grid-cols-3');
-    expect(grid).toHaveClass('gap-6');
+    expect(grid).toHaveClass('gap-4');
   });
 
   it('each status value renders the correct dot color and data-status attribute', () => {

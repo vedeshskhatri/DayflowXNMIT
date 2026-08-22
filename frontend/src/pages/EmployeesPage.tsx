@@ -4,7 +4,6 @@ import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { getSocket } from '../lib/socket';
 import { EmployeeCard, EmployeeStatus } from '../components/EmployeeCard';
-import { AttendanceControl } from '../components/AttendanceControl';
 import { AddEmployeeModal } from '../components/AddEmployeeModal';
 import { Users, Search, UserPlus } from 'lucide-react';
 
@@ -83,8 +82,8 @@ export const EmployeesPage: React.FC = () => {
   const absentCount = (employees || []).filter((e) => e.status === 'ABSENT').length;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fadeIn">
-      {/* Top Header with Title & Check In / Out Control */}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 animate-fadeIn">
+      {/* Top Header with Title & Add Employee Action */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 pb-6 border-b border-blue-grey/20">
         <div>
           <h1 className="text-3xl font-heading font-bold text-text-primary flex items-center space-x-3">
@@ -98,9 +97,9 @@ export const EmployeesPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Prominent Check In / Check Out Action & Add Employee */}
-        <div className="flex items-center space-x-3 flex-shrink-0">
-          {(user?.role === 'ADMIN' || user?.role === 'HR_OFFICER') && (
+        {/* Add Employee Action (Admin/HR Only) */}
+        {(user?.role === 'ADMIN' || user?.role === 'HR_OFFICER') && (
+          <div className="flex items-center space-x-3 flex-shrink-0">
             <button
               onClick={() => setAddModalOpen(true)}
               className="btn-secondary py-2.5 px-4 text-sm font-semibold flex items-center space-x-2 shadow-sm border border-slate-brand/30 text-slate-brand hover:bg-slate-brand/10 transition-colors"
@@ -108,8 +107,26 @@ export const EmployeesPage: React.FC = () => {
               <UserPlus className="w-4 h-4" />
               <span>Add Employee</span>
             </button>
-          )}
-          <AttendanceControl />
+          </div>
+        )}
+      </div>
+
+      {/* Stats Summary Strip */}
+      <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2 bg-white border border-blue-grey/20 rounded-xl px-4 py-2.5 shadow-sm">
+          <span className="w-2.5 h-2.5 rounded-full bg-sage-light flex-shrink-0" />
+          <span className="text-xs font-semibold text-text-primary">{presentCount}</span>
+          <span className="text-xs text-text-muted">Present</span>
+        </div>
+        <div className="flex items-center space-x-2 bg-white border border-blue-grey/20 rounded-xl px-4 py-2.5 shadow-sm">
+          <span className="w-2.5 h-2.5 rounded-full bg-sage-deep flex-shrink-0" />
+          <span className="text-xs font-semibold text-text-primary">{onLeaveCount}</span>
+          <span className="text-xs text-text-muted">On Leave</span>
+        </div>
+        <div className="flex items-center space-x-2 bg-white border border-blue-grey/20 rounded-xl px-4 py-2.5 shadow-sm">
+          <span className="w-2.5 h-2.5 rounded-full bg-terracotta flex-shrink-0" />
+          <span className="text-xs font-semibold text-text-primary">{absentCount}</span>
+          <span className="text-xs text-text-muted">Absent</span>
         </div>
       </div>
 
@@ -135,7 +152,7 @@ export const EmployeesPage: React.FC = () => {
                 : 'bg-white text-text-muted border-blue-grey/20 hover:bg-cream'
             }`}
           >
-            <span className="w-2 h-2 rounded-full bg-[#BDCFAA]" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#BDCFAA]" />
             <span>Present ({presentCount})</span>
           </button>
           <button
@@ -146,7 +163,7 @@ export const EmployeesPage: React.FC = () => {
                 : 'bg-white text-text-muted border-blue-grey/20 hover:bg-cream'
             }`}
           >
-            <span className="w-2 h-2 rounded-full bg-[#8E9E83]" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#8E9E83]" />
             <span>On Leave ({onLeaveCount})</span>
           </button>
           <button
@@ -157,7 +174,7 @@ export const EmployeesPage: React.FC = () => {
                 : 'bg-white text-text-muted border-blue-grey/20 hover:bg-cream'
             }`}
           >
-            <span className="w-2 h-2 rounded-full bg-[#C97B63]" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#C97B63]" />
             <span>Absent ({absentCount})</span>
           </button>
         </div>
@@ -175,9 +192,9 @@ export const EmployeesPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Responsive Employee Card Grid (1 col mobile, 2 col md, 3 col lg, gap-6) */}
+      {/* Responsive Employee Card Grid (1 col mobile, 2 col md, 3 col lg, gap-4) */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div key={i} className="card h-52 animate-pulse bg-white/60 border border-blue-grey/10" />
           ))}
@@ -196,7 +213,7 @@ export const EmployeesPage: React.FC = () => {
           </p>
         </div>
       ) : (
-        <div data-testid="employee-card-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div data-testid="employee-card-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredEmployees.map((emp) => (
             <EmployeeCard
               key={emp.id}

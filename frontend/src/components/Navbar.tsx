@@ -118,11 +118,18 @@ export const Navbar: React.FC = () => {
             )}
           </div>
 
-          {/* Right: Streak Widget + Presence + Profile */}
+          {/* Right: Streak Widget + Attendance Control + Presence + Profile */}
           {user ? (
             <div className="hidden md:flex items-center space-x-4">
               {/* Gamification: Streak + Points */}
               <StreakWidget />
+
+              <div className="h-6 w-px bg-blue-grey/25" />
+
+              {/* Check In / Check Out Systray */}
+              <AttendanceControl />
+
+              <div className="h-6 w-px bg-blue-grey/25" />
 
               {/* Presence Status Pill */}
               <div className="flex items-center space-x-2 bg-white/60 backdrop-blur-sm border border-blue-grey/20 rounded-full px-3 py-1 text-xs">
