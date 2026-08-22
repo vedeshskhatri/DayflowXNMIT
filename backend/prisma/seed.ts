@@ -455,8 +455,8 @@ async function main() {
   // Admin Gamification points
   const adminPts = await prisma.employeePoints.upsert({
     where: { employeeId: admin.id },
-    update: { total: 2850, streak: 28, maxStreak: 35, lastCheckInDate: today },
-    create: { employeeId: admin.id, total: 2850, streak: 28, maxStreak: 35, lastCheckInDate: today },
+    update: { total: 10000, streak: 28, maxStreak: 35, lastCheckInDate: today },
+    create: { employeeId: admin.id, total: 10000, streak: 28, maxStreak: 35, lastCheckInDate: today },
   });
   for (const bKey of ['early_bird', 'streak_7', 'streak_30', 'profile_complete', 'top_earner']) {
     await prisma.employeeBadge.upsert({
