@@ -239,7 +239,7 @@ function EmployeeView() {
 function AdminView() {
   const qc = useQueryClient();
   const [modalOpen, setModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'timeoff' | 'allocation'>('timeoff');
+  const [activeTab, setActiveTab] = useState<'timeoff' | 'calendar' | 'allocation'>('timeoff');
   const [searchQuery, setSearchQuery] = useState('');
 
   const { data: balances = [] } = useQuery<Balance[]>({
@@ -293,7 +293,7 @@ function AdminView() {
 
   return (
     <div className="space-y-6">
-      {/* ── Sub-navigation Tabs (Wireframe: [Time Off] [Allocation]) ──── */}
+      {/* ── Sub-navigation Tabs (Wireframe: [Time Off] [Calendar View] [Allocation]) ──── */}
       <div className="flex items-center space-x-1.5 bg-cream p-1 rounded-xl w-fit border border-blue-grey/20">
         <button
           onClick={() => setActiveTab('timeoff')}
@@ -303,7 +303,17 @@ function AdminView() {
               : 'text-text-muted hover:text-text-primary hover:bg-white'
           }`}
         >
-          Time Off
+          Time Off Requests
+        </button>
+        <button
+          onClick={() => setActiveTab('calendar')}
+          className={`px-4 py-2 rounded-lg text-xs font-heading font-semibold transition-all ${
+            activeTab === 'calendar'
+              ? 'bg-slate-brand text-white shadow-sm'
+              : 'text-text-muted hover:text-text-primary hover:bg-white'
+          }`}
+        >
+          Calendar Overview
         </button>
         <button
           onClick={() => setActiveTab('allocation')}
@@ -344,10 +354,13 @@ function AdminView() {
       <BalanceCardsBar balances={balances} />
 
       {/* ── Tab Content ───────────────────────────────────────────────── */}
-      {activeTab === 'timeoff' ? (
-        /* Requests Table matching Wireframe Columns: Name | Start Date | End Date | Time off Type | Status | Actions (Reject & Approve) */
-        <div className="card border border-blue-grey/20 overflow-hidden p-0 bg-white shadow-sm">
-          <table className="w-full text-left text-xs">
+      {activeTab === 'calendar' ? (
+        <TimeOffCalendar requests={requests} />
+      ) : activeTab === 'timeoff' ? (
+        <div className="space-y-6">
+          {/* Requests Table matching Wireframe Columns */}
+          <div className="card border border-blue-grey/20 overflow-hidden p-0 bg-white shadow-sm">
+            <table className="w-full text-left text-xs">
             <thead className="bg-cream/80 border-b border-blue-grey/20 uppercase font-bold text-text-muted">
               <tr>
                 <th className="py-3.5 px-6">Name</th>
@@ -454,6 +467,7 @@ function AdminView() {
             </tbody>
           </table>
         </div>
+      </div>
       ) : (
         /* Allocation Overview Tab */
         <div className="card p-6 border border-blue-grey/20 bg-white shadow-sm space-y-4">
