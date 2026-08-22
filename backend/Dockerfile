@@ -1,11 +1,11 @@
 # ---- base ----
 FROM node:20-alpine AS base
+RUN apk add --no-cache openssl openssl-dev libc6-compat
 WORKDIR /app
 COPY package*.json ./
 
 # ---- dev (used by docker-compose for local hackathon dev) ----
 FROM base AS dev
-RUN apk add --no-cache openssl
 RUN npm install
 COPY . .
 EXPOSE 4000

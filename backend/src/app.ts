@@ -9,18 +9,42 @@ import { requestId } from './middleware/requestId.middleware';
 const app = express();
 
 // CORS: credentials: true is required for the httpOnly cookie to be sent
-// and received across the frontend (:5173) <-> backend (:4000) origin boundary.
-// Never use '*' as the origin here — it's incompatible with credentials: true anyway.
-app.use(
-  cors({
-    origin: process.env.FRONTEND_ORIGIN || 'http://localhost:5173',
-    credentials: true,
-  })
-);
+// and received across the frontend <-> backend origin boundary.
+const corsOptions = {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    // Allow requests with no origin (like mobile apps, curl, postman)
+    if (!origin) return callback(null, true);
+    // Allow localhost or local LAN addresses
+    if (
+      origin.startsWith('http://localhost') ||
+      origin.startsWith('http://127.0.0.1') ||
+      origin.startsWith('http://172.') ||
+      origin.startsWith('http://192.168.') ||
+      origin.startsWith('http://10.') ||
+      origin === process.env.FRONTEND_ORIGIN
+    ) {
+      return callback(null, true);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(requestId);
+
+app.get('/', (_req, res) => {
+  res.json({
+    name: 'Dayflow HRMS API',
+    version: '1.0.0',
+    status: 'running',
+    docs: 'https://github.com/vedeshskhatri/DayflowXNMIT',
+    health: '/health',
+  });
+});
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
