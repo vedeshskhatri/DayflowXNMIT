@@ -33,9 +33,8 @@ const config: Config = {
       },
 
       fontFamily: {
-        sans: ['Nunito', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-        heading: ['Nunito', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        script: ['"Satisfy"', '"Great Vibes"', 'cursive'],
+        sans: ['"Mulish"', '"Muli"', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        heading: ['"Josefin Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
 
       borderRadius: {
