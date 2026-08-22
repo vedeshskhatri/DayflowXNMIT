@@ -353,7 +353,7 @@ export const EmployeeAttendanceView: React.FC = () => {
       </div>
 
       {/* ── Mobile Attendance Cards (< md) ── */}
-      <div className="md:hidden space-y-3">
+      <div data-testid="mobile-attendance-cards" className="block md:hidden space-y-3">
         {monthDays
           .filter((d) => d.isPastOrToday || d.isToday)
           .slice(0, 10)

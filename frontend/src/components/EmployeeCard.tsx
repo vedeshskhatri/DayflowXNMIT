@@ -88,10 +88,11 @@ export const StatusDot: React.FC<{ status: EmployeeStatus; className?: string }>
       <span
         data-testid="status-dot"
         data-status="ON_LEAVE"
-        className={`inline-flex items-center justify-center text-sage-deep ${className}`}
+        className={`inline-flex items-center justify-center text-white rounded-full p-0.5 shadow-[0_0_6px_rgba(142,158,131,0.8)] ${className}`}
+        style={{ backgroundColor: '#8E9E83' }}
         title="On Leave"
       >
-        <Plane className="w-3.5 h-3.5 transform -rotate-45" />
+        <Plane className="w-3 h-3 transform -rotate-45" />
       </span>
     );
   }

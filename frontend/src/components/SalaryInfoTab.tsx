@@ -154,7 +154,7 @@ export const SalaryInfoTab: React.FC<{ employeeId: string }> = ({ employeeId }) 
             <div>
               <div className="flex items-center space-x-2">
                 <h3 className="font-heading font-bold text-lg text-text-primary">
-                  Salary Information
+                  Compensation & Salary Structure
                 </h3>
                 <span className="inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full bg-sage-light/40 text-sage-deep border border-sage-deep/20">
                   <ShieldCheck className="w-3 h-3 mr-1" />
@@ -162,7 +162,7 @@ export const SalaryInfoTab: React.FC<{ employeeId: string }> = ({ employeeId }) 
                 </span>
               </div>
               <p className="text-xs text-text-muted mt-0.5">
-                Define wage type, weekly schedule, automated salary components, and tax configs.
+                Salary Information &bull; Define wage type, automated salary components, and tax configs.
               </p>
             </div>
           </div>

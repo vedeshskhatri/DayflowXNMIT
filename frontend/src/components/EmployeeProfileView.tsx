@@ -403,6 +403,18 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
                       />
                       {errors.address && <p className="error-text">{errors.address.message}</p>}
                     </div>
+
+                    <div>
+                      <label className="label text-[11px] mb-1">Profile Picture URL :-</label>
+                      <input
+                        {...register('profilePicUrl')}
+                        data-testid="input-profilepic"
+                        type="url"
+                        className={`input py-2 text-xs ${errors.profilePicUrl ? 'input-error' : ''}`}
+                        placeholder="https://example.com/avatar.jpg"
+                      />
+                      {errors.profilePicUrl && <p className="error-text">{errors.profilePicUrl.message}</p>}
+                    </div>
                   </div>
                 </div>
 
