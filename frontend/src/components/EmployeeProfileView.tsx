@@ -166,10 +166,12 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
 
   const fullName = `${profile.firstName} ${profile.lastName}`;
   const initials = `${profile.firstName[0]}${profile.lastName[0]}`.toUpperCase();
+  const isOwnProfile = Boolean(user?.id === employeeId || editable);
+  const canViewPrivateInfo = isAdmin || isOwnProfile;
 
   const tabs: { id: Tab; label: string }[] = [
     { id: 'about', label: 'Resume / About' },
-    { id: 'private', label: 'Private Info' },
+    ...(canViewPrivateInfo ? [{ id: 'private' as Tab, label: 'Private Info' }] : []),
     ...(isAdmin ? [{ id: 'salary' as Tab, label: 'Salary Info' }] : []),
   ];
 

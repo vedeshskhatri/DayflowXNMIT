@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Users, Clock, CalendarDays, LogOut, Menu, X, ShieldCheck, User, ChevronDown } from 'lucide-react';
+import { AttendanceControl } from './AttendanceControl';
 
 export const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
@@ -103,9 +104,14 @@ export const Navbar: React.FC = () => {
             )}
           </div>
 
-          {/* Right: User Profile & Actions */}
+          {/* Right: Check In / Check Out Systray + Presence Status & Profile */}
           {user ? (
-            <div className="hidden md:flex items-center space-x-3">
+            <div className="hidden md:flex items-center space-x-4">
+              {/* Check In / Check Out Systray */}
+              <AttendanceControl />
+
+              <div className="h-6 w-px bg-blue-grey/25" />
+
               {/* Presence Status Pill */}
               <div className="flex items-center space-x-2 bg-cream/70 border border-blue-grey/20 rounded-full px-3 py-1 text-xs">
                 <span className={`w-2.5 h-2.5 rounded-full ${getStatusDotClass(user.status)}`} />
@@ -221,6 +227,11 @@ export const Navbar: React.FC = () => {
                   <span className={`w-2 h-2 rounded-full ${getStatusDotClass(user.status)}`} />
                   <span className="font-medium">{getStatusLabel(user.status)}</span>
                 </div>
+              </div>
+
+              {/* Mobile Check In / Check Out Systray */}
+              <div className="py-2 border-b border-blue-grey/15 flex justify-center">
+                <AttendanceControl />
               </div>
 
               <div className="space-y-1">

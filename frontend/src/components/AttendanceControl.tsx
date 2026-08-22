@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
-import { LogIn, LogOut, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Clock, Loader2 } from 'lucide-react';
 
 interface AttendanceRecord {
   id?: string;
@@ -14,7 +14,7 @@ interface AttendanceRecord {
   extraHours?: number | null;
 }
 
-export const AttendanceControl: React.FC<{ compact?: boolean }> = ({ compact = false }) => {
+export const AttendanceControl: React.FC<{ compact?: boolean }> = () => {
   const { user, updateUser } = useAuth();
   const queryClient = useQueryClient();
   const [actionError, setActionError] = useState<string | null>(null);
@@ -48,7 +48,7 @@ export const AttendanceControl: React.FC<{ compact?: boolean }> = ({ compact = f
 
       queryClient.setQueryData(['attendance', 'today'], optimisticData);
 
-      // Optimistically update own status in user context
+      // Optimistically update own status in user context to PRESENT (green)
       if (user) {
         updateUser({ ...user, status: 'PRESENT' });
       }
@@ -121,9 +121,9 @@ export const AttendanceControl: React.FC<{ compact?: boolean }> = ({ compact = f
 
   if (isLoading) {
     return (
-      <div className="flex items-center space-x-2 px-4 py-2 bg-cream rounded-xl border border-blue-grey/20 text-xs text-text-muted">
-        <div className="w-4 h-4 border-2 border-slate-brand border-t-transparent rounded-full animate-spin" />
-        <span>Syncing attendance...</span>
+      <div className="flex items-center space-x-2 px-3 py-1.5 bg-cream/60 rounded-xl border border-blue-grey/20 text-xs text-text-muted">
+        <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-brand" />
+        <span>Syncing…</span>
       </div>
     );
   }
@@ -132,59 +132,72 @@ export const AttendanceControl: React.FC<{ compact?: boolean }> = ({ compact = f
   const isCompleted = Boolean(todayAttendance?.checkIn && todayAttendance?.checkOut);
 
   return (
-    <div className="flex flex-col items-end space-y-1.5">
-      <div className="flex items-center space-x-3">
-        {/* State 1: Not checked in yet */}
-        {!isCheckedIn && !isCompleted && (
+    <div className="flex items-center space-x-2.5">
+      {/* State 1: Not checked in yet (Wireframe: [ Check IN -> ]) */}
+      {!isCheckedIn && !isCompleted && (
+        <button
+          data-testid="checkin-button"
+          onClick={() => checkInMutation.mutate()}
+          disabled={checkInMutation.isPending}
+          className="btn-primary py-1.5 px-4 text-xs font-semibold flex items-center space-x-1.5 shadow-sm hover:scale-[1.02] transition-transform"
+        >
+          {checkInMutation.isPending ? (
+            <>
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              <span>Checking In…</span>
+            </>
+          ) : (
+            <>
+              <span>Check IN</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </>
+          )}
+        </button>
+      )}
+
+      {/* State 2: Checked in (Wireframe: Since HH:MM PM [ Check Out -> ]) */}
+      {isCheckedIn && (
+        <div className="flex items-center space-x-2 bg-cream/70 border border-blue-grey/20 rounded-xl px-2.5 py-1">
+          <div className="flex items-center space-x-1 text-xs text-text-muted font-mono">
+            <Clock className="w-3 h-3 text-sage-deep" />
+            <span>Since {formatTime(todayAttendance?.checkIn)}</span>
+          </div>
           <button
-            data-testid="checkin-button"
-            onClick={() => checkInMutation.mutate()}
-            disabled={checkInMutation.isPending}
-            className="btn-primary flex items-center space-x-2 text-sm shadow-sm"
+            data-testid="checkout-button"
+            onClick={() => checkOutMutation.mutate()}
+            disabled={checkOutMutation.isPending}
+            className="bg-terracotta text-white font-semibold py-1 px-3 rounded-lg text-xs transition-all duration-150 hover:opacity-90 active:scale-[0.98] flex items-center space-x-1 shadow-sm"
           >
-            <LogIn className="w-4 h-4" />
-            <span>{checkInMutation.isPending ? 'Checking In...' : 'Check In'}</span>
-          </button>
-        )}
-
-        {/* State 2: Checked in, can check out */}
-        {isCheckedIn && (
-          <div className="flex items-center space-x-3">
-            {!compact && (
-              <span className="text-xs text-text-muted font-medium flex items-center space-x-1">
-                <Clock className="w-3.5 h-3.5 text-sage-deep" />
-                <span>In at {formatTime(todayAttendance?.checkIn)}</span>
-              </span>
+            {checkOutMutation.isPending ? (
+              <>
+                <Loader2 className="w-3 h-3 animate-spin" />
+                <span>Out…</span>
+              </>
+            ) : (
+              <>
+                <span>Check Out</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </>
             )}
-            <button
-              data-testid="checkout-button"
-              onClick={() => checkOutMutation.mutate()}
-              disabled={checkOutMutation.isPending}
-              className="bg-terracotta text-white font-medium py-2.5 px-5 rounded-xl transition-all duration-150 hover:opacity-90 active:scale-[0.98] flex items-center space-x-2 text-sm shadow-sm"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>{checkOutMutation.isPending ? 'Checking Out...' : 'Check Out'}</span>
-            </button>
-          </div>
-        )}
+          </button>
+        </div>
+      )}
 
-        {/* State 3: Both checked in and checked out (completed for today) */}
-        {isCompleted && (
-          <div data-testid="completed-badge" className="inline-flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-sage-light/30 text-text-primary border border-sage-light text-xs font-medium">
-            <CheckCircle2 className="w-4 h-4 text-sage-deep" />
-            <span>
-              Done today &bull; Out at {formatTime(todayAttendance?.checkOut)}
-              {todayAttendance?.workHours ? ` (${todayAttendance.workHours}h)` : ''}
-            </span>
-          </div>
-        )}
-      </div>
+      {/* State 3: Both checked in and checked out (completed for today) */}
+      {isCompleted && (
+        <div data-testid="completed-badge" className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-sage-light/30 text-text-primary border border-sage-light text-xs font-medium">
+          <CheckCircle2 className="w-3.5 h-3.5 text-sage-deep" />
+          <span className="font-mono text-[11px]">
+            Done today &bull; Out at {formatTime(todayAttendance?.checkOut)}
+            {todayAttendance?.workHours ? ` (${todayAttendance.workHours}h)` : ''}
+          </span>
+        </div>
+      )}
 
       {actionError && (
-        <div data-testid="attendance-error" className="flex items-center space-x-1 text-xs text-terracotta animate-fadeIn">
-          <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-          <span>{actionError}</span>
-        </div>
+        <span data-testid="attendance-error" className="text-[10px] text-terracotta font-medium ml-1">
+          {actionError}
+        </span>
       )}
     </div>
   );
