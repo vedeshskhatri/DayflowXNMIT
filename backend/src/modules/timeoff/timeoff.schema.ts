@@ -6,7 +6,7 @@ const dateStringSchema = z.string().refine((val) => !isNaN(Date.parse(val)), {
 
 export const createTimeOffRequestSchema = z
   .object({
-    typeId: z.string().uuid(),
+    typeId: z.string().min(1, 'Time off type is required'),
     startDate: dateStringSchema,
     endDate: dateStringSchema,
     remarks: z.string().optional(),
