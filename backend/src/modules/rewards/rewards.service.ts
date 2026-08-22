@@ -401,8 +401,9 @@ export async function redeemReward(employeeId: string, companyId: string, reward
     });
   }
 
-  return { redemption, status };
+  return { redemption: { ...redemption, reward }, status };
 }
+
 
 // ─── Easter Egg ───────────────────────────────────────────────────────────────
 

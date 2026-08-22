@@ -118,6 +118,28 @@ export function playEasterEggSound() {
   }
 }
 
+// ─── Thermal Receipt Print Sound ─────────────────────────────────────────────
+// Realistic mechanical dot-matrix / thermal printer whir + chimes
+
+export function playReceiptPrintSound() {
+  try {
+    const ctx = getCtx();
+    const t = ctx.currentTime;
+
+    // Fast mechanical buzz clicks
+    for (let i = 0; i < 8; i++) {
+      playNote(800 + (i % 2 === 0 ? 120 : -80), t + i * 0.06, 0.03, 0.12, 'sawtooth');
+    }
+
+    // Success chime at the end of paper feed
+    setTimeout(() => {
+      playRedeemSound();
+    }, 450);
+  } catch (e) {
+    console.debug('[sounds] playReceiptPrintSound failed:', e);
+  }
+}
+
 // ─── Error / Not enough points sound ─────────────────────────────────────────
 
 export function playErrorSound() {
@@ -130,3 +152,4 @@ export function playErrorSound() {
     console.debug('[sounds] playErrorSound failed:', e);
   }
 }
+
