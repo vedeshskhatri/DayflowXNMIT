@@ -101,7 +101,7 @@ async function main() {
       joiningSerial: 1,
       status: 'PRESENT',
       profilePicUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80',
-      bio: 'VP of People & Culture. Dedicated to building vibrant, productive, and inclusive workplaces.',
+      bio: 'VP of People & Culture with 10+ years of HR leadership experience. Dedicated to building vibrant, productive, and inclusive workplaces.',
       jobLove: 'Empowering team members to do their best work while creating joyful daily workplace experiences.',
       interests: 'Organizational Psychology, Leadership, Trail Running, Chess',
       address: '42 Indiranagar 100ft Road, Bengaluru, Karnataka 560038',
@@ -109,6 +109,27 @@ async function main() {
       maritalStatus: 'Married',
       dateOfBirth: new Date('1990-05-14'),
     },
+  });
+
+  // Admin Skills & Certifications
+  await prisma.skill.deleteMany({ where: { employeeId: admin.id } });
+  await prisma.skill.createMany({
+    data: [
+      { employeeId: admin.id, name: 'HR Strategy' },
+      { employeeId: admin.id, name: 'Talent Management' },
+      { employeeId: admin.id, name: 'Organizational Development' },
+      { employeeId: admin.id, name: 'Performance Management' },
+      { employeeId: admin.id, name: 'Leadership Coaching' },
+    ],
+  });
+
+  await prisma.certification.deleteMany({ where: { employeeId: admin.id } });
+  await prisma.certification.createMany({
+    data: [
+      { employeeId: admin.id, name: 'SHRM Senior Certified Professional (SHRM-SCP)' },
+      { employeeId: admin.id, name: 'Senior Professional in Human Resources (SPHR)' },
+      { employeeId: admin.id, name: 'ICF Certified Leadership Coach' },
+    ],
   });
 
   // ── 5. Detailed Employees Mock List ─────────────────────────────────────────
