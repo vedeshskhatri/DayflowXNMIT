@@ -52,6 +52,8 @@ export interface EmployeeFullProfile {
   status?: string;
 }
 
+export type EmployeeProfileData = EmployeeFullProfile;
+
 const selfEditSchema = z.object({
   bio: z.string().max(2000).optional(),
   jobLove: z.string().max(1000).optional(),
