@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Eye, EyeOff, Lock, User, AlertCircle, ArrowRight, Sparkles } from 'lucide-react';
 
@@ -141,22 +141,32 @@ export const SignIn: React.FC = () => {
               </div>
             </div>
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="btn-primary w-full flex items-center justify-center space-x-2 py-3 text-base"
-            >
-              {isSubmitting ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <>
-                  <span>Sign In</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
-          </form>
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="btn-primary w-full flex items-center justify-center space-x-2 py-3 text-base"
+              >
+                {isSubmitting ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <span>Sign In</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* Wireframe Link: Don't have an Account? Sign Up */}
+            <div className="mt-4 text-center">
+              <p className="text-xs text-text-muted">
+                Don't have an Account?{' '}
+                <Link to="/signup" className="font-semibold text-slate-brand hover:underline">
+                  Sign Up
+                </Link>
+              </p>
+            </div>
 
           {/* Quick Fill Demo helper pills */}
           <div className="mt-6 pt-5 border-t border-blue-grey/20">

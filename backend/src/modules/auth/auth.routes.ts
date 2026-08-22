@@ -5,14 +5,38 @@ import {
   createEmployeeService,
   loginService,
   resetPasswordService,
+  signupService,
 } from './auth.service';
 import {
   createEmployeeSchema,
   loginSchema,
   resetPasswordSchema,
+  signupSchema,
 } from './auth.schema';
 
 const router = Router();
+
+// ── POST /auth/signup ─────────────────────────────────────────────────────────
+/**
+ * Public route for Company + Initial Admin Registration.
+ * Auto-generates Login ID: [CC][first2(fn)][first2(ln)][year][serial] (e.g. OIJODO20260001)
+ * Sets httpOnly JWT cookie and logs Admin in immediately.
+ */
+router.post('/signup', validate(signupSchema), async (req, res) => {
+  try {
+    const result = await signupService(res, req.body);
+    return res.status(201).json({
+      message: 'Company and Admin account registered successfully',
+      employee: result.employee,
+      loginId: result.loginId,
+    });
+  } catch (err: unknown) {
+    const e = err as { status?: number; message?: string };
+    return res
+      .status(e.status ?? 500)
+      .json({ error: e.message ?? 'Registration failed' });
+  }
+});
 
 // ── POST /auth/login ──────────────────────────────────────────────────────────
 /**

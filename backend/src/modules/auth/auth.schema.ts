@@ -60,3 +60,40 @@ export const createEmployeeSchema = z.object({
 });
 
 export type CreateEmployeeInput = z.infer<typeof createEmployeeSchema>;
+
+// ── POST /auth/signup (Initial Company + Admin Registration) ───────────────────
+export const signupSchema = z
+  .object({
+    companyName: z
+      .string({ required_error: 'Company name is required' })
+      .min(2, 'Company name must be at least 2 characters')
+      .max(100),
+    companyLogoUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+    name: z
+      .string({ required_error: 'Full name is required' })
+      .min(2, 'Full name must be at least 2 characters')
+      .max(100),
+    email: z
+      .string({ required_error: 'Email is required' })
+      .email('Must be a valid email address'),
+    phone: z
+      .string()
+      .regex(/^\d{10}$/, 'Phone must be exactly 10 digits')
+      .optional()
+      .or(z.literal('')),
+    password: z
+      .string({ required_error: 'Password is required' })
+      .min(8, 'Password must be at least 8 characters')
+      .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+      .regex(/[0-9]/, 'Password must contain at least one number'),
+    confirmPassword: z
+      .string({ required_error: 'Please confirm your password' })
+      .min(1, 'Please confirm your password'),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  });
+
+export type SignupInput = z.infer<typeof signupSchema>;
+

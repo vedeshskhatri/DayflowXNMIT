@@ -223,3 +223,150 @@ export async function createEmployeeService(
   // learns their credentials (displayed post-creation, not emailed — out of scope)
   return { employee, tempPassword };
 }
+
+// ── POST /auth/signup (Company + Admin Registration) ──────────────────────────
+export async function signupService(
+  res: Response,
+  input: {
+    companyName: string;
+    companyLogoUrl?: string;
+    name: string;
+    email: string;
+    phone?: string;
+    password: string;
+  },
+) {
+  const { companyName, companyLogoUrl, name, email, phone, password } = input;
+
+  // 1. Check if email already exists
+  const existingEmployee = await prisma.employee.findUnique({
+    where: { email },
+  });
+  if (existingEmployee) {
+    throw { status: 409, message: 'An account with this email already exists' };
+  }
+
+  // 2. Parse first name and last name
+  const nameParts = name.trim().split(/\s+/);
+  const firstName = nameParts[0] || 'Admin';
+  const lastName = nameParts.slice(1).join(' ') || firstName;
+
+  // 3. Derive 2-letter Company Code
+  const words = companyName.trim().split(/\s+/);
+  let code = '';
+  if (words.length >= 2) {
+    code = (words[0][0] + words[1][0]).toUpperCase();
+  } else {
+    code = companyName.trim().slice(0, 2).toUpperCase();
+  }
+  if (!code || code.length < 2) {
+    code = 'CO';
+  }
+
+  // 4. Create or find Company
+  let company = await prisma.company.findFirst({
+    where: {
+      OR: [{ name: companyName }, { code }],
+    },
+  });
+
+  if (!company) {
+    company = await prisma.company.create({
+      data: {
+        name: companyName,
+        code,
+        logoUrl: companyLogoUrl || undefined,
+      },
+    });
+  }
+
+  // 5. Generate Login ID
+  const doj = new Date();
+  const { loginId, joiningSerial } = await generateLoginId(
+    company.id,
+    company.code,
+    firstName,
+    lastName,
+    doj,
+  );
+
+  // 6. Hash password
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  // 7. Create Admin Employee
+  const employee = await prisma.employee.create({
+    data: {
+      loginId,
+      companyId: company.id,
+      firstName,
+      lastName,
+      email,
+      phone: phone || undefined,
+      passwordHash,
+      mustResetPwd: false,
+      role: 'ADMIN',
+      jobTitle: 'Founder / Administrator',
+      department: 'Management',
+      dateOfJoining: doj,
+      joiningSerial,
+      status: 'PRESENT',
+    },
+    select: {
+      id: true,
+      loginId: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+      phone: true,
+      role: true,
+      jobTitle: true,
+      department: true,
+      mustResetPwd: true,
+      status: true,
+      dateOfJoining: true,
+      company: {
+        select: {
+          id: true,
+          name: true,
+          code: true,
+          logoUrl: true,
+        },
+      },
+    },
+  });
+
+  // 8. Create time off allocations for the admin
+  const year = doj.getFullYear();
+  const validFrom = new Date(`${year}-01-01`);
+  const validTo = new Date(`${year}-12-31`);
+
+  const timeOffTypes = await prisma.timeOffType.findMany();
+  for (const tot of timeOffTypes) {
+    const days = tot.name.toLowerCase().includes('sick')
+      ? 10
+      : tot.name.toLowerCase().includes('paid')
+      ? 20
+      : 0;
+
+    await prisma.timeOffAllocation.create({
+      data: {
+        employeeId: employee.id,
+        typeId: tot.id,
+        daysAllocated: days,
+        daysUsed: 0,
+        validFrom,
+        validTo,
+      },
+    });
+  }
+
+  // 9. Issue httpOnly cookie session
+  setAuthCookie(res, {
+    employeeId: employee.id,
+    companyId: company.id,
+    role: employee.role,
+  });
+
+  return { employee, loginId };
+}
+

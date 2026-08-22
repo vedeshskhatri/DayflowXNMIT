@@ -5,6 +5,7 @@ import { queryClient } from './lib/api';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Navbar } from './components/Navbar';
 import { SignIn } from './pages/SignIn';
+import { SignUp } from './pages/SignUp';
 import { ResetPassword } from './pages/ResetPassword';
 import { Dashboard } from './pages/Dashboard';
 import { EmployeesPage } from './pages/EmployeesPage';
@@ -73,6 +74,7 @@ export default function App() {
           <Routes>
             {/* Public Auth Routes */}
             <Route path="/login" element={<SignIn />} />
+            <Route path="/signup" element={<SignUp />} />
             <Route path="/reset-password" element={<ResetPasswordGuard />} />
 
             {/* Protected App Routes */}
