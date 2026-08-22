@@ -8,14 +8,11 @@ import {
   DollarSign,
   Plus,
   Trash2,
-  Calendar,
   CheckCircle2,
   AlertCircle,
   Loader2,
   ShieldAlert,
-  Clock,
   Calculator,
-  TrendingUp,
 } from 'lucide-react';
 import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
@@ -276,7 +273,7 @@ function AdminSalaryView({ employeeId }: { employeeId: string }) {
     handleSubmit,
     watch,
     reset,
-    formState: { errors, isSubmitting, isDirty },
+    formState: { errors, isSubmitting },
   } = useForm<SalaryFormValues>({
     resolver: zodResolver(upsertSalarySchema),
     defaultValues: {
