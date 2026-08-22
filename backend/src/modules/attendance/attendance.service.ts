@@ -1,5 +1,6 @@
 import prisma from '../../lib/prisma';
 import { emitToCompany } from '../../sockets';
+import { awardPoints, recalcStreak } from '../rewards/rewards.service';
 
 function getTodayDateRange() {
   const start = new Date();
@@ -237,6 +238,19 @@ export async function checkIn(employeeId: string, companyId: string) {
     name: empName,
   });
 
+  // Gamification: award points and recalc streak (fire-and-forget, never fail the checkin)
+  setImmediate(async () => {
+    try {
+      await awardPoints(employeeId, companyId, 'DAILY_CHECKIN');
+      if (now.getHours() < 9) {
+        await awardPoints(employeeId, companyId, 'EARLY_CHECKIN', 5, 'Early bird check-in before 9 AM');
+      }
+      await recalcStreak(employeeId, companyId);
+    } catch (e) {
+      console.error('[gamification] checkIn award error:', e);
+    }
+  });
+
   return attendanceRecord;
 }
 
@@ -305,6 +319,17 @@ export async function checkOut(employeeId: string, companyId: string) {
     workHours,
     extraHours,
   });
+
+  // Gamification: award full-day bonus if worked ≥ 8h (fire-and-forget)
+  if (workHours >= 8) {
+    setImmediate(async () => {
+      try {
+        await awardPoints(employeeId, companyId, 'FULL_DAY_WORK', 10, `Completed a full ${workHours}h day`);
+      } catch (e) {
+        console.error('[gamification] checkOut award error:', e);
+      }
+    });
+  }
 
   return attendanceRecord;
 }
