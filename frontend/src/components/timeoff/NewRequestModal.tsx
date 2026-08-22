@@ -106,8 +106,12 @@ export function NewRequestModal({ isOpen, onClose }: NewRequestModalProps) {
     mutationFn: async (values: FormValues) => {
       const formData = new FormData();
       formData.append('typeId', values.typeId);
-      formData.append('startDate', values.startDate);
-      formData.append('endDate', values.endDate);
+      
+      const startDateIso = new Date(values.startDate).toISOString();
+      const endDateIso = new Date(values.endDate).toISOString();
+      formData.append('startDate', startDateIso);
+      formData.append('endDate', endDateIso);
+      
       if (values.remarks) formData.append('remarks', values.remarks);
       if (fileState.current) formData.append('attachment', fileState.current);
 
@@ -123,9 +127,11 @@ export function NewRequestModal({ isOpen, onClose }: NewRequestModalProps) {
       onClose();
     },
     onError: (err: unknown) => {
-      const msg =
-        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
-        'Failed to submit request. Please verify your leave balance.';
+      const data = (err as { response?: { data?: { error?: string; details?: { field: string; message: string }[] } } })?.response?.data;
+      let msg = data?.error || 'Failed to submit request. Please verify your leave balance.';
+      if (data?.details && Array.isArray(data.details) && data.details.length > 0) {
+        msg = data.details.map((d) => d.message || `${d.field}: invalid`).join('; ');
+      }
       setServerError(msg);
     },
   });
@@ -142,6 +148,10 @@ export function NewRequestModal({ isOpen, onClose }: NewRequestModalProps) {
     setServerError('');
     if (requiresProof && !fileState.current) {
       setServerError('This leave type requires a medical certificate or supporting document.');
+      return;
+    }
+    if (balance && daysCount > balance.remaining) {
+      setServerError(`Requested duration (${daysCount} days) exceeds available balance (${balance.remaining} days).`);
       return;
     }
     mutation.mutate(values);
