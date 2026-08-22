@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   CalendarDays,
   CheckCircle2,
@@ -7,21 +7,15 @@ import {
   Paperclip,
   Plus,
   ShieldAlert,
-  X,
   XCircle,
 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 import { getSocket } from '../lib/socket';
+import { NewRequestModal } from '../components/timeoff/NewRequestModal';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-
-interface LeaveType {
-  id: string;
-  name: string;
-  requiresProof: boolean;
-}
 
 interface Balance {
   typeId: string;
@@ -67,247 +61,6 @@ function fmtDate(iso: string) {
   });
 }
 
-// ─── New Request Modal ─────────────────────────────────────────────────────────
-
-interface NewRequestModalProps {
-  types: LeaveType[];
-  balances: Balance[];
-  onClose: () => void;
-  onSuccess: () => void;
-}
-
-function NewRequestModal({ types, balances, onClose, onSuccess }: NewRequestModalProps) {
-  const [typeId, setTypeId] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [remarks, setRemarks] = useState('');
-  const [file, setFile] = useState<File | null>(null);
-  const [error, setError] = useState('');
-  const fileRef = useRef<HTMLInputElement>(null);
-
-  const selectedType = types.find((t) => t.id === typeId);
-  const requiresProof = selectedType?.requiresProof ?? false;
-
-  // inclusive days
-  const daysCount =
-    startDate && endDate
-      ? Math.max(
-          0,
-          Math.round(
-            (new Date(endDate).getTime() - new Date(startDate).getTime()) /
-              (1000 * 60 * 60 * 24)
-          ) + 1
-        )
-      : 0;
-
-  const balance = balances.find((b) => b.typeId === typeId);
-
-  const mutation = useMutation({
-    mutationFn: async () => {
-      const fd = new FormData();
-      fd.append('typeId', typeId);
-      fd.append('startDate', new Date(startDate).toISOString());
-      fd.append('endDate', new Date(endDate).toISOString());
-      if (remarks) fd.append('remarks', remarks);
-      if (file) fd.append('attachment', file);
-
-      const res = await api.post('/timeoff/requests', fd, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      return res.data;
-    },
-    onSuccess: () => {
-      onSuccess();
-      onClose();
-    },
-    onError: (err: unknown) => {
-      const msg =
-        (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
-        'Something went wrong';
-      setError(msg);
-    },
-  });
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError('');
-
-    if (!typeId) return setError('Please select a leave type.');
-    if (!startDate || !endDate) return setError('Please select start and end dates.');
-    if (new Date(endDate) < new Date(startDate))
-      return setError('End date must be on or after start date.');
-    if (requiresProof && !file) return setError('Attachment is required for Sick Leave.');
-
-    mutation.mutate();
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-blue-grey/20">
-          <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl bg-slate-brand/10 text-slate-brand flex items-center justify-center">
-              <CalendarDays className="w-5 h-5" />
-            </div>
-            <h2 className="text-lg font-heading font-semibold text-text-primary">
-              New Time-Off Request
-            </h2>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 text-text-muted hover:text-text-primary hover:bg-cream rounded-xl transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
-          {/* Leave type */}
-          <div>
-            <label className="label">Leave Type</label>
-            <select
-              className="input"
-              value={typeId}
-              onChange={(e) => setTypeId(e.target.value)}
-            >
-              <option value="">Select a leave type…</option>
-              {types.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                  {t.requiresProof ? ' (attachment required)' : ''}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Balance info */}
-          {balance && (
-            <div className="flex items-center space-x-2 bg-cream rounded-xl px-4 py-2.5 text-sm text-text-muted border border-blue-grey/20">
-              <CheckCircle2 className="w-4 h-4 text-sage-deep flex-shrink-0" />
-              <span>
-                Balance:{' '}
-                <strong className="text-text-primary">
-                  {balance.remaining} / {balance.daysAllocated} days remaining
-                </strong>
-              </span>
-            </div>
-          )}
-
-          {/* Dates */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="label">Start Date</label>
-              <input
-                type="date"
-                className="input"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="label">End Date</label>
-              <input
-                type="date"
-                className="input"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                min={startDate}
-              />
-            </div>
-          </div>
-
-          {/* Day count badge */}
-          {daysCount > 0 && (
-            <div className="text-sm text-text-muted">
-              Duration:{' '}
-              <strong className="text-slate-brand">
-                {daysCount} day{daysCount !== 1 ? 's' : ''}
-              </strong>
-            </div>
-          )}
-
-          {/* Remarks */}
-          <div>
-            <label className="label">Remarks (optional)</label>
-            <textarea
-              className="input resize-none h-20"
-              placeholder="Add a note for your manager…"
-              value={remarks}
-              onChange={(e) => setRemarks(e.target.value)}
-            />
-          </div>
-
-          {/* Attachment */}
-          <div>
-            <label className="label">
-              Attachment{requiresProof ? ' (required)' : ' (optional)'}
-            </label>
-            <div
-              className={`flex items-center justify-between border rounded-xl px-4 py-2.5 cursor-pointer transition-colors
-                ${requiresProof && !file ? 'border-terracotta/50' : 'border-blue-grey'}
-                hover:border-slate-brand bg-white`}
-              onClick={() => fileRef.current?.click()}
-            >
-              <div className="flex items-center space-x-2 text-sm text-text-muted">
-                <Paperclip className="w-4 h-4" />
-                <span>{file ? file.name : 'Choose file…'}</span>
-              </div>
-              {file && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setFile(null);
-                    if (fileRef.current) fileRef.current.value = '';
-                  }}
-                  className="text-terracotta hover:opacity-80"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-            <input
-              ref={fileRef}
-              type="file"
-              className="hidden"
-              accept="image/*,application/pdf"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            />
-            {requiresProof && !file && (
-              <p className="error-text">Sick Leave requires an attachment.</p>
-            )}
-          </div>
-
-          {/* Error */}
-          {error && (
-            <div className="flex items-center space-x-2 bg-terracotta/10 border border-terracotta/30 rounded-xl px-4 py-3 text-sm text-terracotta">
-              <XCircle className="w-4 h-4 flex-shrink-0" />
-              <span>{error}</span>
-            </div>
-          )}
-
-          {/* Actions */}
-          <div className="flex items-center justify-end space-x-3 pt-1">
-            <button type="button" onClick={onClose} className="btn-secondary text-sm">
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={mutation.isPending}
-              className="btn-primary text-sm flex items-center space-x-2"
-            >
-              {mutation.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
-              <span>{mutation.isPending ? 'Submitting…' : 'Submit Request'}</span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
-
 // ─── Employee View ─────────────────────────────────────────────────────────────
 
 function EmployeeView() {
@@ -319,21 +72,15 @@ function EmployeeView() {
     queryFn: async () => (await api.get('/timeoff/balances')).data,
   });
 
-  const { data: types = [] } = useQuery<LeaveType[]>({
-    queryKey: ['timeoff', 'types'],
-    queryFn: async () => (await api.get('/timeoff/types')).data,
-  });
-
   const {
     data: requests = [],
     isLoading: requestsLoading,
-    refetch: refetchRequests,
   } = useQuery<TimeOffRequest[]>({
     queryKey: ['timeoff', 'mine'],
     queryFn: async () => (await api.get('/timeoff/requests/mine')).data,
   });
 
-  // Live update: when admin acts on a request, update it in place
+  // Live: admin acts on a request → update status badge without full refetch
   useEffect(() => {
     const socket = getSocket();
     const handler = (data: { requestId: string; status: string }) => {
@@ -376,10 +123,7 @@ function EmployeeView() {
             {balances.map((b) => {
               const pct = b.daysAllocated > 0 ? (b.daysUsed / b.daysAllocated) * 100 : 0;
               return (
-                <div
-                  key={b.typeId}
-                  className="card border border-blue-grey/20 space-y-3"
-                >
+                <div key={b.typeId} className="card border border-blue-grey/20 space-y-3">
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-xs text-text-muted font-medium uppercase tracking-wide">
@@ -397,7 +141,6 @@ function EmployeeView() {
                       </p>
                     </div>
                   </div>
-                  {/* usage bar */}
                   <div className="w-full h-2 bg-cream rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all ${balanceBarColor(b.name)}`}
@@ -420,9 +163,7 @@ function EmployeeView() {
       {/* Request List */}
       <section>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-heading font-semibold text-text-primary">
-            My Requests
-          </h2>
+          <h2 className="text-lg font-heading font-semibold text-text-primary">My Requests</h2>
           <button
             onClick={() => setModalOpen(true)}
             className="btn-primary flex items-center space-x-2 text-sm"
@@ -454,9 +195,7 @@ function EmployeeView() {
                     <CalendarDays className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-text-primary">
-                      {req.type.name}
-                    </p>
+                    <p className="text-sm font-semibold text-text-primary">{req.type.name}</p>
                     <p className="text-xs text-text-muted mt-0.5">
                       {fmtDate(req.startDate)} → {fmtDate(req.endDate)}
                       {' · '}
@@ -481,24 +220,112 @@ function EmployeeView() {
         )}
       </section>
 
-      {/* New Request Modal */}
-      {modalOpen && (
-        <NewRequestModal
-          types={types}
-          balances={balances}
-          onClose={() => setModalOpen(false)}
-          onSuccess={() => refetchRequests()}
-        />
-      )}
+      {/* New Request Modal (extracted component) */}
+      <NewRequestModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
     </div>
   );
 }
 
-// ─── Admin / HR View ───────────────────────────────────────────────────────────
+// ─── Admin Allocation Tab ──────────────────────────────────────────────────────
+
+interface AllocationRow {
+  employeeName: string;
+  leaveType: string;
+  daysCount: number; // total requested days (approved)
+}
+
+function AllocationTab({ requests }: { requests: TimeOffRequest[] }) {
+  // Derive per-employee, per-type used days from APPROVED requests in the table.
+  // Note: daysAllocated is not part of the /timeoff/requests payload — we show
+  // "Used Days (from approved requests)" clearly, without guessing allocated totals.
+  const rows = React.useMemo(() => {
+    const map = new Map<string, AllocationRow>();
+    requests
+      .filter((r) => r.status === 'APPROVED')
+      .forEach((r) => {
+        const name = `${r.employee?.firstName ?? ''} ${r.employee?.lastName ?? ''}`.trim();
+        const key = `${name}__${r.type.name}`;
+        const existing = map.get(key);
+        if (existing) {
+          existing.daysCount += r.daysCount;
+        } else {
+          map.set(key, { employeeName: name, leaveType: r.type.name, daysCount: r.daysCount });
+        }
+      });
+    return Array.from(map.values()).sort((a, b) =>
+      a.employeeName.localeCompare(b.employeeName)
+    );
+  }, [requests]);
+
+  if (rows.length === 0) {
+    return (
+      <div className="card border border-blue-grey/20 p-10 text-center space-y-3">
+        <CheckCircle2 className="w-10 h-10 text-sage-light mx-auto" />
+        <p className="text-sm text-text-muted">No approved leave requests yet.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <p className="text-xs text-text-muted bg-cream border border-blue-grey/20 rounded-xl px-4 py-2.5">
+        Showing approved leave days consumed per employee. Allocation totals are managed via the
+        seeder/admin panel — not shown here.
+      </p>
+
+      {/* Desktop table */}
+      <div className="hidden md:block card border border-blue-grey/20 p-0 overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-cream/60 border-b border-blue-grey/20">
+            <tr>
+              {['Employee Name', 'Leave Type', 'Approved Days Used'].map((h) => (
+                <th
+                  key={h}
+                  className="text-left px-5 py-3.5 text-xs font-semibold text-text-muted uppercase tracking-wide"
+                >
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-blue-grey/10">
+            {rows.map((row, i) => (
+              <tr key={i} className="hover:bg-cream/30 transition-colors">
+                <td className="px-5 py-4 font-medium text-text-primary">{row.employeeName}</td>
+                <td className="px-5 py-4 text-text-muted">{row.leaveType}</td>
+                <td className="px-5 py-4">
+                  <span className="font-semibold text-text-primary">{row.daysCount}</span>
+                  <span className="text-text-muted ml-1">day{row.daysCount !== 1 ? 's' : ''}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile cards */}
+      <div className="md:hidden space-y-3">
+        {rows.map((row, i) => (
+          <div key={i} className="card border border-blue-grey/20 py-4 space-y-1">
+            <p className="text-sm font-semibold text-text-primary">{row.employeeName}</p>
+            <p className="text-xs text-text-muted">{row.leaveType}</p>
+            <p className="text-xs text-text-muted">
+              Approved used:{' '}
+              <strong className="text-text-primary">{row.daysCount} day{row.daysCount !== 1 ? 's' : ''}</strong>
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Admin View ────────────────────────────────────────────────────────────────
 
 function AdminView() {
   const qc = useQueryClient();
   const [liveToast, setLiveToast] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'timeoff' | 'allocation'>('timeoff');
 
   const {
     data: requests = [],
@@ -509,17 +336,14 @@ function AdminView() {
     queryFn: async () => (await api.get('/timeoff/requests')).data,
   });
 
-  // Live: new employee request arrives → show toast and invalidate
+  // Live: new employee request arrives → toast + refetch
   useEffect(() => {
     const socket = getSocket();
-
-    const handleRequested = (data: { employeeId: string; typeId: string }) => {
-      void data;
+    const handleRequested = () => {
       setLiveToast('A new time-off request just arrived.');
       setTimeout(() => setLiveToast(null), 4000);
       refetch();
     };
-
     socket.on('timeoff:requested', handleRequested);
     return () => { socket.off('timeoff:requested', handleRequested); };
   }, [refetch]);
@@ -544,12 +368,7 @@ function AdminView() {
     },
   });
 
-  const [activeTab, setActiveTab] = useState<'all' | 'pending'>('pending');
-
-  const displayed =
-    activeTab === 'pending'
-      ? requests.filter((r) => r.status === 'PENDING')
-      : requests;
+  const pendingCount = requests.filter((r) => r.status === 'PENDING').length;
 
   return (
     <div className="space-y-6">
@@ -561,40 +380,40 @@ function AdminView() {
         </div>
       )}
 
-      {/* Tabs */}
+      {/* Tabs — "Time Off" | "Allocation" */}
       <div className="flex items-center space-x-1 bg-cream rounded-xl p-1 w-fit border border-blue-grey/20">
-        {(['pending', 'all'] as const).map((tab) => (
+        {(['timeoff', 'allocation'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all capitalize ${
+            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
               activeTab === tab
                 ? 'bg-white text-slate-brand shadow-sm'
                 : 'text-text-muted hover:text-text-primary'
             }`}
           >
-            {tab === 'pending' ? 'Pending' : 'All Requests'}
-            {tab === 'pending' && (
+            {tab === 'timeoff' ? 'Time Off' : 'Allocation'}
+            {tab === 'timeoff' && pendingCount > 0 && (
               <span className="ml-2 bg-slate-brand/10 text-slate-brand text-xs font-semibold px-1.5 py-0.5 rounded-full">
-                {requests.filter((r) => r.status === 'PENDING').length}
+                {pendingCount}
               </span>
             )}
           </button>
         ))}
       </div>
 
-      {/* Table */}
-      {isLoading ? (
+      {/* Tab content */}
+      {activeTab === 'allocation' ? (
+        <AllocationTab requests={requests} />
+      ) : isLoading ? (
         <div className="flex items-center space-x-2 text-sm text-text-muted">
           <Loader2 className="w-4 h-4 animate-spin text-slate-brand" />
           <span>Loading requests…</span>
         </div>
-      ) : displayed.length === 0 ? (
+      ) : requests.length === 0 ? (
         <div className="card border border-blue-grey/20 p-10 text-center space-y-3">
           <CheckCircle2 className="w-10 h-10 text-sage-light mx-auto" />
-          <p className="text-sm text-text-muted">
-            {activeTab === 'pending' ? 'No pending requests — all caught up!' : 'No requests found.'}
-          </p>
+          <p className="text-sm text-text-muted">No requests found.</p>
         </div>
       ) : (
         <>
@@ -614,8 +433,8 @@ function AdminView() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-blue-grey/10">
-                {displayed.map((req) => (
-                  <tr key={req.id} className="hover:bg-cream/30 transition-colors group">
+                {requests.map((req) => (
+                  <tr key={req.id} className="hover:bg-cream/30 transition-colors">
                     <td className="px-5 py-4 font-medium text-text-primary">
                       {req.employee?.firstName} {req.employee?.lastName}
                     </td>
@@ -623,9 +442,7 @@ function AdminView() {
                     <td className="px-5 py-4 text-text-muted font-mono text-xs">
                       {fmtDate(req.startDate)} → {fmtDate(req.endDate)}
                     </td>
-                    <td className="px-5 py-4 font-semibold text-text-primary">
-                      {req.daysCount}
-                    </td>
+                    <td className="px-5 py-4 font-semibold text-text-primary">{req.daysCount}</td>
                     <td className="px-5 py-4">
                       <StatusBadge status={req.status} />
                     </td>
@@ -633,9 +450,7 @@ function AdminView() {
                       {req.status === 'PENDING' ? (
                         <div className="flex items-center space-x-2">
                           <button
-                            onClick={() =>
-                              reviewMutation.mutate({ id: req.id, action: 'APPROVE' })
-                            }
+                            onClick={() => reviewMutation.mutate({ id: req.id, action: 'APPROVE' })}
                             disabled={reviewMutation.isPending}
                             className="flex items-center space-x-1 px-3 py-1.5 text-xs font-semibold bg-sage-light/30 text-sage-deep border border-sage-light/60 rounded-lg hover:bg-sage-light/50 transition-colors disabled:opacity-50"
                           >
@@ -643,9 +458,7 @@ function AdminView() {
                             <span>Approve</span>
                           </button>
                           <button
-                            onClick={() =>
-                              reviewMutation.mutate({ id: req.id, action: 'REJECT' })
-                            }
+                            onClick={() => reviewMutation.mutate({ id: req.id, action: 'REJECT' })}
                             disabled={reviewMutation.isPending}
                             className="flex items-center space-x-1 px-3 py-1.5 text-xs font-semibold bg-terracotta/10 text-terracotta border border-terracotta/30 rounded-lg hover:bg-terracotta/20 transition-colors disabled:opacity-50"
                           >
@@ -665,7 +478,7 @@ function AdminView() {
 
           {/* Mobile stacked cards */}
           <div className="md:hidden space-y-3">
-            {displayed.map((req) => (
+            {requests.map((req) => (
               <div key={req.id} className="card border border-blue-grey/20 space-y-3 py-4">
                 <div className="flex items-start justify-between">
                   <div>
@@ -677,12 +490,10 @@ function AdminView() {
                   <StatusBadge status={req.status} />
                 </div>
                 <div className="text-xs text-text-muted space-y-0.5">
+                  <p>{fmtDate(req.startDate)} → {fmtDate(req.endDate)}</p>
                   <p>
-                    {fmtDate(req.startDate)} → {fmtDate(req.endDate)}
-                  </p>
-                  <p>
-                    <strong className="text-text-primary">{req.daysCount}</strong> day
-                    {req.daysCount !== 1 ? 's' : ''}
+                    <strong className="text-text-primary">{req.daysCount}</strong>{' '}
+                    day{req.daysCount !== 1 ? 's' : ''}
                   </p>
                 </div>
                 {req.status === 'PENDING' && (
@@ -742,7 +553,6 @@ export const TimeOffPage: React.FC = () => {
         )}
       </div>
 
-      {/* Role-based content */}
       {isAdmin ? <AdminView /> : <EmployeeView />}
     </div>
   );
