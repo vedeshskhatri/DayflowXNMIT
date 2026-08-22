@@ -1,14 +1,46 @@
 /* Import Google Fonts — must load before Tailwind base */
-@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;500;600;700&family=Mulish:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Mulish:ital,wght@0,200..1000;1,200..1000&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ── Hardwired Typography ─────────────────────────────────────────────────── */
+html,
+body,
+button,
+input,
+optgroup,
+select,
+textarea,
+p,
+span,
+label,
+a,
+li,
+td,
+th {
+  font-family: 'Mulish', 'Muli', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-heading {
+  font-family: 'Josefin Sans', sans-serif !important;
+  letter-spacing: 0.01em;
+}
+
+.font-sans {
+  font-family: 'Mulish', 'Muli', sans-serif !important;
+}
+
 /* ── Base resets ────────────────────────────────────────────────────────────── */
 @layer base {
   html {
-    font-family: 'Mulish', 'Muli', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-size: 16px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -16,13 +48,7 @@
 
   body {
     @apply bg-cream text-text-primary;
-    font-family: 'Mulish', 'Muli', ui-sans-serif, system-ui, sans-serif;
     min-height: 100dvh;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Josefin Sans', ui-sans-serif, system-ui, sans-serif;
-    @apply text-text-primary tracking-normal;
   }
 
   /* Custom scrollbar — minimal, matches the warm palette */
