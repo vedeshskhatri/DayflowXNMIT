@@ -20,6 +20,16 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(requestId);
 
+app.get('/', (_req, res) => {
+  res.json({
+    name: 'Dayflow HRMS API',
+    version: '1.0.0',
+    status: 'running',
+    docs: 'https://github.com/vedeshskhatri/DayflowXNMIT',
+    health: '/health',
+  });
+});
+
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
