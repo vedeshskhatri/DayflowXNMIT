@@ -7,6 +7,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
+  Sparkles,
 } from 'lucide-react';
 
 interface AttendanceRecord {
@@ -95,6 +96,20 @@ export const EmployeeAttendanceView: React.FC = () => {
     const newDate = new Date(selectedYear, selectedMonth + delta, 1);
     setSelectedYear(newDate.getFullYear());
     setSelectedMonth(newDate.getMonth());
+  };
+
+  const isCurrentMonth =
+    selectedYear === now.getFullYear() && selectedMonth === now.getMonth();
+
+  const jumpToToday = () => {
+    setSelectedYear(now.getFullYear());
+    setSelectedMonth(now.getMonth());
+    setTimeout(() => {
+      const el = document.getElementById('today-attendance-row');
+      if (el && typeof el.scrollIntoView === 'function') {
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }, 100);
   };
 
   // Generate day-wise rows for the full month in descending order (most recent dates first, matching wireframe: 25/10/2025, 24/10/2025...)
@@ -234,6 +249,19 @@ export const EmployeeAttendanceView: React.FC = () => {
           <span className="font-heading font-bold text-xs sm:text-sm text-text-primary">
             {todayFormattedHeading}
           </span>
+
+          {/* Jump to Today Button */}
+          {!isCurrentMonth && (
+            <button
+              data-testid="btn-jump-today"
+              onClick={jumpToToday}
+              className="btn-secondary py-1 px-2.5 text-xs flex items-center space-x-1 rounded-xl shadow-xs"
+              title="Jump to current month & today"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-slate-brand" />
+              <span>Today</span>
+            </button>
+          )}
         </div>
 
         <span className="text-xs font-mono text-text-muted hidden sm:inline">
@@ -284,6 +312,7 @@ export const EmployeeAttendanceView: React.FC = () => {
                   return (
                     <tr
                       key={idx}
+                      id={item.isToday ? 'today-attendance-row' : undefined}
                       className={`hover:bg-cream/30 transition-colors ${
                         item.isToday
                           ? 'bg-sage-light/20 font-semibold'
