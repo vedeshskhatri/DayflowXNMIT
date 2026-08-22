@@ -49,7 +49,7 @@ export const Navbar: React.FC = () => {
         return 'bg-sage-deep shadow-[0_0_8px_rgba(142,158,131,0.8)]';
       case 'ABSENT':
       default:
-        return 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]';
+        return 'bg-terracotta shadow-[0_0_8px_rgba(201,123,99,0.8)]';
     }
   };
 
@@ -67,12 +67,18 @@ export const Navbar: React.FC = () => {
 
   return (
     <>
-    <header className="sticky top-0 z-40 bg-white border-b border-blue-grey/30 shadow-sm backdrop-blur-md bg-white/95">
+    <header
+      className="sticky top-0 z-40 bg-white/80 border-b border-blue-grey/40 shadow-sm backdrop-blur-xl"
+      style={{ boxShadow: '0 1px 0 0 rgba(167,183,198,0.4), inset 0 1px 0 0 rgba(255,255,255,0.9)' }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Left: Brand + Nav items */}
           <div className="flex items-center space-x-8">
-            <Link to="/" className="flex items-center space-x-3 group">
+            <Link
+              to="/"
+              className="flex items-center space-x-3 group hover:bg-slate-brand/5 rounded-xl px-2 py-1 -mx-2 -my-1 transition-all"
+            >
               <DayflowLogo size="md" />
               <div className="flex flex-col">
                 <span className="font-heading font-bold text-xl tracking-tight text-text-primary">
@@ -94,14 +100,17 @@ export const Navbar: React.FC = () => {
                     <Link
                       key={item.path}
                       to={item.path}
-                      className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all ${
+                      className={`relative flex items-center space-x-2 px-3.5 py-2 rounded-xl text-sm font-medium transition-all ${
                         isActive
-                          ? 'bg-slate-brand/10 text-slate-brand font-semibold'
+                          ? 'bg-slate-brand/12 text-slate-brand font-semibold'
                           : 'text-text-muted hover:text-text-primary hover:bg-cream/60'
                       }`}
                     >
                       <Icon className={`w-4 h-4 ${isActive ? 'text-slate-brand' : 'text-blue-grey'}`} />
                       <span>{item.name}</span>
+                      {isActive && (
+                        <span className="absolute bottom-0 left-3.5 right-3.5 h-0.5 bg-slate-brand rounded-full" />
+                      )}
                     </Link>
                   );
                 })}
@@ -109,22 +118,19 @@ export const Navbar: React.FC = () => {
             )}
           </div>
 
-          {/* Right: Streak Widget + Check In/Out + Presence + Profile */}
+          {/* Right: Streak Widget + Presence + Profile */}
           {user ? (
             <div className="hidden md:flex items-center space-x-4">
               {/* Gamification: Streak + Points */}
               <StreakWidget />
 
-              <div className="h-6 w-px bg-blue-grey/25" />
-
-              {/* Check In / Check Out Systray */}
-              <AttendanceControl />
-
-              <div className="h-6 w-px bg-blue-grey/25" />
-
               {/* Presence Status Pill */}
-              <div className="flex items-center space-x-2 bg-cream/70 border border-blue-grey/20 rounded-full px-3 py-1 text-xs">
-                <span className={`w-2.5 h-2.5 rounded-full ${getStatusDotClass(user.status)}`} />
+              <div className="flex items-center space-x-2 bg-white/60 backdrop-blur-sm border border-blue-grey/20 rounded-full px-3 py-1 text-xs">
+                <span
+                  className={`w-2.5 h-2.5 rounded-full ${getStatusDotClass(user.status)} ${
+                    user.status === 'PRESENT' ? 'animate-pulse' : ''
+                  }`}
+                />
                 <span className="font-medium text-text-primary">{getStatusLabel(user.status)}</span>
               </div>
 
@@ -136,7 +142,7 @@ export const Navbar: React.FC = () => {
                   className="flex items-center space-x-2.5 pl-2 py-1 pr-2 rounded-xl border border-transparent hover:border-blue-grey/20 hover:bg-cream/60 transition-all group"
                   title="User Menu"
                 >
-                  <div className="w-9 h-9 rounded-full bg-slate-brand/15 text-slate-brand font-heading font-bold flex items-center justify-center text-sm border border-slate-brand/20 group-hover:scale-105 transition-transform">
+                  <div className="w-9 h-9 rounded-full bg-slate-brand/15 text-slate-brand font-heading font-bold flex items-center justify-center text-sm border border-slate-brand/30 shadow-sm group-hover:scale-105 transition-transform">
                     {user.firstName[0]}
                     {user.lastName[0]}
                   </div>
@@ -154,7 +160,7 @@ export const Navbar: React.FC = () => {
                     </div>
                     <span className="text-xs text-text-muted mt-0.5">{user.loginId}</span>
                   </div>
-                  <ChevronDown className={`w-4 h-4 text-blue-grey transition-transform duration-200 ${profileDropdownOpen ? 'rotate-180 text-slate-brand' : ''}`} />
+                  <ChevronDown className={`w-4 h-4 text-blue-grey transition-transform duration-300 ${profileDropdownOpen ? 'rotate-180 text-slate-brand' : ''}`} />
                 </button>
 
                 {/* Dropdown Menu (Wireframe: My Profile, Log Out) */}
