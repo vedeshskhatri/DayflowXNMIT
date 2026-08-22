@@ -137,6 +137,7 @@ export const AttendanceControl: React.FC<{ compact?: boolean }> = ({ compact = f
         {/* State 1: Not checked in yet */}
         {!isCheckedIn && !isCompleted && (
           <button
+            data-testid="checkin-button"
             onClick={() => checkInMutation.mutate()}
             disabled={checkInMutation.isPending}
             className="btn-primary flex items-center space-x-2 text-sm shadow-sm"
@@ -156,6 +157,7 @@ export const AttendanceControl: React.FC<{ compact?: boolean }> = ({ compact = f
               </span>
             )}
             <button
+              data-testid="checkout-button"
               onClick={() => checkOutMutation.mutate()}
               disabled={checkOutMutation.isPending}
               className="bg-terracotta text-white font-medium py-2.5 px-5 rounded-xl transition-all duration-150 hover:opacity-90 active:scale-[0.98] flex items-center space-x-2 text-sm shadow-sm"
@@ -168,7 +170,7 @@ export const AttendanceControl: React.FC<{ compact?: boolean }> = ({ compact = f
 
         {/* State 3: Both checked in and checked out (completed for today) */}
         {isCompleted && (
-          <div className="inline-flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-sage-light/30 text-text-primary border border-sage-light text-xs font-medium">
+          <div data-testid="completed-badge" className="inline-flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-sage-light/30 text-text-primary border border-sage-light text-xs font-medium">
             <CheckCircle2 className="w-4 h-4 text-sage-deep" />
             <span>
               Done today &bull; Out at {formatTime(todayAttendance?.checkOut)}
@@ -179,7 +181,7 @@ export const AttendanceControl: React.FC<{ compact?: boolean }> = ({ compact = f
       </div>
 
       {actionError && (
-        <div className="flex items-center space-x-1 text-xs text-terracotta animate-fadeIn">
+        <div data-testid="attendance-error" className="flex items-center space-x-1 text-xs text-terracotta animate-fadeIn">
           <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
           <span>{actionError}</span>
         </div>
