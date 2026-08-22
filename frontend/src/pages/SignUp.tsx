@@ -240,7 +240,7 @@ export const SignUp: React.FC = () => {
 
               <button
                 type="button"
-                onClick={() => navigate('/')}
+                onClick={() => navigate('/employees')}
                 className="btn-primary w-full flex items-center justify-center space-x-2 py-3 text-base"
               >
                 <span>Enter Workspace Dashboard</span>
