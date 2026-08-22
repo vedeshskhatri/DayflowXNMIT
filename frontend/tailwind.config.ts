@@ -33,8 +33,9 @@ const config: Config = {
       },
 
       fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-        heading: ['"Special Gothic Expanded One"', '"Special Gothic"', 'sans-serif'],
+        sans: ['Nunito', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        heading: ['Nunito', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        script: ['"Satisfy"', '"Great Vibes"', 'cursive'],
       },
 
       borderRadius: {
