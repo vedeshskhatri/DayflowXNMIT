@@ -609,28 +609,28 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
               <SalaryInfoTab employeeId={employeeId} />
             )}
 
-            {/* ── SECURITY TAB (Password Reset / Security Configuration) */}
+            {/* ── SECURITY TAB (Password Rules & Change Password) ──── */}
             {activeTab === 'security' && (
-              <div className="max-w-md space-y-6">
+              <div className="max-w-lg space-y-6">
                 <div>
                   <h4 className="font-heading font-bold text-sm text-text-primary">
                     Security & Password
                   </h4>
                   <p className="text-xs text-text-muted mt-1">
-                    Update your Dayflow account password. Choose a strong combination of letters and numbers.
+                    Set a strong personal password to protect your Dayflow account.
                   </p>
                 </div>
 
                 {pwdMsg && (
-                  <div className="p-3 rounded-xl bg-sage-light/30 border border-sage-deep/30 flex items-center space-x-2 text-xs text-sage-deep font-semibold">
-                    <CheckCircle2 className="w-4 h-4" />
+                  <div className="p-3.5 rounded-xl bg-sage-light/30 border border-sage-deep/30 flex items-center space-x-2 text-xs text-sage-deep font-semibold animate-fadeIn">
+                    <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
                     <span>{pwdMsg}</span>
                   </div>
                 )}
 
                 {pwdError && (
-                  <div className="p-3 rounded-xl bg-terracotta/10 border border-terracotta/20 flex items-center space-x-2 text-xs text-terracotta">
-                    <AlertCircle className="w-4 h-4" />
+                  <div className="p-3.5 rounded-xl bg-terracotta/10 border border-terracotta/20 flex items-center space-x-2 text-xs text-terracotta animate-fadeIn">
+                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
                     <span>{pwdError}</span>
                   </div>
                 )}
@@ -642,8 +642,8 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
                       type="password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="input py-2 text-xs w-full font-mono"
+                      placeholder="Enter new password"
+                      className="input py-2 text-xs w-full font-mono bg-cream/30"
                     />
                   </div>
 
@@ -653,19 +653,81 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
                       type="password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="input py-2 text-xs w-full font-mono"
+                      placeholder="Confirm new password"
+                      className={`input py-2 text-xs w-full font-mono bg-cream/30 ${
+                        confirmPassword && newPassword !== confirmPassword ? 'input-error' : ''
+                      }`}
                     />
+                    {confirmPassword && newPassword !== confirmPassword && (
+                      <p className="error-text mt-1">Passwords do not match</p>
+                    )}
+                  </div>
+
+                  {/* ── Live Password Rules Checklist ── */}
+                  <div className="p-4 bg-cream/60 rounded-2xl border border-blue-grey/20 space-y-2.5">
+                    <span className="text-xs font-bold text-text-primary block">
+                      Password Requirements:
+                    </span>
+
+                    <div className="flex items-center space-x-2">
+                      {newPassword.length >= 8 ? (
+                        <CheckCircle2 className="w-4 h-4 text-sage-deep flex-shrink-0" />
+                      ) : (
+                        <div className="w-4 h-4 rounded-full border-2 border-blue-grey/40 flex-shrink-0" />
+                      )}
+                      <span className={newPassword.length >= 8 ? 'text-text-primary font-semibold' : 'text-text-muted'}>
+                        At least 8 characters
+                      </span>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      {/[A-Z]/.test(newPassword) ? (
+                        <CheckCircle2 className="w-4 h-4 text-sage-deep flex-shrink-0" />
+                      ) : (
+                        <div className="w-4 h-4 rounded-full border-2 border-blue-grey/40 flex-shrink-0" />
+                      )}
+                      <span className={/[A-Z]/.test(newPassword) ? 'text-text-primary font-semibold' : 'text-text-muted'}>
+                        At least 1 uppercase letter (A-Z)
+                      </span>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      {/[0-9]/.test(newPassword) ? (
+                        <CheckCircle2 className="w-4 h-4 text-sage-deep flex-shrink-0" />
+                      ) : (
+                        <div className="w-4 h-4 rounded-full border-2 border-blue-grey/40 flex-shrink-0" />
+                      )}
+                      <span className={/[0-9]/.test(newPassword) ? 'text-text-primary font-semibold' : 'text-text-muted'}>
+                        At least 1 number (0-9)
+                      </span>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      {newPassword.length > 0 && newPassword === confirmPassword ? (
+                        <CheckCircle2 className="w-4 h-4 text-sage-deep flex-shrink-0" />
+                      ) : (
+                        <div className="w-4 h-4 rounded-full border-2 border-blue-grey/40 flex-shrink-0" />
+                      )}
+                      <span className={newPassword.length > 0 && newPassword === confirmPassword ? 'text-text-primary font-semibold' : 'text-text-muted'}>
+                        Passwords match
+                      </span>
+                    </div>
                   </div>
 
                   <button
                     type="button"
                     onClick={handlePasswordChange}
-                    disabled={pwdLoading || !newPassword}
-                    className="btn-primary py-2 px-5 text-xs font-semibold flex items-center space-x-2"
+                    disabled={
+                      pwdLoading ||
+                      newPassword.length < 8 ||
+                      !/[A-Z]/.test(newPassword) ||
+                      !/[0-9]/.test(newPassword) ||
+                      newPassword !== confirmPassword
+                    }
+                    className="btn-primary py-2.5 px-5 text-xs font-semibold flex items-center space-x-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <KeyRound className="w-3.5 h-3.5" />
-                    <span>{pwdLoading ? 'Updating...' : 'Update Password'}</span>
+                    <span>{pwdLoading ? 'Updating Password...' : 'Update Password'}</span>
                   </button>
                 </div>
               </div>
