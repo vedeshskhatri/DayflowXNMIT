@@ -1,5 +1,5 @@
 /* Import Google Fonts — must load before Tailwind base */
-@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Mulish:ital,wght@0,200..1000;1,200..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Special+Gothic+Expanded+One&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -20,7 +20,9 @@ a,
 li,
 td,
 th {
-  font-family: 'Mulish', 'Muli', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1,
@@ -30,12 +32,13 @@ h4,
 h5,
 h6,
 .font-heading {
-  font-family: 'Josefin Sans', sans-serif !important;
-  letter-spacing: 0.01em;
+  font-family: 'Special Gothic Expanded One', sans-serif !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.01em;
 }
 
 .font-sans {
-  font-family: 'Mulish', 'Muli', sans-serif !important;
+  font-family: 'Inter', sans-serif !important;
 }
 
 /* ── Base resets ────────────────────────────────────────────────────────────── */
