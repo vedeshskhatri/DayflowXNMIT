@@ -104,7 +104,7 @@ describe('Employee Profile Module (Frontend)', () => {
     // Private Info inputs
     expect(screen.getByTestId('input-phone')).toBeInTheDocument();
     expect(screen.getByTestId('input-address')).toBeInTheDocument();
-    expect(screen.getByTestId('input-profilepic')).toBeInTheDocument();
+    expect(screen.getByTestId('input-photo-file')).toBeInTheDocument();
   });
 
   it('/profile does NOT render or fetch the Salary Info tab when the logged-in user is not Admin', async () => {

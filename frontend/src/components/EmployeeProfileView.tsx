@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,7 +9,8 @@ import { TagInput } from './TagInput';
 import { SalaryInfoTab } from './SalaryInfoTab';
 import {
   CheckCircle2,
-  Pencil,
+  Camera,
+  Upload,
   CreditCard,
 } from 'lucide-react';
 
@@ -30,17 +31,17 @@ export interface EmployeeProfileData {
   bio?: string | null;
   jobLove?: string | null;
   interests?: string | null;
-  dateOfBirth?: string | null;
-  dateOfJoining: string;
   address?: string | null;
   personalEmail?: string | null;
   gender?: string | null;
   maritalStatus?: string | null;
   jobTitle?: string | null;
   department?: string | null;
+  dateOfJoining?: string | null;
+  dateOfBirth?: string | null;
   skills: Tag[];
   certifications: Tag[];
-  salary?: unknown;
+  status?: string;
 }
 
 const selfEditSchema = z.object({
@@ -53,7 +54,7 @@ const selfEditSchema = z.object({
     .regex(/^\d{10}$/, 'Phone must be exactly 10 digits')
     .optional()
     .or(z.literal('')),
-  profilePicUrl: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  profilePicUrl: z.string().optional().or(z.literal('')),
   skills: z.array(z.string()).optional(),
   certifications: z.array(z.string()).optional(),
 });
@@ -73,6 +74,8 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
 }) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const photoInputRef = useRef<HTMLInputElement>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
   const isAdmin = user?.role === 'ADMIN' || user?.role === 'HR_OFFICER';
   const [activeTab, setActiveTab] = useState<Tab>('about');
   const [successMsg, setSuccessMsg] = useState('');
@@ -93,6 +96,8 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
     register,
     control,
     handleSubmit,
+    setValue,
+    watch,
     reset,
     formState: { errors, isDirty, isSubmitting },
   } = useForm<SelfEditFormValues>({
@@ -108,6 +113,34 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
       certifications: profile?.certifications?.map((c) => c.name) ?? [],
     },
   });
+
+  const watchedProfilePicUrl = watch('profilePicUrl');
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setPhotoError('Please select a valid image file (PNG, JPG, WEBP, etc.)');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setPhotoError('Photo size must be under 5MB');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      setValue('profilePicUrl', result, { shouldDirty: true, shouldValidate: true });
+      setPhotoError(null);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemovePhoto = () => {
+    setValue('profilePicUrl', '', { shouldDirty: true, shouldValidate: true });
+    if (photoInputRef.current) photoInputRef.current.value = '';
+    setPhotoError(null);
+  };
 
   React.useEffect(() => {
     if (profile) {
@@ -183,11 +216,17 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fadeIn">
       {/* Header Profile Summary matching Wireframe */}
       <div className="card border border-blue-grey/20 p-6 flex flex-col md:flex-row items-center md:items-start gap-6 bg-gradient-to-r from-white via-white to-cream shadow-sm">
-        {/* Avatar with Edit Pencil Overlay */}
-        <div className="relative group flex-shrink-0">
-          {profile.profilePicUrl ? (
+        {/* Avatar with Edit Camera Overlay */}
+        <div
+          className={`relative group flex-shrink-0 ${editable ? 'cursor-pointer' : ''}`}
+          onClick={() => {
+            if (editable) photoInputRef.current?.click();
+          }}
+          title={editable ? 'Click to upload profile photo from device' : undefined}
+        >
+          {(watchedProfilePicUrl || profile.profilePicUrl) ? (
             <img
-              src={profile.profilePicUrl}
+              src={watchedProfilePicUrl || profile.profilePicUrl || ''}
               alt={fullName}
               className="w-24 h-24 rounded-full object-cover ring-4 ring-blue-grey/20 shadow-sm"
             />
@@ -199,10 +238,10 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
 
           {editable && (
             <div
-              className="absolute bottom-0 right-0 p-1.5 rounded-full bg-slate-brand text-white shadow-md border-2 border-white"
-              title="Profile picture can be edited below"
+              className="absolute bottom-0 right-0 p-1.5 rounded-full bg-slate-brand text-white shadow-md border-2 border-white group-hover:bg-slate-brand/90 transition-colors"
+              title="Upload profile photo from device"
             >
-              <Pencil className="w-3.5 h-3.5" />
+              <Camera className="w-3.5 h-3.5" />
             </div>
           )}
         </div>
@@ -369,7 +408,7 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
                     <div className="p-3 bg-cream/50 rounded-xl border border-blue-grey/20 flex justify-between items-center">
                       <span className="text-text-muted">Date of Joining</span>
                       <span className="font-medium text-text-primary">
-                        {new Date(profile.dateOfJoining).toLocaleDateString()}
+                        {profile.dateOfJoining ? new Date(profile.dateOfJoining).toLocaleDateString() : '—'}
                       </span>
                     </div>
 
@@ -413,15 +452,39 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
                     </div>
 
                     <div>
-                      <label className="label text-[11px] mb-1">Profile Picture URL :-</label>
+                      <label className="label text-[11px] mb-1">Profile Photo :-</label>
+                      <div className="flex flex-wrap items-center gap-3 mt-1">
+                        <button
+                          type="button"
+                          onClick={() => photoInputRef.current?.click()}
+                          className="btn-secondary text-xs flex items-center space-x-2 py-2 px-3.5 shadow-xs hover:border-slate-brand transition-all"
+                        >
+                          <Upload className="w-3.5 h-3.5 text-slate-brand" />
+                          <span>Upload Photo from Device</span>
+                        </button>
+                        {(watchedProfilePicUrl || profile.profilePicUrl) && (
+                          <button
+                            type="button"
+                            onClick={handleRemovePhoto}
+                            className="text-xs text-terracotta hover:underline font-semibold"
+                          >
+                            Remove Photo
+                          </button>
+                        )}
+                      </div>
+                      {photoError && <p className="error-text mt-1">{photoError}</p>}
+                      <p className="text-[10px] text-text-muted mt-1">
+                        Supports JPG, PNG, WEBP (Max 5MB)
+                      </p>
                       <input
-                        {...register('profilePicUrl')}
-                        data-testid="input-profilepic"
-                        type="url"
-                        className={`input py-2 text-xs ${errors.profilePicUrl ? 'input-error' : ''}`}
-                        placeholder="https://example.com/avatar.jpg"
+                        ref={photoInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handlePhotoUpload}
+                        className="hidden"
+                        data-testid="input-photo-file"
                       />
-                      {errors.profilePicUrl && <p className="error-text">{errors.profilePicUrl.message}</p>}
+                      <input type="hidden" {...register('profilePicUrl')} />
                     </div>
                   </div>
                 </div>
@@ -594,7 +657,7 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
                     <div className="p-3 bg-cream/50 rounded-xl border border-blue-grey/20 flex justify-between">
                       <span className="text-text-muted">Date of Joining</span>
                       <span className="font-medium text-text-primary">
-                        {new Date(profile.dateOfJoining).toLocaleDateString()}
+                        {profile.dateOfJoining ? new Date(profile.dateOfJoining).toLocaleDateString() : '—'}
                       </span>
                     </div>
                     <div className="p-3 bg-cream/50 rounded-xl border border-blue-grey/20 flex justify-between">
