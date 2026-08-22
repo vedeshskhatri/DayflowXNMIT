@@ -11,17 +11,7 @@ import {
   CheckCircle2,
   Pencil,
   CreditCard,
-  Lock,
   KeyRound,
-  ShieldCheck,
-  Building,
-  UserCheck,
-  MapPin,
-  Mail,
-  Phone,
-  Calendar,
-  FileText,
-  User,
 } from 'lucide-react';
 
 interface Tag {
@@ -85,12 +75,14 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const isAdmin = user?.role === 'ADMIN' || user?.role === 'HR_OFFICER';
-  const isOwnProfile = Boolean(user?.id === employeeId || editable);
-  const canViewSalary = isAdmin || isOwnProfile;
+  const isOwnProfile = Boolean(
+    editable ||
+    (user && (user.id === employeeId || user.loginId === employeeId))
+  );
+  const canViewSalary = isAdmin;
   const canViewPrivateInfo = isAdmin || isOwnProfile;
 
-  // Default to 'private' tab when accessing My Profile as shown in wireframe
-  const [activeTab, setActiveTab] = useState<Tab>(isOwnProfile ? 'private' : 'about');
+  const [activeTab, setActiveTab] = useState<Tab>('about');
   const [successMsg, setSuccessMsg] = useState('');
 
   // Password change state
@@ -225,15 +217,7 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
 
   const fullName = `${profile.firstName} ${profile.lastName}`;
   const initials = `${profile.firstName[0]}${profile.lastName[0]}`.toUpperCase();
-<<<<<<< HEAD
-=======
-  const isOwnProfile = Boolean(
-    editable ||
-    (user && profile && (user.id === profile.id || user.loginId === profile.loginId)) ||
-    (user && (user.id === employeeId || user.loginId === employeeId))
-  );
-  const canViewPrivateInfo = Boolean(isAdmin || isOwnProfile);
->>>>>>> 9f3ec4d5064531ac801de750246895c3c16f943c
+
 
   const tabs: { id: Tab; label: string }[] = [
     { id: 'about', label: 'Resume' },
@@ -312,17 +296,7 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
                 <span className="font-bold text-text-primary w-24">Login ID :-</span>
                 <span className="font-mono font-bold text-slate-brand">{profile.loginId}</span>
               </p>
-<<<<<<< HEAD
-=======
-              <p>
-                <span className="font-semibold text-text-primary">Email :-</span> {profile.email}
-              </p>
-              {canViewPrivateInfo && profile.phone && (
-                <p>
-                  <span className="font-semibold text-text-primary">Mobile :-</span> {profile.phone}
-                </p>
-              )}
->>>>>>> 9f3ec4d5064531ac801de750246895c3c16f943c
+
             </div>
           </div>
 
@@ -545,32 +519,30 @@ export const EmployeeProfileView: React.FC<EmployeeProfileViewProps> = ({
 
                 <div className="lg:col-span-5 space-y-6 lg:border-l lg:border-blue-grey/20 lg:pl-6">
                   <div>
-                    <label className="label text-xs font-bold text-text-primary">Skills &amp; Expertise :-</label>
                     <Controller
                       name="skills"
                       control={control}
                       render={({ field }) => (
                         <TagInput
-                          tags={field.value ?? []}
+                          label="Skills & Expertise"
+                          value={field.value ?? []}
                           onChange={field.onChange}
                           placeholder="Type skill & press Enter..."
-                          dataTestId="tag-input-skills"
                         />
                       )}
                     />
                   </div>
 
                   <div>
-                    <label className="label text-xs font-bold text-text-primary">Certifications :-</label>
                     <Controller
                       name="certifications"
                       control={control}
                       render={({ field }) => (
                         <TagInput
-                          tags={field.value ?? []}
+                          label="Certifications"
+                          value={field.value ?? []}
                           onChange={field.onChange}
                           placeholder="Type certification & press Enter..."
-                          dataTestId="tag-input-certifications"
                         />
                       )}
                     />
