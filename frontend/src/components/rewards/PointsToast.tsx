@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { playPointsSound, playStreakSound } from '../../lib/sounds';
+import { Flame } from 'lucide-react';
 
 interface PointsToastItem {
   id: string;
@@ -54,26 +55,40 @@ export function PointsToast({ socket }: { socket: any }) {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className="animate-points-toast flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-amber-400 text-black font-bold text-sm px-4 py-2 rounded-full shadow-lg"
+            className="animate-points-toast flex items-center space-x-2.5 bg-white border border-blue-grey/30 shadow-modal text-text-primary px-4 py-2.5 rounded-2xl"
           >
-            <span className="text-base">🪙</span>
-            <span>+{t.amount} pts</span>
-            {t.reason === 'EARLY_CHECKIN' && <span className="text-xs opacity-80">Early Bird!</span>}
+            <div className="w-7 h-7 rounded-xl bg-sage-light/40 border border-sage-deep/30 flex items-center justify-center text-sm">
+              🪙
+            </div>
+            <div>
+              <div className="font-heading font-bold text-slate-brand text-sm">
+                +{t.amount} Points
+              </div>
+              <div className="text-[11px] text-text-muted">
+                {t.reason === 'EARLY_CHECKIN' ? '🌅 Early Bird Bonus!' : 'Awarded to balance'}
+              </div>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Streak milestone toasts — bottom right, above points toasts */}
-      <div className="fixed bottom-20 right-6 z-[9999] flex flex-col gap-2 items-end pointer-events-none">
+      {/* Streak milestone toasts — bottom right */}
+      <div className="fixed bottom-24 right-6 z-[9999] flex flex-col gap-2 items-end pointer-events-none">
         {streakToasts.map((t) => (
           <div
             key={t.id}
-            className="animate-points-toast flex items-center gap-3 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold px-5 py-3 rounded-2xl shadow-2xl"
+            className="animate-points-toast flex items-center space-x-3 bg-white border-2 border-orange-300 shadow-modal text-text-primary px-5 py-3 rounded-2xl"
           >
-            <span className="text-2xl">🔥</span>
+            <div className="w-10 h-10 rounded-xl bg-orange-100 border border-orange-200 flex items-center justify-center">
+              <Flame className="w-6 h-6 text-orange-500 fill-orange-500" />
+            </div>
             <div>
-              <div className="text-base">{t.milestone}-Day Streak!</div>
-              <div className="text-xs opacity-80">+{t.milestone === 7 ? 50 : t.milestone === 30 ? 200 : 500} pts bonus awarded</div>
+              <div className="font-heading font-bold text-text-primary text-base">
+                🔥 {t.milestone}-Day Streak Milestone!
+              </div>
+              <div className="text-xs text-text-muted">
+                +{t.milestone === 7 ? 50 : t.milestone === 30 ? 200 : 500} bonus points awarded!
+              </div>
             </div>
           </div>
         ))}
@@ -81,10 +96,10 @@ export function PointsToast({ socket }: { socket: any }) {
 
       <style>{`
         @keyframes pointsToastAnim {
-          0% { opacity: 0; transform: translateY(20px) scale(0.8); }
-          15% { opacity: 1; transform: translateY(0) scale(1.05); }
+          0% { opacity: 0; transform: translateY(20px) scale(0.85); }
+          15% { opacity: 1; transform: translateY(0) scale(1.03); }
           25% { transform: translateY(0) scale(1); }
-          75% { opacity: 1; transform: translateY(-8px); }
+          75% { opacity: 1; transform: translateY(-4px); }
           100% { opacity: 0; transform: translateY(-20px) scale(0.9); }
         }
         .animate-points-toast {

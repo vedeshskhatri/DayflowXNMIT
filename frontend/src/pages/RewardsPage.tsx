@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/api';
 import { playRedeemSound, playErrorSound, playEasterEggSound } from '../lib/sounds';
+import { Trophy, Flame, Zap, Award, ShoppingBag } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -39,8 +40,8 @@ interface Reward {
 // ─── Confetti ─────────────────────────────────────────────────────────────────
 
 function Confetti({ active }: { active: boolean }) {
-  const colors = ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8'];
-  const pieces = Array.from({ length: 80 });
+  const colors = ['#5E7892', '#BDCFAA', '#8E9E83', '#C97B63', '#F3EFDF', '#E2D9C2', '#3B82F6', '#F59E0B'];
+  const pieces = Array.from({ length: 65 });
 
   if (!active) return null;
 
@@ -49,8 +50,8 @@ function Confetti({ active }: { active: boolean }) {
       {pieces.map((_, i) => {
         const color = colors[i % colors.length];
         const left = `${Math.random() * 100}%`;
-        const delay = `${Math.random() * 0.8}s`;
-        const dur = `${1.5 + Math.random() * 1.5}s`;
+        const delay = `${Math.random() * 0.5}s`;
+        const dur = `${1.8 + Math.random() * 1.5}s`;
         const size = `${8 + Math.random() * 8}px`;
         const rotation = `${Math.random() * 720}deg`;
         return (
@@ -63,7 +64,7 @@ function Confetti({ active }: { active: boolean }) {
               width: size,
               height: size,
               backgroundColor: color,
-              borderRadius: Math.random() > 0.5 ? '50%' : '0',
+              borderRadius: Math.random() > 0.5 ? '50%' : '2px',
               animation: `confettiFall ${dur} ${delay} ease-in forwards`,
               transform: `rotate(${rotation})`,
             }}
@@ -80,7 +81,7 @@ function Confetti({ active }: { active: boolean }) {
   );
 }
 
-// ─── Easter Egg Modal ─────────────────────────────────────────────────────────
+// ─── Easter Egg Modal (Dayflow Design System) ──────────────────────────────────
 
 function EasterEggModal({
   open,
@@ -93,54 +94,76 @@ function EasterEggModal({
 }) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-[99998] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 border border-purple-500/50 rounded-3xl p-8 max-w-md w-full text-center shadow-2xl">
-        <div className="text-6xl mb-4 animate-bounce">{alreadyFound ? '🥚' : '🎉'}</div>
-        <h2 className="text-2xl font-bold text-white mb-2">
-          {alreadyFound ? "You're Already a Legend!" : '🕹️ Easter Egg Found!'}
+    <div className="fixed inset-0 z-[99998] flex items-center justify-center bg-text-primary/50 backdrop-blur-sm p-4">
+      <div className="bg-white border border-blue-grey/25 rounded-3xl p-8 max-w-md w-full text-center shadow-modal animate-fadeIn">
+        <div className="w-16 h-16 rounded-2xl bg-sage-light/40 border border-sage-deep/30 flex items-center justify-center text-4xl mx-auto mb-4 animate-bounce">
+          {alreadyFound ? '🥚' : '🎉'}
+        </div>
+        <h2 className="text-2xl font-heading font-bold text-text-primary mb-2">
+          {alreadyFound ? "You're Already a Legend!" : '🕹️ Easter Egg Discovered!'}
         </h2>
-        <p className="text-purple-200 mb-2">
+        <p className="text-text-muted text-sm leading-relaxed mb-5">
           {alreadyFound
-            ? "You already discovered the Dayflow Easter Egg. You're one of the greats."
-            : "Whoa! You found the hidden Dayflow Easter Egg! You're officially a Dayflow Legend."}
+            ? "You have already unlocked the secret Dayflow Easter Egg. Keep holding down the leaderboard!"
+            : "Incredible curiosity! You found the hidden Easter Egg in Dayflow HRMS. You are officially awarded the Dayflow Legend status."}
         </p>
+
         {!alreadyFound && (
-          <div className="bg-yellow-400/20 border border-yellow-400/40 rounded-xl p-3 mb-4">
-            <span className="text-yellow-300 font-bold text-lg">+50 pts 🪙</span>
-            <span className="text-yellow-200 text-sm ml-2">awarded to your account</span>
+          <div className="bg-sage-light/30 border border-sage-deep/30 rounded-2xl p-4 mb-5 flex items-center justify-center space-x-3">
+            <span className="text-2xl">🪙</span>
+            <div className="text-left">
+              <span className="text-slate-brand font-heading font-bold text-lg">+50 Points</span>
+              <p className="text-text-muted text-xs">Credited instantly to your account</p>
+            </div>
           </div>
         )}
-        <div className="text-purple-300 text-xs mb-6 italic">
-          🥚 Badge &quot;Dayflow Legend&quot; {alreadyFound ? 'already in your collection' : 'added to your profile'}
-        </div>
+
         <button
           onClick={onClose}
-          className="bg-purple-600 hover:bg-purple-500 text-white font-bold px-8 py-3 rounded-xl transition-colors"
+          className="w-full bg-slate-brand hover:bg-slate-brand/90 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-sm"
         >
-          Close
+          Awesome, Continue
         </button>
       </div>
     </div>
   );
 }
 
-// ─── Rank badge ───────────────────────────────────────────────────────────────
+// ─── Rank Badge ───────────────────────────────────────────────────────────────
 
 function RankBadge({ rank }: { rank: number }) {
-  if (rank === 1) return <span className="text-2xl">🥇</span>;
-  if (rank === 2) return <span className="text-2xl">🥈</span>;
-  if (rank === 3) return <span className="text-xl">🥉</span>;
+  if (rank === 1) {
+    return (
+      <div className="w-8 h-8 rounded-full bg-amber-100 border border-amber-300 text-amber-800 flex items-center justify-center font-bold text-sm shadow-sm">
+        🥇
+      </div>
+    );
+  }
+  if (rank === 2) {
+    return (
+      <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-300 text-slate-700 flex items-center justify-center font-bold text-sm shadow-sm">
+        🥈
+      </div>
+    );
+  }
+  if (rank === 3) {
+    return (
+      <div className="w-8 h-8 rounded-full bg-amber-50 border border-amber-200 text-amber-900 flex items-center justify-center font-bold text-sm shadow-sm">
+        🥉
+      </div>
+    );
+  }
   return (
-    <span className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white/60 text-sm font-bold">
-      {rank}
-    </span>
+    <div className="w-8 h-8 rounded-full bg-cream border border-blue-grey/25 text-text-muted flex items-center justify-center font-heading font-bold text-xs">
+      #{rank}
+    </div>
   );
 }
 
 // ─── Avatar ───────────────────────────────────────────────────────────────────
 
 function Avatar({ name, src, size = 'md' }: { name: string; src?: string | null; size?: 'sm' | 'md' | 'lg' }) {
-  const sizeClass = size === 'sm' ? 'w-8 h-8 text-xs' : size === 'lg' ? 'w-16 h-16 text-xl' : 'w-10 h-10 text-sm';
+  const sizeClass = size === 'sm' ? 'w-9 h-9 text-xs' : size === 'lg' ? 'w-16 h-16 text-lg' : 'w-12 h-12 text-sm';
   const initials = name
     .split(' ')
     .map((n) => n[0])
@@ -149,32 +172,32 @@ function Avatar({ name, src, size = 'md' }: { name: string; src?: string | null;
     .slice(0, 2);
 
   if (src) {
-    return <img src={src} alt={name} className={`${sizeClass} rounded-full object-cover ring-2 ring-white/20`} />;
+    return <img src={src} alt={name} className={`${sizeClass} rounded-full object-cover border border-blue-grey/20 shadow-sm`} />;
   }
   return (
-    <div className={`${sizeClass} rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-white ring-2 ring-white/20`}>
+    <div className={`${sizeClass} rounded-full bg-slate-brand/15 text-slate-brand border border-slate-brand/20 font-heading font-bold flex items-center justify-center shadow-sm`}>
       {initials}
     </div>
   );
 }
 
-// ─── Transaction reason label ─────────────────────────────────────────────────
+// ─── Transaction Labels ───────────────────────────────────────────────────────
 
 const REASON_LABELS: Record<string, string> = {
-  DAILY_CHECKIN: '📅 Daily Check-in',
-  EARLY_CHECKIN: '🌅 Early Bird Bonus',
-  FULL_DAY_WORK: '⏱️ Full Day',
-  STREAK_7: '🔥 7-Day Streak',
-  STREAK_30: '⚡ 30-Day Streak',
-  STREAK_90: '🦁 90-Day Streak',
-  PROFILE_COMPLETE: '✅ Profile Complete',
-  EARLY_LEAVE_REQUEST: '📋 Early Leave Request',
-  ADMIN_AWARD: '🏅 Admin Award',
-  ADMIN_DEDUCT: '🛒 Redeemed',
-  EASTER_EGG: '🥚 Easter Egg',
+  DAILY_CHECKIN: 'Daily Check-in',
+  EARLY_CHECKIN: 'Early Bird Check-in',
+  FULL_DAY_WORK: 'Full 8h Workday',
+  STREAK_7: '7-Day Streak Milestone',
+  STREAK_30: '30-Day Streak Milestone',
+  STREAK_90: '90-Day Streak Milestone',
+  PROFILE_COMPLETE: 'Profile 100% Complete',
+  EARLY_LEAVE_REQUEST: 'Planned Leave Request',
+  ADMIN_AWARD: 'Admin Recognition Award',
+  ADMIN_DEDUCT: 'Store Redemption',
+  EASTER_EGG: 'Dayflow Easter Egg Bonus',
 };
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
+// ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function RewardsPage() {
   const [tab, setTab] = useState<'leaderboard' | 'store' | 'journey'>('leaderboard');
@@ -186,7 +209,7 @@ export default function RewardsPage() {
   const [showConfetti, setShowConfetti] = useState(false);
   const trophyClicksRef = useRef<number[]>([]);
 
-  // Data queries
+  // Queries
   const { data: leaderboard = [], isLoading: lbLoading } = useQuery<LeaderboardEntry[]>({
     queryKey: ['rewards', 'leaderboard'],
     queryFn: async () => (await api.get('/rewards/leaderboard')).data,
@@ -205,7 +228,7 @@ export default function RewardsPage() {
     staleTime: 60_000,
   });
 
-  // Redeem mutation
+  // Mutations
   const redeemMut = useMutation({
     mutationFn: async (rewardId: string) => (await api.post('/rewards/redeem', { rewardId })).data,
     onSuccess: (data) => {
@@ -217,7 +240,6 @@ export default function RewardsPage() {
     onError: () => playErrorSound(),
   });
 
-  // Easter egg mutation
   const eggMut = useMutation({
     mutationFn: async () => (await api.post('/rewards/easter-egg')).data,
     onSuccess: (data) => {
@@ -232,7 +254,6 @@ export default function RewardsPage() {
     },
   });
 
-  // Triple-click trophy easter egg trigger
   const handleTrophyClick = useCallback(() => {
     const now = Date.now();
     trophyClicksRef.current = [...trophyClicksRef.current.filter((t) => now - t < 1000), now];
@@ -243,9 +264,10 @@ export default function RewardsPage() {
   }, [eggMut]);
 
   const myPoints = myStats?.total ?? 0;
+  const myStreak = myStats?.streak ?? 0;
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
+    <div className="py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-8 animate-fadeIn">
       <Confetti active={showConfetti} />
       <EasterEggModal
         open={showEasterEgg}
@@ -253,340 +275,465 @@ export default function RewardsPage() {
         onClose={() => setShowEasterEgg(false)}
       />
 
-      {/* Header */}
-      <div className="bg-gradient-to-r from-gray-900 via-indigo-950 to-gray-900 border-b border-white/10 px-6 py-6">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={handleTrophyClick}
-              className="text-5xl select-none focus:outline-none hover:scale-110 transition-transform cursor-pointer"
-              title="🏆"
-              aria-label="Trophy"
-            >
-              🏆
-            </button>
+      {/* ── Top Page Header ─────────────────────────────────────────────────── */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-2 border-b border-blue-grey/20">
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={handleTrophyClick}
+            type="button"
+            className="w-14 h-14 rounded-2xl bg-white border border-blue-grey/25 shadow-card flex items-center justify-center text-3xl hover:scale-105 active:scale-95 transition-all cursor-pointer group"
+            title="Triple click for a surprise 🏆"
+          >
+            <Trophy className="w-7 h-7 text-slate-brand group-hover:rotate-12 transition-transform" />
+          </button>
+          <div>
+            <div className="flex items-center space-x-2.5">
+              <h1 className="text-2xl sm:text-3xl font-heading font-bold text-text-primary tracking-tight">
+                Rewards & Leaderboard
+              </h1>
+              <span className="bg-sage-light/60 text-text-primary border border-sage-deep/30 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider">
+                Gamification
+              </span>
+            </div>
+            <p className="text-sm text-text-muted mt-1">
+              Build daily attendance streaks, earn reward points, and redeem exclusive perks.
+            </p>
+          </div>
+        </div>
+
+        {/* User Quick Stats Chips */}
+        <div className="flex items-center space-x-3">
+          <div className="bg-white border border-blue-grey/25 rounded-2xl px-4 py-2.5 shadow-card flex items-center space-x-3">
+            <div className="w-9 h-9 rounded-xl bg-orange-100 border border-orange-200 flex items-center justify-center text-orange-600 font-bold">
+              <Flame className="w-5 h-5 text-orange-500 fill-orange-500 animate-pulse" />
+            </div>
             <div>
-              <h1 className="text-3xl font-bold text-white">Dayflow Rewards</h1>
-              <p className="text-white/50 text-sm mt-0.5">Earn points, build streaks, claim rewards</p>
+              <div className="text-xs text-text-muted uppercase font-semibold tracking-wider">Current Streak</div>
+              <div className="text-lg font-heading font-bold text-text-primary font-mono">{myStreak} Days</div>
             </div>
           </div>
 
-          {/* My Points Chip */}
-          <div className="flex items-center gap-3">
-            <div className="bg-yellow-400/10 border border-yellow-400/30 rounded-2xl px-5 py-3 text-center">
-              <div className="text-2xl font-bold text-yellow-300">{myPoints.toLocaleString()}</div>
-              <div className="text-yellow-400/70 text-xs">Your Points</div>
+          <div className="bg-white border border-blue-grey/25 rounded-2xl px-4 py-2.5 shadow-card flex items-center space-x-3">
+            <div className="w-9 h-9 rounded-xl bg-sage-light/40 border border-sage-deep/30 flex items-center justify-center text-slate-brand font-bold text-base">
+              🪙
             </div>
-            <div className="bg-orange-400/10 border border-orange-400/30 rounded-2xl px-5 py-3 text-center">
-              <div className="text-2xl font-bold text-orange-300">🔥 {myStats?.streak ?? 0}</div>
-              <div className="text-orange-400/70 text-xs">Day Streak</div>
+            <div>
+              <div className="text-xs text-text-muted uppercase font-semibold tracking-wider">Your Balance</div>
+              <div className="text-lg font-heading font-bold text-slate-brand font-mono">{myPoints.toLocaleString()} Pts</div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="max-w-6xl mx-auto px-6 pt-6">
-        <div className="flex gap-1 bg-white/5 rounded-xl p-1 w-fit mb-6">
-          {(['leaderboard', 'store', 'journey'] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`px-5 py-2 rounded-lg text-sm font-medium transition-all capitalize ${
-                tab === t
-                  ? 'bg-indigo-600 text-white shadow-lg'
-                  : 'text-white/50 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              {t === 'leaderboard' && '🏆 '}
-              {t === 'store' && '🛍️ '}
-              {t === 'journey' && '⭐ '}
-              {t === 'leaderboard' ? 'Leaderboard' : t === 'store' ? 'Store' : 'My Journey'}
-            </button>
-          ))}
-        </div>
+      {/* ── Subheader Navigation Tabs ────────────────────────────────────────── */}
+      <div className="flex items-center justify-between">
+        <div className="bg-white/80 p-1.5 rounded-2xl border border-blue-grey/25 shadow-sm inline-flex space-x-1">
+          <button
+            onClick={() => setTab('leaderboard')}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+              tab === 'leaderboard'
+                ? 'bg-slate-brand text-white shadow-sm'
+                : 'text-text-muted hover:text-text-primary hover:bg-cream/60'
+            }`}
+          >
+            <Trophy className="w-4 h-4" />
+            <span>Leaderboard</span>
+          </button>
 
-        {/* ── LEADERBOARD TAB ───────────────────────────────────────────────── */}
-        {tab === 'leaderboard' && (
-          <div>
-            {lbLoading ? (
-              <div className="text-white/40 text-center py-20">Loading leaderboard...</div>
-            ) : (
-              <>
-                {/* Top 3 Podium */}
-                {leaderboard.length >= 3 && (
-                  <div className="flex items-end justify-center gap-4 mb-10 mt-4">
-                    {/* 2nd place */}
-                    <div className="flex flex-col items-center gap-2">
-                      <Avatar name={leaderboard[1].name} src={leaderboard[1].profilePicUrl} size="md" />
-                      <div className="text-center">
-                        <div className="text-sm font-semibold text-white">{leaderboard[1].name.split(' ')[0]}</div>
-                        <div className="text-yellow-300 text-sm font-bold">{leaderboard[1].total.toLocaleString()} pts</div>
-                      </div>
-                      <div className="bg-gray-400/20 border border-gray-400/30 rounded-t-xl w-24 h-16 flex flex-col items-center justify-center">
-                        <span className="text-3xl">🥈</span>
-                      </div>
+          <button
+            onClick={() => setTab('store')}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+              tab === 'store'
+                ? 'bg-slate-brand text-white shadow-sm'
+                : 'text-text-muted hover:text-text-primary hover:bg-cream/60'
+            }`}
+          >
+            <ShoppingBag className="w-4 h-4" />
+            <span>Goodies Store</span>
+          </button>
+
+          <button
+            onClick={() => setTab('journey')}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+              tab === 'journey'
+                ? 'bg-slate-brand text-white shadow-sm'
+                : 'text-text-muted hover:text-text-primary hover:bg-cream/60'
+            }`}
+          >
+            <Award className="w-4 h-4" />
+            <span>My Journey</span>
+          </button>
+        </div>
+      </div>
+
+      {/* ── TAB 1: LEADERBOARD ──────────────────────────────────────────────── */}
+      {tab === 'leaderboard' && (
+        <div className="space-y-8">
+          {lbLoading ? (
+            <div className="bg-white rounded-2xl p-16 border border-blue-grey/20 text-center text-text-muted">
+              <div className="w-8 h-8 border-3 border-slate-brand/20 border-t-slate-brand rounded-full animate-spin mx-auto mb-3" />
+              Loading company leaderboard...
+            </div>
+          ) : (
+            <>
+              {/* Podium for Top 3 */}
+              {leaderboard.length >= 3 && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end pt-4">
+                  {/* #2 Rank (Silver) */}
+                  <div className="bg-white rounded-2xl border border-blue-grey/25 shadow-card p-6 flex flex-col items-center text-center relative order-2 md:order-1">
+                    <div className="absolute -top-4 w-9 h-9 rounded-full bg-slate-100 border border-slate-300 text-slate-700 flex items-center justify-center font-bold text-sm shadow-sm">
+                      🥈
                     </div>
-                    {/* 1st place */}
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="text-2xl animate-bounce">👑</div>
-                      <Avatar name={leaderboard[0].name} src={leaderboard[0].profilePicUrl} size="lg" />
-                      <div className="text-center">
-                        <div className="text-base font-bold text-white">{leaderboard[0].name.split(' ')[0]}</div>
-                        <div className="text-yellow-300 font-bold">{leaderboard[0].total.toLocaleString()} pts</div>
-                      </div>
-                      <div className="bg-yellow-400/20 border border-yellow-400/30 rounded-t-xl w-28 h-24 flex flex-col items-center justify-center">
-                        <span className="text-4xl">🥇</span>
-                      </div>
-                    </div>
-                    {/* 3rd place */}
-                    <div className="flex flex-col items-center gap-2">
-                      <Avatar name={leaderboard[2].name} src={leaderboard[2].profilePicUrl} size="md" />
-                      <div className="text-center">
-                        <div className="text-sm font-semibold text-white">{leaderboard[2].name.split(' ')[0]}</div>
-                        <div className="text-yellow-300 text-sm font-bold">{leaderboard[2].total.toLocaleString()} pts</div>
-                      </div>
-                      <div className="bg-amber-700/20 border border-amber-700/30 rounded-t-xl w-20 h-12 flex flex-col items-center justify-center">
-                        <span className="text-2xl">🥉</span>
-                      </div>
+                    <Avatar name={leaderboard[1].name} src={leaderboard[1].profilePicUrl} size="md" />
+                    <h3 className="font-heading font-bold text-text-primary text-base mt-3">{leaderboard[1].name}</h3>
+                    <p className="text-xs text-text-muted">{leaderboard[1].jobTitle || 'Employee'}</p>
+                    <div className="mt-4 pt-3 border-t border-blue-grey/15 w-full flex items-center justify-between text-xs">
+                      <span className="font-bold text-orange-600 flex items-center gap-1">🔥 {leaderboard[1].streak}d</span>
+                      <span className="font-heading font-bold text-slate-brand text-sm">{leaderboard[1].total.toLocaleString()} pts</span>
                     </div>
                   </div>
-                )}
 
-                {/* Full list */}
-                <div className="flex flex-col gap-2">
-                  {leaderboard.map((e) => (
+                  {/* #1 Rank (Gold Champion) */}
+                  <div className="bg-gradient-to-b from-amber-50/70 to-white rounded-2xl border-2 border-amber-300 shadow-modal p-7 flex flex-col items-center text-center relative order-1 md:order-2 transform md:-translate-y-3">
+                    <div className="absolute -top-5 w-11 h-11 rounded-full bg-amber-400 border-2 border-white text-white flex items-center justify-center text-xl shadow-md">
+                      👑
+                    </div>
+                    <Avatar name={leaderboard[0].name} src={leaderboard[0].profilePicUrl} size="lg" />
+                    <span className="inline-flex items-center mt-3 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                      Company Leader
+                    </span>
+                    <h3 className="font-heading font-bold text-text-primary text-lg mt-1">{leaderboard[0].name}</h3>
+                    <p className="text-xs text-text-muted">{leaderboard[0].jobTitle || 'Lead'}</p>
+                    <div className="mt-4 pt-3 border-t border-amber-200/60 w-full flex items-center justify-between text-xs">
+                      <span className="font-bold text-orange-600 flex items-center gap-1 text-sm">🔥 {leaderboard[0].streak}d streak</span>
+                      <span className="font-heading font-bold text-slate-brand text-base">{leaderboard[0].total.toLocaleString()} pts</span>
+                    </div>
+                  </div>
+
+                  {/* #3 Rank (Bronze) */}
+                  <div className="bg-white rounded-2xl border border-blue-grey/25 shadow-card p-6 flex flex-col items-center text-center relative order-3">
+                    <div className="absolute -top-4 w-9 h-9 rounded-full bg-amber-50 border border-amber-200 text-amber-900 flex items-center justify-center font-bold text-sm shadow-sm">
+                      🥉
+                    </div>
+                    <Avatar name={leaderboard[2].name} src={leaderboard[2].profilePicUrl} size="md" />
+                    <h3 className="font-heading font-bold text-text-primary text-base mt-3">{leaderboard[2].name}</h3>
+                    <p className="text-xs text-text-muted">{leaderboard[2].jobTitle || 'Employee'}</p>
+                    <div className="mt-4 pt-3 border-t border-blue-grey/15 w-full flex items-center justify-between text-xs">
+                      <span className="font-bold text-orange-600 flex items-center gap-1">🔥 {leaderboard[2].streak}d</span>
+                      <span className="font-heading font-bold text-slate-brand text-sm">{leaderboard[2].total.toLocaleString()} pts</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Full Standings List */}
+              <div className="bg-white rounded-2xl border border-blue-grey/25 shadow-card overflow-hidden">
+                <div className="px-6 py-4 border-b border-blue-grey/20 bg-cream/30 flex items-center justify-between">
+                  <h3 className="font-heading font-bold text-text-primary text-base">Company Leaderboard Standings</h3>
+                  <span className="text-xs text-text-muted font-medium">{leaderboard.length} Ranked Members</span>
+                </div>
+
+                <div className="divide-y divide-blue-grey/15">
+                  {leaderboard.map((emp) => (
                     <div
-                      key={e.employeeId}
-                      className={`flex items-center gap-4 p-4 rounded-xl border transition-all ${
-                        e.rank <= 3
-                          ? 'bg-gradient-to-r from-yellow-500/10 to-amber-500/5 border-yellow-500/20'
-                          : 'bg-white/5 border-white/10 hover:bg-white/10'
-                      }`}
+                      key={emp.employeeId}
+                      className="px-6 py-4 flex items-center justify-between hover:bg-cream/40 transition-colors"
                     >
-                      <RankBadge rank={e.rank} />
-                      <Avatar name={e.name} src={e.profilePicUrl} size="sm" />
-                      <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-white truncate">{e.name}</div>
-                        {e.jobTitle && (
-                          <div className="text-white/40 text-xs truncate">{e.jobTitle}</div>
-                        )}
-                      </div>
-                      {/* Badges (first 4) */}
-                      <div className="hidden sm:flex gap-1">
-                        {e.badges.slice(0, 4).map((b) => (
-                          <span key={b.key} title={b.label} className="text-base">{b.emoji}</span>
-                        ))}
-                      </div>
-                      {/* Streak */}
-                      {e.streak > 0 && (
-                        <div className="flex items-center gap-1 bg-orange-500/20 border border-orange-500/30 rounded-full px-2 py-0.5 text-xs font-medium text-orange-300">
-                          <span>🔥</span>
-                          <span>{e.streak}d</span>
+                      <div className="flex items-center space-x-4">
+                        <RankBadge rank={emp.rank} />
+                        <Avatar name={emp.name} src={emp.profilePicUrl} size="sm" />
+                        <div>
+                          <div className="font-heading font-semibold text-text-primary text-sm flex items-center space-x-2">
+                            <span>{emp.name}</span>
+                            {emp.streak >= 7 && (
+                              <span className="bg-orange-50 text-orange-700 border border-orange-200 rounded-full px-2 py-0.5 text-[10px] font-bold">
+                                🔥 {emp.streak}d
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-xs text-text-muted">{emp.jobTitle || 'Employee'}</div>
                         </div>
-                      )}
-                      {/* Points */}
-                      <div className="text-right">
-                        <div className="font-bold text-yellow-300">{e.total.toLocaleString()}</div>
-                        <div className="text-white/40 text-xs">pts</div>
+                      </div>
+
+                      {/* Badges preview */}
+                      <div className="flex items-center space-x-6">
+                        <div className="hidden sm:flex items-center space-x-1.5">
+                          {emp.badges.slice(0, 4).map((b) => (
+                            <span
+                              key={b.key}
+                              title={b.label}
+                              className="w-7 h-7 rounded-lg bg-cream border border-blue-grey/20 flex items-center justify-center text-sm"
+                            >
+                              {b.emoji}
+                            </span>
+                          ))}
+                        </div>
+
+                        <div className="text-right">
+                          <div className="font-heading font-bold text-slate-brand text-base font-mono">
+                            {emp.total.toLocaleString()}
+                          </div>
+                          <div className="text-[11px] text-text-muted uppercase tracking-wider">Points</div>
+                        </div>
                       </div>
                     </div>
                   ))}
+
                   {leaderboard.length === 0 && (
-                    <div className="text-center py-20 text-white/30">
-                      <div className="text-4xl mb-3">🏆</div>
-                      No rankings yet. Check in to start earning points!
+                    <div className="p-12 text-center text-text-muted text-sm">
+                      No points recorded yet. Check in daily to climb the leaderboard!
                     </div>
                   )}
                 </div>
-              </>
-            )}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* ── TAB 2: STORE / GOODIES ──────────────────────────────────────────── */}
+      {tab === 'store' && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-2xl border border-blue-grey/25 shadow-card p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 className="font-heading font-bold text-text-primary text-lg">Employee Perks & Goodies Store</h3>
+              <p className="text-sm text-text-muted mt-1">
+                Redeem your points for real vouchers, digital passes, and company merchandise.
+              </p>
+            </div>
+            <div className="flex items-center space-x-2 bg-sage-light/30 border border-sage-deep/30 rounded-2xl px-4 py-2">
+              <span className="text-lg">⚡</span>
+              <span className="text-xs font-semibold text-text-primary">
+                Rewards ≤ 500 Pts auto-approved instantly
+              </span>
+            </div>
           </div>
-        )}
 
-        {/* ── STORE TAB ─────────────────────────────────────────────────────── */}
-        {tab === 'store' && (
-          <div>
-            <p className="text-white/40 text-sm mb-6">
-              You have <span className="text-yellow-300 font-bold">{myPoints.toLocaleString()} pts</span> to spend. Rewards ≤ 500 pts are auto-approved.
-            </p>
-            {catLoading ? (
-              <div className="text-white/40 text-center py-20">Loading store...</div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {catalogue.map((r) => {
-                  const canAfford = myPoints >= r.pointCost;
-                  const outOfStock = r.stockCount === 0;
-                  const isAutoApproved = r.pointCost <= 500;
+          {catLoading ? (
+            <div className="bg-white rounded-2xl p-16 border border-blue-grey/20 text-center text-text-muted">
+              <div className="w-8 h-8 border-3 border-slate-brand/20 border-t-slate-brand rounded-full animate-spin mx-auto mb-3" />
+              Loading goodies catalogue...
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {catalogue.map((reward) => {
+                const canAfford = myPoints >= reward.pointCost;
+                const isAutoApproved = reward.pointCost <= 500;
+                const outOfStock = reward.stockCount === 0;
 
-                  return (
-                    <div
-                      key={r.id}
-                      className={`rounded-2xl border p-5 flex flex-col gap-3 transition-all ${
-                        outOfStock
-                          ? 'bg-white/3 border-white/10 opacity-50'
-                          : canAfford
-                          ? 'bg-gradient-to-br from-white/10 to-white/5 border-white/20 hover:border-indigo-400/40 hover:shadow-lg hover:shadow-indigo-500/10'
-                          : 'bg-white/5 border-white/10 opacity-70'
-                      }`}
-                    >
+                return (
+                  <div
+                    key={reward.id}
+                    className="bg-white rounded-2xl border border-blue-grey/25 shadow-card p-6 flex flex-col justify-between hover:shadow-modal transition-all hover:border-slate-brand/40"
+                  >
+                    <div>
                       <div className="flex items-start justify-between">
-                        <span className="text-4xl">{r.emoji}</span>
+                        <div className="w-14 h-14 rounded-2xl bg-slate-brand/10 border border-slate-brand/20 flex items-center justify-center text-3xl">
+                          {reward.emoji}
+                        </div>
                         <div className="flex flex-col items-end gap-1">
-                          <span className="bg-yellow-400/20 border border-yellow-400/30 rounded-full px-2.5 py-0.5 text-yellow-300 text-xs font-bold">
-                            {r.pointCost.toLocaleString()} pts
+                          <span className="bg-slate-brand/10 text-slate-brand font-heading font-bold text-sm px-3 py-1 rounded-full border border-slate-brand/20 font-mono">
+                            {reward.pointCost.toLocaleString()} Pts
                           </span>
                           {isAutoApproved && (
-                            <span className="text-green-400 text-xs">⚡ Auto-approved</span>
+                            <span className="text-[11px] font-bold text-sage-deep flex items-center gap-0.5">
+                              <Zap className="w-3 h-3 text-sage-deep" /> Instant
+                            </span>
                           )}
                         </div>
                       </div>
-                      <div>
-                        <div className="font-semibold text-white">{r.name}</div>
-                        <div className="text-white/50 text-sm mt-1">{r.description}</div>
-                      </div>
-                      <div className="flex items-center justify-between mt-auto">
-                        <span className="text-xs text-white/30">
-                          {r.category} {r.stockCount > 0 ? `• ${r.stockCount} left` : r.stockCount === -1 ? '• Unlimited' : ''}
-                        </span>
-                        <button
-                          onClick={() => redeemMut.mutate(r.id)}
-                          disabled={!canAfford || outOfStock || redeemMut.isPending}
-                          className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
-                            outOfStock
-                              ? 'bg-white/10 text-white/30 cursor-not-allowed'
-                              : canAfford
-                              ? 'bg-indigo-600 hover:bg-indigo-500 text-white cursor-pointer'
-                              : 'bg-white/10 text-white/30 cursor-not-allowed'
-                          }`}
-                        >
-                          {outOfStock ? 'Out of Stock' : canAfford ? 'Redeem' : 'Not Enough Pts'}
-                        </button>
-                      </div>
+
+                      <h4 className="font-heading font-bold text-text-primary text-base mt-4">{reward.name}</h4>
+                      <p className="text-xs text-text-muted mt-1 leading-relaxed">{reward.description}</p>
                     </div>
-                  );
-                })}
+
+                    <div className="mt-6 pt-4 border-t border-blue-grey/15 flex items-center justify-between">
+                      <span className="text-xs text-text-muted font-medium">
+                        {reward.category} {reward.stockCount > 0 ? `• ${reward.stockCount} left` : ''}
+                      </span>
+
+                      <button
+                        onClick={() => redeemMut.mutate(reward.id)}
+                        disabled={!canAfford || outOfStock || redeemMut.isPending}
+                        className="bg-slate-brand hover:bg-slate-brand/90 text-white rounded-xl px-4 py-2 text-xs font-semibold transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                      >
+                        {outOfStock ? 'Out of Stock' : canAfford ? 'Redeem Perk' : 'Need More Pts'}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── TAB 3: MY JOURNEY ──────────────────────────────────────────────── */}
+      {tab === 'journey' && (
+        <div className="space-y-8">
+          {statsLoading ? (
+            <div className="bg-white rounded-2xl p-16 border border-blue-grey/20 text-center text-text-muted">
+              <div className="w-8 h-8 border-3 border-slate-brand/20 border-t-slate-brand rounded-full animate-spin mx-auto mb-3" />
+              Loading your journey data...
+            </div>
+          ) : myStats ? (
+            <>
+              {/* Stat Metric Cards (Matching TimeOff page style) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="p-5 rounded-2xl bg-white border border-blue-grey/25 shadow-card flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">Total Balance</span>
+                    <p className="text-2xl font-heading font-bold text-slate-brand mt-1 font-mono">
+                      {myStats.total.toLocaleString()} <span className="text-sm font-normal text-text-muted">Pts</span>
+                    </p>
+                  </div>
+                  <div className="w-11 h-11 rounded-2xl bg-slate-brand/10 text-slate-brand flex items-center justify-center border border-slate-brand/20 text-xl">
+                    🪙
+                  </div>
+                </div>
+
+                <div className="p-5 rounded-2xl bg-white border border-blue-grey/25 shadow-card flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">Current Streak</span>
+                    <p className="text-2xl font-heading font-bold text-orange-600 mt-1 font-mono">
+                      {String(myStats.streak).padStart(2, '0')} <span className="text-sm font-normal text-text-muted">Days</span>
+                    </p>
+                  </div>
+                  <div className="w-11 h-11 rounded-2xl bg-orange-100 text-orange-600 flex items-center justify-center border border-orange-200">
+                    <Flame className="w-5 h-5 fill-orange-500 text-orange-500" />
+                  </div>
+                </div>
+
+                <div className="p-5 rounded-2xl bg-white border border-blue-grey/25 shadow-card flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">Personal Best</span>
+                    <p className="text-2xl font-heading font-bold text-text-primary mt-1 font-mono">
+                      {String(myStats.maxStreak).padStart(2, '0')} <span className="text-sm font-normal text-text-muted">Days</span>
+                    </p>
+                  </div>
+                  <div className="w-11 h-11 rounded-2xl bg-cream text-text-primary flex items-center justify-center border border-blue-grey/25">
+                    <Zap className="w-5 h-5 text-slate-brand" />
+                  </div>
+                </div>
+
+                <div className="p-5 rounded-2xl bg-white border border-blue-grey/25 shadow-card flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">Badges Earned</span>
+                    <p className="text-2xl font-heading font-bold text-sage-deep mt-1 font-mono">
+                      {String(myStats.badges.length).padStart(2, '0')} <span className="text-sm font-normal text-text-muted">Badges</span>
+                    </p>
+                  </div>
+                  <div className="w-11 h-11 rounded-2xl bg-sage-light/40 text-sage-deep flex items-center justify-center border border-sage-deep/30">
+                    <Award className="w-5 h-5 text-sage-deep" />
+                  </div>
+                </div>
               </div>
-            )}
-          </div>
-        )}
 
-        {/* ── MY JOURNEY TAB ────────────────────────────────────────────────── */}
-        {tab === 'journey' && (
-          <div className="space-y-6 pb-10">
-            {statsLoading ? (
-              <div className="text-white/40 text-center py-20">Loading your stats...</div>
-            ) : myStats ? (
-              <>
-                {/* Stats cards */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  {[
-                    { label: 'Total Points', value: myStats.total.toLocaleString(), icon: '🪙', color: 'from-yellow-500/20 to-amber-500/10 border-yellow-500/30' },
-                    { label: 'Current Streak', value: `${myStats.streak}d`, icon: '🔥', color: 'from-orange-500/20 to-red-500/10 border-orange-500/30' },
-                    { label: 'Best Streak', value: `${myStats.maxStreak}d`, icon: '⚡', color: 'from-blue-500/20 to-indigo-500/10 border-blue-500/30' },
-                    { label: 'Badges Earned', value: myStats.badges.length, icon: '🏅', color: 'from-purple-500/20 to-pink-500/10 border-purple-500/30' },
-                  ].map((s) => (
-                    <div key={s.label} className={`bg-gradient-to-br ${s.color} border rounded-2xl p-4`}>
-                      <div className="text-2xl mb-1">{s.icon}</div>
-                      <div className="text-2xl font-bold text-white">{s.value}</div>
-                      <div className="text-white/50 text-xs">{s.label}</div>
-                    </div>
-                  ))}
+              {/* Badges Collection Wall */}
+              <div className="bg-white rounded-2xl border border-blue-grey/25 shadow-card p-6">
+                <div className="flex items-center justify-between pb-4 border-b border-blue-grey/15 mb-6">
+                  <div>
+                    <h3 className="font-heading font-bold text-text-primary text-base">Your Badges & Achievements</h3>
+                    <p className="text-xs text-text-muted mt-0.5">Special honours unlocked through consistent presence & contribution</p>
+                  </div>
+                  <span className="text-xs font-bold text-slate-brand bg-slate-brand/10 px-3 py-1 rounded-full border border-slate-brand/20">
+                    {myStats.badges.length} Unlocked
+                  </span>
                 </div>
 
-                {/* Badges */}
-                <div>
-                  <h2 className="text-lg font-bold text-white mb-3">🏅 Badges</h2>
-                  {myStats.badges.length === 0 ? (
-                    <div className="bg-white/5 rounded-xl p-6 text-center text-white/30 text-sm">
-                      No badges yet. Start checking in to earn your first badge!
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                      {myStats.badges.map((b) => (
-                        <div
-                          key={b.key}
-                          className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl p-4 flex flex-col items-center gap-2 text-center"
-                        >
-                          <span className="text-3xl">{b.emoji}</span>
-                          <div className="font-semibold text-white text-sm">{b.label}</div>
-                          <div className="text-white/40 text-xs">{b.description}</div>
-                          <div className="text-white/30 text-xs">{new Date(b.earnedAt).toLocaleDateString()}</div>
+                {myStats.badges.length === 0 ? (
+                  <div className="p-8 text-center text-text-muted text-sm bg-cream/30 rounded-xl border border-blue-grey/15">
+                    No badges unlocked yet. Keep checking in daily on time to earn your first badge!
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {myStats.badges.map((badge) => (
+                      <div
+                        key={badge.key}
+                        className="p-4 rounded-xl bg-cream/30 border border-blue-grey/20 flex items-center space-x-3"
+                      >
+                        <div className="w-12 h-12 rounded-xl bg-white border border-blue-grey/20 shadow-sm flex items-center justify-center text-2xl">
+                          {badge.emoji}
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Recent Transactions */}
-                <div>
-                  <h2 className="text-lg font-bold text-white mb-3">📊 Recent Activity</h2>
-                  <div className="flex flex-col gap-2">
-                    {myStats.recentTransactions.length === 0 ? (
-                      <div className="bg-white/5 rounded-xl p-6 text-center text-white/30 text-sm">
-                        No activity yet.
+                        <div>
+                          <div className="font-heading font-bold text-text-primary text-sm">{badge.label}</div>
+                          <div className="text-[11px] text-text-muted leading-tight">{badge.description}</div>
+                          <div className="text-[10px] text-text-muted/70 mt-1 font-mono">
+                            {new Date(badge.earnedAt).toLocaleDateString()}
+                          </div>
+                        </div>
                       </div>
-                    ) : (
-                      myStats.recentTransactions.map((t, i) => (
-                        <div
-                          key={i}
-                          className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl px-4 py-3"
-                        >
-                          <div>
-                            <div className="text-sm font-medium text-white">
-                              {REASON_LABELS[t.reason] ?? t.reason}
-                            </div>
-                            {t.description && (
-                              <div className="text-white/40 text-xs">{t.description}</div>
-                            )}
-                            <div className="text-white/30 text-xs">{new Date(t.createdAt).toLocaleString()}</div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Activity Log & Redemptions Side-by-Side */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Recent Points Activity */}
+                <div className="bg-white rounded-2xl border border-blue-grey/25 shadow-card p-6">
+                  <h3 className="font-heading font-bold text-text-primary text-base mb-4">Recent Points History</h3>
+                  <div className="divide-y divide-blue-grey/15 max-h-80 overflow-y-auto">
+                    {myStats.recentTransactions.map((tx, idx) => (
+                      <div key={idx} className="py-3 flex items-center justify-between text-xs">
+                        <div>
+                          <div className="font-semibold text-text-primary">
+                            {REASON_LABELS[tx.reason] || tx.reason}
                           </div>
-                          <div className={`font-bold text-sm ${t.amount >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                            {t.amount >= 0 ? '+' : ''}{t.amount} pts
-                          </div>
+                          {tx.description && <div className="text-text-muted text-[11px]">{tx.description}</div>}
+                          <div className="text-text-muted text-[10px]">{new Date(tx.createdAt).toLocaleDateString()}</div>
                         </div>
-                      ))
+                        <span className={`font-mono font-bold text-sm ${tx.amount >= 0 ? 'text-sage-deep' : 'text-terracotta'}`}>
+                          {tx.amount >= 0 ? `+${tx.amount}` : tx.amount} pts
+                        </span>
+                      </div>
+                    ))}
+                    {myStats.recentTransactions.length === 0 && (
+                      <div className="py-6 text-center text-text-muted text-xs">No transactions recorded yet.</div>
                     )}
                   </div>
                 </div>
 
-                {/* Redemption History */}
-                {myStats.redemptions.length > 0 && (
-                  <div>
-                    <h2 className="text-lg font-bold text-white mb-3">🛒 Redemption History</h2>
-                    <div className="flex flex-col gap-2">
-                      {myStats.redemptions.map((r) => (
-                        <div
-                          key={r.id}
-                          className="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl px-4 py-3"
-                        >
-                          <div className="flex items-center gap-3">
-                            <span className="text-2xl">{r.reward.emoji}</span>
-                            <div>
-                              <div className="text-sm font-medium text-white">{r.reward.name}</div>
-                              <div className="text-white/30 text-xs">{new Date(r.createdAt).toLocaleString()}</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <span className="text-red-400 font-bold text-sm">-{r.pointCost} pts</span>
-                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                              r.status === 'APPROVED' ? 'bg-green-500/20 text-green-400' :
-                              r.status === 'PENDING_HR' ? 'bg-yellow-500/20 text-yellow-400' :
-                              'bg-red-500/20 text-red-400'
-                            }`}>
-                              {r.status === 'APPROVED' ? '✓ Approved' : r.status === 'PENDING_HR' ? '⏳ Pending HR' : '✗ Rejected'}
-                            </span>
+                {/* Redemptions History */}
+                <div className="bg-white rounded-2xl border border-blue-grey/25 shadow-card p-6">
+                  <h3 className="font-heading font-bold text-text-primary text-base mb-4">Redemption Orders</h3>
+                  <div className="divide-y divide-blue-grey/15 max-h-80 overflow-y-auto">
+                    {myStats.redemptions.map((redemption) => (
+                      <div key={redemption.id} className="py-3 flex items-center justify-between text-xs">
+                        <div className="flex items-center space-x-2.5">
+                          <span className="text-xl">{redemption.reward.emoji}</span>
+                          <div>
+                            <div className="font-semibold text-text-primary">{redemption.reward.name}</div>
+                            <div className="text-text-muted text-[10px]">{new Date(redemption.createdAt).toLocaleDateString()}</div>
                           </div>
                         </div>
-                      ))}
-                    </div>
+
+                        <div className="flex items-center space-x-2">
+                          <span className="font-mono text-terracotta font-bold">-{redemption.pointCost} pts</span>
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              redemption.status === 'APPROVED'
+                                ? 'bg-sage-light text-text-primary'
+                                : redemption.status === 'PENDING_HR'
+                                ? 'bg-cream text-slate-brand border border-blue-grey/25'
+                                : 'bg-terracotta/15 text-terracotta'
+                            }`}
+                          >
+                            {redemption.status === 'APPROVED' ? 'Approved' : redemption.status === 'PENDING_HR' ? 'Pending HR' : 'Rejected'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                    {myStats.redemptions.length === 0 && (
+                      <div className="py-6 text-center text-text-muted text-xs">No reward redemptions yet.</div>
+                    )}
                   </div>
-                )}
-              </>
-            ) : null}
-          </div>
-        )}
-      </div>
+                </div>
+              </div>
+            </>
+          ) : null}
+        </div>
+      )}
     </div>
   );
 }

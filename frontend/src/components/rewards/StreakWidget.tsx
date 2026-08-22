@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { Link } from 'react-router-dom';
+import { Flame } from 'lucide-react';
 
 export function StreakWidget() {
   const { data } = useQuery({
@@ -19,30 +20,22 @@ export function StreakWidget() {
   return (
     <Link
       to="/rewards"
-      className="flex items-center gap-2 bg-white/10 hover:bg-white/20 transition-colors rounded-full px-3 py-1.5 text-sm font-medium text-white border border-white/20"
-      title="View your rewards & leaderboard"
+      className="flex items-center space-x-2 bg-cream/70 hover:bg-cream border border-blue-grey/25 rounded-full px-3 py-1 text-xs font-semibold text-text-primary transition-all group shadow-sm"
+      title="View your Rewards, Streak & Company Leaderboard"
     >
-      <span className={`text-base transition-transform ${streak > 0 ? 'animate-flame' : ''}`}>
-        {streak > 0 ? '🔥' : '💤'}
-      </span>
-      <span className="tabular-nums">
-        {streak > 0 ? `${streak}d` : '—'}
-      </span>
-      <span className="hidden sm:inline text-white/60">•</span>
-      <span className="hidden sm:flex items-center gap-1 text-yellow-300">
-        <span>🪙</span>
-        <span className="tabular-nums">{total.toLocaleString()}</span>
-      </span>
+      <div className="flex items-center space-x-1">
+        <Flame className={`w-3.5 h-3.5 ${streak > 0 ? 'text-orange-500 fill-orange-500 animate-pulse' : 'text-text-muted'}`} />
+        <span className="font-mono text-text-primary font-bold">
+          {streak > 0 ? `${streak}d` : '0d'}
+        </span>
+      </div>
 
-      <style>{`
-        @keyframes flameAnim {
-          0%, 100% { transform: scale(1) rotate(-3deg); }
-          50% { transform: scale(1.15) rotate(3deg); }
-        }
-        .animate-flame {
-          animation: flameAnim 1.8s ease-in-out infinite;
-        }
-      `}</style>
+      <span className="text-blue-grey/60 font-normal">|</span>
+
+      <div className="flex items-center space-x-1 text-slate-brand">
+        <span>🪙</span>
+        <span className="font-mono font-bold">{total.toLocaleString()}</span>
+      </div>
     </Link>
   );
 }
