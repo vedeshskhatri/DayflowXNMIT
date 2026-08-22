@@ -141,7 +141,7 @@ describe('Employee Profile Module (Frontend)', () => {
 
     await waitFor(() => {
       expect(screen.getByTestId('salary-info-tab')).toBeInTheDocument();
-      expect(screen.getByText('Compensation & Salary Structure')).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /Salary Info/i })).toBeInTheDocument();
     });
   });
 
