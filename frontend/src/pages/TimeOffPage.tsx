@@ -524,21 +524,26 @@ export const TimeOffPage: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 animate-fadeIn">
       {/* Header Banner */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-6 border-b border-blue-grey/20">
-        <div>
-          <div className="flex items-center space-x-3">
-            <h1 className="text-2xl sm:text-3xl font-heading font-bold text-text-primary tracking-tight">
-              Time Off Management
-            </h1>
-            {isAdmin && (
-              <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-sans font-semibold bg-slate-brand/10 text-slate-brand border border-slate-brand/20">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span>Admin / Approver View</span>
-              </span>
-            )}
+        <div className="flex items-center space-x-4">
+          <div className="w-14 h-14 rounded-2xl bg-white border border-blue-grey/25 shadow-card flex items-center justify-center text-3xl hover:scale-105 transition-all group flex-shrink-0">
+            <CalendarDays className="w-7 h-7 text-slate-brand group-hover:scale-110 transition-transform" />
           </div>
-          <p className="text-xs sm:text-sm text-text-muted mt-1 font-sans">
-            Leave balance tracking, requests submission, and multi-user live approvals.
-          </p>
+          <div>
+            <div className="flex items-center space-x-3">
+              <h1 className="text-2xl sm:text-3xl font-heading font-bold text-text-primary tracking-tight">
+                Time Off Management
+              </h1>
+              {isAdmin && (
+                <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-sans font-semibold bg-slate-brand/10 text-slate-brand border border-slate-brand/20">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Admin / Approver View</span>
+                </span>
+              )}
+            </div>
+            <p className="text-xs sm:text-sm text-text-muted mt-1 font-sans">
+              Leave balance tracking, requests submission, and multi-user live approvals.
+            </p>
+          </div>
         </div>
       </div>
 
