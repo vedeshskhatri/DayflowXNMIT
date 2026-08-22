@@ -6,9 +6,9 @@ import { handleGetSalary, handleUpsertSalary } from './payroll.controller';
 
 const router = Router();
 
-router.get('/employees/:id/salary', requireAuth, handleGetSalary);
+router.get('/:id/salary', requireAuth, handleGetSalary);
 router.patch(
-  '/employees/:id/salary',
+  '/:id/salary',
   requireAuth,
   requireRole('ADMIN'),
   validate(upsertSalarySchema),
