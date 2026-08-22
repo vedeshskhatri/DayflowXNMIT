@@ -122,11 +122,12 @@ function BalanceCardsBar({ balances }: { balances: Balance[] }) {
 
 import { TimeOffCalendar } from '../components/timeoff/TimeOffCalendar';
 
-// ─── Employee View ─────────────────────────────────────────────────────────────
+// ─── Employee View (Wireframe: For Employees View Image 1) ─────────────────────
 
 function EmployeeView() {
   const qc = useQueryClient();
   const [modalOpen, setModalOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string | undefined>(undefined);
 
   const { data: balances = [] } = useQuery<Balance[]>({
     queryKey: ['timeoff', 'balances'],
@@ -160,32 +161,45 @@ function EmployeeView() {
   }, [qc]);
 
   return (
-    <div className="space-y-6">
-      {/* Top Action Row with NEW Button (Wireframe: Time Off [NEW]) */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-heading font-bold text-text-primary">Time Off</h2>
-          <p className="text-xs text-text-muted">Manage and track your leave applications</p>
+    <div className="space-y-6 animate-fadeIn">
+      {/* ── Subheader & NEW Action Bar (Exact Wireframe Image 1) ── */}
+      <div className="space-y-3">
+        {/* Tab box: Time Off */}
+        <div className="inline-block px-5 py-2 rounded-xl bg-[#523330] border border-[#784641] text-white font-heading font-bold text-sm tracking-wide shadow-sm">
+          Time Off
         </div>
-        <button
-          type="button"
-          onClick={() => setModalOpen(true)}
-          className="btn-primary flex items-center space-x-2 text-xs font-semibold py-2.5 px-5 shadow-sm"
-        >
-          <Plus className="w-4 h-4" />
-          <span>NEW</span>
-        </button>
+
+        {/* Action button: NEW [Purple] */}
+        <div>
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedDate(undefined);
+              setModalOpen(true);
+            }}
+            className="px-6 py-2 rounded-xl bg-[#a855f7] hover:bg-[#9333ea] text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 flex items-center space-x-2"
+          >
+            <Plus className="w-4 h-4" />
+            <span>NEW</span>
+          </button>
+        </div>
       </div>
 
-      {/* Balance Cards Bar */}
+      {/* ── Quota Cards (Wireframe: Paid time Off 24 Days | Sick time off 07 Days) ── */}
       <BalanceCardsBar balances={balances} />
 
-      {/* Interactive Time-Off Calendar (Year, Month, Week, Day view modes) */}
-      <TimeOffCalendar requests={requests} />
+      {/* ── Yearly Matrix Calendar with Legend & Public Holidays ── */}
+      <TimeOffCalendar
+        requests={requests}
+        onDateClick={(dateStr) => {
+          setSelectedDate(dateStr);
+          setModalOpen(true);
+        }}
+      />
 
-      {/* Personal Requests Table */}
-      <div className="p-5 rounded-2xl bg-white border border-blue-grey/20 shadow-sm space-y-4">
-        <h3 className="font-heading font-semibold text-sm text-text-primary">
+      {/* ── Leave History Table ── */}
+      <div className="p-6 rounded-3xl bg-white border border-blue-grey/20 shadow-sm space-y-4">
+        <h3 className="font-heading font-bold text-sm text-text-primary">
           My Leave History
         </h3>
 
@@ -229,7 +243,12 @@ function EmployeeView() {
         )}
       </div>
 
-      <NewRequestModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
+      {/* Modal with Wireframe Design */}
+      <NewRequestModal
+        isOpen={modalOpen}
+        defaultStartDate={selectedDate}
+        onClose={() => setModalOpen(false)}
+      />
     </div>
   );
 }
