@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api, ResetPasswordResponse } from '../lib/api';
 import { Lock, CheckCircle2, Circle, AlertCircle, ArrowRight, KeyRound } from 'lucide-react';
+import { AuthBackground } from '../components/AuthBackground';
 
 export const ResetPassword: React.FC = () => {
   const { user, updateUser } = useAuth();
@@ -55,8 +56,11 @@ export const ResetPassword: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-cream flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 py-12 relative">
-      <div className="w-full max-w-md space-y-8">
+    <div className="min-h-screen bg-cream flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 py-12 relative overflow-hidden">
+      {/* Subtle animated background scenes & ambient shapes */}
+      <AuthBackground />
+
+      <div className="w-full max-w-md space-y-8 relative z-10">
         <div className="text-center space-y-2">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-slate-brand text-white font-heading font-bold text-2xl shadow-lg ring-4 ring-white">
             <KeyRound className="w-7 h-7" />
