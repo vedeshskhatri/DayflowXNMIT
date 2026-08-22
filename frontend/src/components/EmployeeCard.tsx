@@ -73,7 +73,10 @@ export const StatusDot: React.FC<{ status: EmployeeStatus; className?: string }>
   if (status === 'PRESENT') {
     return (
       <span
+        data-testid="status-dot"
+        data-status="PRESENT"
         className={`inline-block w-2.5 h-2.5 rounded-full bg-[#BDCFAA] shadow-[0_0_6px_rgba(189,207,170,0.8)] ${className}`}
+        style={{ backgroundColor: '#BDCFAA' }}
         title="Present"
       />
     );
@@ -82,7 +85,10 @@ export const StatusDot: React.FC<{ status: EmployeeStatus; className?: string }>
   if (status === 'ON_LEAVE') {
     return (
       <span
+        data-testid="status-dot"
+        data-status="ON_LEAVE"
         className={`inline-block w-2.5 h-2.5 rounded-full bg-[#8E9E83] relative overflow-hidden shadow-[0_0_6px_rgba(142,158,131,0.8)] ${className}`}
+        style={{ backgroundColor: '#8E9E83' }}
         title="On Leave"
       >
         <span className="absolute top-0 right-0 w-1/2 h-full bg-white opacity-60" />
@@ -93,7 +99,10 @@ export const StatusDot: React.FC<{ status: EmployeeStatus; className?: string }>
   // ABSENT
   return (
     <span
+      data-testid="status-dot"
+      data-status="ABSENT"
       className={`inline-block w-2.5 h-2.5 rounded-full bg-[#C97B63] shadow-[0_0_6px_rgba(201,123,99,0.8)] ${className}`}
+      style={{ backgroundColor: '#C97B63' }}
       title="Absent"
     />
   );
