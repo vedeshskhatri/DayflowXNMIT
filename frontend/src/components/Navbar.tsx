@@ -98,15 +98,19 @@ export const Navbar: React.FC = () => {
                 <span className="font-medium text-text-primary">{getStatusLabel(user.status)}</span>
               </div>
 
-              {/* User Avatar + Details */}
-              <div className="flex items-center space-x-3 pl-2 border-l border-blue-grey/30">
-                <div className="w-9 h-9 rounded-full bg-slate-brand/15 text-slate-brand font-heading font-bold flex items-center justify-center text-sm border border-slate-brand/20">
+              {/* User Avatar + Details (Links to /profile) */}
+              <Link
+                to="/profile"
+                className="flex items-center space-x-3 pl-2 border-l border-blue-grey/30 group hover:opacity-85 transition-opacity"
+                title="View My Profile"
+              >
+                <div className="w-9 h-9 rounded-full bg-slate-brand/15 text-slate-brand font-heading font-bold flex items-center justify-center text-sm border border-slate-brand/20 group-hover:scale-105 transition-transform">
                   {user.firstName[0]}
                   {user.lastName[0]}
                 </div>
                 <div className="flex flex-col text-left">
                   <div className="flex items-center space-x-1.5">
-                    <span className="text-sm font-semibold text-text-primary leading-none">
+                    <span className="text-sm font-semibold text-text-primary leading-none group-hover:text-slate-brand transition-colors">
                       {user.firstName} {user.lastName}
                     </span>
                     {user.role !== 'EMPLOYEE' && (
@@ -118,7 +122,7 @@ export const Navbar: React.FC = () => {
                   </div>
                   <span className="text-xs text-text-muted mt-0.5">{user.loginId}</span>
                 </div>
-              </div>
+              </Link>
 
               {/* Logout Button */}
               <button
@@ -156,18 +160,22 @@ export const Navbar: React.FC = () => {
           {user ? (
             <>
               <div className="flex items-center justify-between pb-3 border-b border-blue-grey/20">
-                <div className="flex items-center space-x-3">
+                <Link
+                  to="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center space-x-3"
+                >
                   <div className="w-10 h-10 rounded-full bg-slate-brand/15 text-slate-brand font-bold flex items-center justify-center">
                     {user.firstName[0]}
                     {user.lastName[0]}
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-text-primary">
+                    <div className="text-sm font-semibold text-text-primary hover:text-slate-brand">
                       {user.firstName} {user.lastName}
                     </div>
                     <div className="text-xs text-text-muted">{user.loginId}</div>
                   </div>
-                </div>
+                </Link>
                 <div className="flex items-center space-x-1.5 bg-cream px-2.5 py-1 rounded-full text-xs">
                   <span className={`w-2 h-2 rounded-full ${getStatusDotClass(user.status)}`} />
                   <span className="font-medium">{getStatusLabel(user.status)}</span>

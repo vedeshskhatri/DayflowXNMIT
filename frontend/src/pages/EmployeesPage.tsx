@@ -5,7 +5,8 @@ import { useAuth } from '../context/AuthContext';
 import { getSocket } from '../lib/socket';
 import { EmployeeCard, EmployeeStatus } from '../components/EmployeeCard';
 import { AttendanceControl } from '../components/AttendanceControl';
-import { Users, Search } from 'lucide-react';
+import { AddEmployeeModal } from '../components/AddEmployeeModal';
+import { Users, Search, UserPlus } from 'lucide-react';
 
 interface EmployeeItem {
   id: string;
@@ -23,6 +24,7 @@ export const EmployeesPage: React.FC = () => {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [addModalOpen, setAddModalOpen] = useState(false);
 
   // Fetch employees list
   const { data: employees, isLoading, isError } = useQuery<EmployeeItem[]>({
@@ -96,8 +98,17 @@ export const EmployeesPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Prominent Check In / Check Out Action */}
-        <div className="flex-shrink-0">
+        {/* Prominent Check In / Check Out Action & Add Employee */}
+        <div className="flex items-center space-x-3 flex-shrink-0">
+          {(user?.role === 'ADMIN' || user?.role === 'HR_OFFICER') && (
+            <button
+              onClick={() => setAddModalOpen(true)}
+              className="btn-secondary py-2.5 px-4 text-sm font-semibold flex items-center space-x-2 shadow-sm border border-slate-brand/30 text-slate-brand hover:bg-slate-brand/10 transition-colors"
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>Add Employee</span>
+            </button>
+          )}
           <AttendanceControl />
         </div>
       </div>
@@ -200,6 +211,12 @@ export const EmployeesPage: React.FC = () => {
           ))}
         </div>
       )}
+
+      {/* Add Employee Modal (Admin/HR Only) */}
+      <AddEmployeeModal
+        isOpen={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
+      />
     </div>
   );
 };
