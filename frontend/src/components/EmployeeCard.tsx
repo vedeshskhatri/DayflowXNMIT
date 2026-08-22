@@ -61,52 +61,51 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
   return (
     <Link
       to={`/employees/${id}`}
-      className="group relative bg-white rounded-3xl shadow-card p-5 border border-navy/10 flex flex-col items-center text-center hover:shadow-elevated hover:border-copper/40 transition-all duration-300 overflow-hidden block"
+      className="group relative bg-white rounded-2xl shadow-card p-4 border border-blue-grey/20 flex flex-col items-center text-center hover:shadow-xl hover:-translate-y-1 transition-all duration-300 block"
     >
-      {/* Top Subtle Copper Accent line on hover */}
-      <div className="absolute top-0 inset-x-0 h-1 bg-transparent group-hover:bg-copper transition-colors duration-300" />
-
-      {/* Top Badges Bar: Streak & Presence Status */}
-      <div className="w-full flex items-center justify-between mb-2">
+      {/* Top Status & Streak Badges */}
+      <div className="w-full flex items-center justify-between">
+        {/* Streak badge if > 0 */}
         {streak > 0 ? (
           <span
-            className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-copper-muted text-copper-dark border border-copper/30 text-[10px] font-mono font-bold shadow-xs"
+            className="inline-flex items-center space-x-1 px-2 py-0.5 rounded-full bg-orange-50 text-orange-700 border border-orange-200 text-[10px] font-mono font-bold shadow-xs"
             title={`${streak}-day active check-in streak`}
           >
-            <Flame className="w-3 h-3 text-copper fill-copper animate-pulse" />
+            <Flame className="w-3 h-3 text-orange-500 fill-orange-500 animate-pulse" />
             <span>{streak}d</span>
           </span>
         ) : (
           <span />
         )}
 
+        {/* Live Status Indicator in top-right corner */}
         <div className="flex items-center space-x-1.5" title={`Status: ${status}`}>
           <StatusDot status={status} />
-          <span className="text-[10px] font-bold text-text-muted capitalize font-mono">
+          <span className="text-[10px] font-medium text-text-muted capitalize">
             {status === 'PRESENT' ? 'Present' : status === 'ON_LEAVE' ? 'On Leave' : 'Absent'}
           </span>
         </div>
       </div>
 
-      {/* Avatar */}
+      {/* Avatar with optional live glow */}
       <div className="relative mb-3 mt-1">
         {profilePicUrl ? (
           <img
             src={profilePicUrl}
             alt={fullName}
-            className={`w-18 h-18 rounded-2xl object-cover ring-2 ${
+            className={`w-16 h-16 rounded-full object-cover ring-2 ${
               status === 'PRESENT'
-                ? 'ring-[#BDCFAA] shadow-[0_0_12px_rgba(189,207,170,0.6)]'
-                : 'ring-navy/10 shadow-sm'
-            } group-hover:scale-105 transition-transform duration-300`}
+                ? 'ring-[#BDCFAA] shadow-[0_0_12px_rgba(189,207,170,0.7)]'
+                : 'ring-blue-grey/20 shadow-sm'
+            } group-hover:scale-105 transition-transform`}
           />
         ) : (
           <div
-            className={`w-18 h-18 rounded-2xl bg-navy text-white flex items-center justify-center ring-2 ${
+            className={`w-16 h-16 rounded-full bg-slate-brand/10 text-slate-brand flex items-center justify-center ring-2 ${
               status === 'PRESENT'
-                ? 'ring-[#BDCFAA] shadow-[0_0_12px_rgba(189,207,170,0.6)]'
-                : 'ring-navy/10 shadow-sm'
-            } font-heading font-bold text-lg group-hover:scale-105 transition-transform duration-300`}
+                ? 'ring-[#BDCFAA] shadow-[0_0_12px_rgba(189,207,170,0.7)]'
+                : 'ring-blue-grey/20 shadow-sm'
+            } font-heading font-bold text-lg group-hover:scale-105 transition-transform`}
           >
             {initials || 'EM'}
           </div>
@@ -117,9 +116,9 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
       <h3 className="font-heading font-bold text-[15px] text-text-primary group-hover:text-slate-brand transition-colors flex items-center justify-center space-x-1.5 tracking-tight">
         <span>{fullName}</span>
         {role && role !== 'EMPLOYEE' && (
-          <span className="inline-flex items-center text-[9px] font-sans font-bold px-1.5 py-0.5 rounded bg-copper-muted text-copper-dark border border-copper/30">
+          <span className="inline-flex items-center text-[9px] font-sans font-bold px-1.5 py-0.2 rounded bg-slate-brand/15 text-slate-brand">
             <ShieldCheck className="w-2.5 h-2.5 mr-0.5" />
-            {role === 'HR_OFFICER' ? 'HR' : role}
+            {role}
           </span>
         )}
       </h3>
@@ -129,7 +128,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
       </p>
 
       {department && (
-        <span className="mt-2 inline-block px-2.5 py-0.5 rounded-full text-[10px] font-sans font-semibold bg-cream text-navy-dark border border-navy/10 font-mono">
+        <span className="mt-2 inline-block px-2.5 py-0.5 rounded-full text-[10px] font-sans font-semibold bg-slate-brand/10 text-slate-brand border border-slate-brand/20">
           {department}
         </span>
       )}
@@ -140,19 +139,19 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
           {skills.slice(0, 2).map((skill, idx) => (
             <span
               key={skill.id || idx}
-              className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-cream-light text-navy border border-navy/10 truncate max-w-[90px]"
+              className="px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-brand/5 text-slate-brand border border-slate-brand/15 truncate max-w-[90px]"
             >
               {skill.name}
             </span>
           ))}
           {skills.length > 2 && (
-            <span className="text-[10px] text-text-muted self-center font-mono">+{skills.length - 2}</span>
+            <span className="text-[10px] text-text-muted self-center">+{skills.length - 2}</span>
           )}
         </div>
       )}
 
       {/* Hover Quick Action Buttons */}
-      <div className="mt-3 pt-3 border-t border-navy/10 w-full flex items-center justify-center space-x-2">
+      <div className="mt-3 pt-3 border-t border-blue-grey/15 w-full flex items-center justify-center space-x-2">
         {email && (
           <button
             type="button"
@@ -161,7 +160,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
               e.stopPropagation();
               window.location.href = `mailto:${email}`;
             }}
-            className="p-1.5 rounded-xl bg-cream hover:bg-cream-light text-text-muted hover:text-navy border border-navy/10 transition-all text-xs cursor-pointer"
+            className="p-1.5 rounded-lg bg-cream/70 hover:bg-slate-brand/10 text-text-muted hover:text-slate-brand border border-blue-grey/20 transition-all text-xs"
             title={`Send email to ${email}`}
           >
             <Mail className="w-3.5 h-3.5" />
@@ -172,11 +171,11 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
           <button
             type="button"
             onClick={handleCopyId}
-            className="p-1.5 rounded-xl bg-cream hover:bg-cream-light text-text-muted hover:text-navy border border-navy/10 transition-all text-xs flex items-center space-x-1 cursor-pointer"
+            className="p-1.5 rounded-lg bg-cream/70 hover:bg-slate-brand/10 text-text-muted hover:text-slate-brand border border-blue-grey/20 transition-all text-xs flex items-center space-x-1"
             title="Copy Login ID"
           >
             {copied ? <Check className="w-3.5 h-3.5 text-sage-deep" /> : <Copy className="w-3.5 h-3.5" />}
-            {copied && <span className="text-[10px] text-sage-deep font-bold font-mono">Copied!</span>}
+            {copied && <span className="text-[10px] text-sage-deep font-semibold">Copied!</span>}
           </button>
         )}
 
@@ -184,7 +183,7 @@ export const EmployeeCard: React.FC<EmployeeCardProps> = ({
           <button
             type="button"
             onClick={handlePreviewClick}
-            className="p-1.5 rounded-xl bg-cream hover:bg-cream-light text-text-muted hover:text-navy border border-navy/10 transition-all text-xs cursor-pointer"
+            className="p-1.5 rounded-lg bg-cream/70 hover:bg-slate-brand/10 text-text-muted hover:text-slate-brand border border-blue-grey/20 transition-all text-xs"
             title="Quick Preview Panel"
           >
             <Eye className="w-3.5 h-3.5" />
@@ -222,7 +221,7 @@ export const StatusDot: React.FC<{ status: EmployeeStatus; className?: string }>
     );
   }
 
-  // ABSENT
+  // 🔴 Absent (terracotta per DESIGN-SYSTEM.md)
   return (
     <span
       data-testid="status-dot"
